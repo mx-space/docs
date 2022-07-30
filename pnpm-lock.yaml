@@ -6,7 +6,7 @@ specifiers:
   '@types/prismjs': '*'
   '@vue/theme': 1.0.4
   '@vueuse/core': 9.0.2
-  '@vueuse/head': 0.7.6
+  '@vueuse/head': 0.7.8
   husky: 8.0.1
   lint-staged: 13.0.3
   markdown-it: '*'
@@ -25,7 +25,7 @@ dependencies:
   '@types/prismjs': 1.26.0
   '@vue/theme': 1.0.4_vue@3.2.37
   '@vueuse/core': 9.0.2_vue@3.2.37
-  '@vueuse/head': 0.7.6_vue@3.2.37
+  '@vueuse/head': 0.7.8_vue@3.2.37
   markdown-it: 13.0.0
   markdown-it-checkbox: 1.1.0
   prismjs: 1.27.0
@@ -469,8 +469,8 @@ packages:
       - vue
     dev: false
 
-  /@vueuse/head/0.7.6_vue@3.2.37:
-    resolution: {integrity: sha512-cOWqCkT3WiF5oEpw+VVEWUJd9RLD5rc7DmnFp3cePsejp+t7686uKD9Z9ZU7Twb7R/BI8iexKTmXo9D/F3v6UA==}
+  /@vueuse/head/0.7.8_vue@3.2.37:
+    resolution: {integrity: sha512-D0lFcCgynjzTVVHM2RsQShDxKfjgbc2vhzeLqkOyH0lKEV3iv4xJ8ZSIW47V4XC6erGpnM2z2XGnwltMZFn7oA==}
     peerDependencies:
       vue: '>=3'
     dependencies:
