@@ -86,7 +86,6 @@ server{
 - API 地址为 `https://server.example.com/api/v2`
 - 前端（Kami/Shiro）地址为 `https://www.example.com` 
 - GateWay 为 `https://server.example.com`
-- 后台为 `https://server.example.com/qaqdmin`
 - 本地后台为 `https://server.example.com/proxy/qaqdmin`
 </Callout>
 
@@ -123,11 +122,7 @@ server {
     }
     ## 后台地址
     location /qaqdmin {
-        proxy_pass http://127.0.0.1:2333/qaqdmin;
-    }
-    ## 本地后台地址
-    location /proxy {
-        proxy_pass http://127.0.0.1:2333/proxy;
+        proxy_pass http://127.0.0.1:2333/proxy/qaqdmin;
     }
     ## RSS 地址
     location ~* \/(feed|sitemap|atom.xml) {
@@ -171,11 +166,9 @@ server {
         proxy_pass http://127.0.0.1:2323; 
     }
     location /qaqdmin {
-        proxy_pass http://127.0.0.1:2333/qaqdmin;
+        proxy_pass http://127.0.0.1:2333/proxy/qaqdmin;
     }
-    location /proxy {
-        proxy_pass http://127.0.0.1:2333/proxy;
-    }
+
     location ~* \/(feed|sitemap|atom.xml) {
         proxy_pass http://127.0.0.1:2333/$1; 
     }
@@ -198,7 +191,6 @@ server {
 - API 地址为 `https://www.example.com/api/v2`
 - 前端（Kami/Shiro）地址为 `https://www.example.com` 
 - GateWay 为 `https://www.example.com`
-- 后台为 `https://www.example.com/qaqdmin`
 - 本地后台为 `https://www.example.com/proxy/qaqdmin`
 </Callout>
 

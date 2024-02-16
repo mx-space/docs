@@ -1,11 +1,12 @@
 # 进阶部署
 
-import { Callout } from 'nextra/components';
+import { Callout } from 'nextra/components'
 
 <Callout type="error">
 在您进行进阶部署前，我们给予最后的警告：如果你**不是开发者**，或者**不想折腾**，请不要选择**进阶部署**，因为它需要你具备一定的开发能力。
 
 由于自身技术原因导致的问题，我们将**不会提供任何技术支持**。情节严重者，我们将**永久拉黑**您的账号。
+
 </Callout>
 
 ## 要求
@@ -14,7 +15,7 @@ import { Callout } from 'nextra/components';
 - 已安装 [Git](https://git-scm.com/downloads), [PNPM](https://pnpm.io/installation), [PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)
 - 已安装 [MongoDB](https://www.mongodb.com/try/download/community), [Redis](https://redis.io/download) 并正常运行
 
-import { Steps } from 'nextra/components';
+import { Steps } from 'nextra/components'
 
 <Steps>
 ### 1. 克隆并安装
@@ -34,14 +35,9 @@ pnpm bundle
 
 ### 3. 配置 ecosystem.config.js
 
-<Configurator 
+<Configurator
   args={['--color', '--encrypt_enable']}
   env={{
-    MX_ENCRYPT_KEY: {
-      type: 'password',
-      tip: '加密密钥，可选',
-      default: null,
-    },
     PORT: {
       type: 'number',
       tip: '服务端口，可选',
@@ -102,9 +98,6 @@ pm2 start ecosystem.config.js
 
 </Steps>
 
-
-
-
 import { useState, useEffect } from 'react';
 import copy from 'copy-to-clipboard';
 
@@ -115,43 +108,44 @@ export const Configurator = ({ args, template, env }) => {
   );
   const [nowTemplate, setNowTemplate] = useState(template);
 
-  const handleToggleArg = (arg) => {
-    if (selectedArgs.includes(arg)) {
-      setSelectedArgs(selectedArgs.filter((item) => item !== arg));
-    } else {
-      setSelectedArgs([...selectedArgs, arg]);
-    }
-  };
+const handleToggleArg = (arg) => {
+if (selectedArgs.includes(arg)) {
+setSelectedArgs(selectedArgs.filter((item) => item !== arg));
+} else {
+setSelectedArgs([...selectedArgs, arg]);
+}
+};
 
-  const handleChange = (index, value) => {
-    const updatedEnvValues = [...envValues];
-    updatedEnvValues[index] = value;
-    setEnvValues(updatedEnvValues);
-  };
+const handleChange = (index, value) => {
+const updatedEnvValues = [...envValues];
+updatedEnvValues[index] = value;
+setEnvValues(updatedEnvValues);
+};
 
-  const handleCopyToClipboard = () => {
-    copy(updatedEnvTemplate);
-  };
+const handleCopyToClipboard = () => {
+copy(updatedEnvTemplate);
+};
 
-  useEffect(() => {
-    const updatedTemplate = nowTemplate.replace(
-      /args:\s*'([^']*)'/,
-      `args: '${selectedArgs.join(' ')}'`
-    );
-    const updatedEnvTemplate = updatedTemplate.replace(
-      /env:\s*{([^}]*)}/,
-      `env: {
+useEffect(() => {
+const updatedTemplate = nowTemplate.replace(
+/args:\s*'([^']*)'/,
+`args: '${selectedArgs.join(' ')}'`
+);
+const updatedEnvTemplate = updatedTemplate.replace(
+/env:\s*{([^}]*)}/,
+`env: {
         ${Object.keys(env)
         .map((key, index) => `${key}: '${envValues[index]}'`)
         .join(', \n        ')}
       }`
-    );
-    setNowTemplate(updatedEnvTemplate);
-  }, [selectedArgs, envValues]);
+);
+setNowTemplate(updatedEnvTemplate);
+}, [selectedArgs, envValues]);
 
-  return (
-    <div>
-      <div className="p-4 mt-2">
+return (
+
+<div>
+<div className="p-4 mt-2">
 
       <div id="config" className="border rounded-lg overflow-hidden h-12 mb-4 dark:border-gray-700 " style={{
         height: "66.4px",
@@ -259,5 +253,6 @@ export const Configurator = ({ args, template, env }) => {
           复制
         </button>
     </div>
-  );
+
+);
 };

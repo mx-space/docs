@@ -10,7 +10,7 @@
   "search": "Algolia Search",
   "backup": "备份与回滚",
   "update": "更新 Mix Space",
-  "security": "信息加密与安全性",
+  "security": "Key 加密与安全性",
   "-- community": {
     "type": "separator",
     "title": "社区使用指南"

@@ -71,8 +71,11 @@ import { EnvVariableConfig } from '@components/EnvVariableConfig'
 - **`加密密钥`**：如果你不知道这是什么，那么不建议开启此功能，具体内容可参考 https://mx-space.js.org/usage/security.html
 
 <Callout type="warning">
-  若开启加密，则需注意密钥长度**必须为 64
-  位**，不然会在初始化时报错。注意这是**不可逆**的，务必保存自己的秘钥。所以并不是非常推荐使用，除非你真的需要加密，
+  若开启加密，则需注意密钥长度**必须为 64 位且只有小写字母和数字**，不然会在初始化时报错。注意这是**不可逆**的，务必保存自己的秘钥。所以并不是非常推荐使用，除非你真的需要加密
+  API Key.
+
+密钥可以通过 `openssl rand -hex 32` 命令生成。请务必牢记。
+
 </Callout>
 
 ### 启动 Core
