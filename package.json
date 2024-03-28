@@ -22,7 +22,7 @@
     "autoprefixer": "^10.4.16",
     "clsx": "^2.0.0",
     "copy-to-clipboard": "^3.3.3",
-    "framer-motion": "^10.16.5",
+    "framer-motion": "^11.0.23",
     "next": "^13.3.0",
     "nextra": "latest",
     "nextra-theme-docs": "latest",
