@@ -310,7 +310,30 @@ import { EnvVariableConfig } from '@components/EnvVariableConfig'
 
 ## 通过预构建运行 & Docker Compose
 
-参见 [README 相关部分](https://github.com/Innei/Shiro/blob/main/README.md#whale-运行) 完成对应操作，随后配置[反向代理](/docs/extra#反向代理)。
+### 🔨通过预构建运行
+
+首先在 [Shiro Release](https://github.com/Innei/Shiro/releases) 中下载预构建好的 `release.zip`。然后解压它并进入解压后目录。
+
+```bash
+cd standalone
+vim .env # 粘贴在 准备步骤-配置环境变量 中所复制的内容
+export PORT=2323
+node server.js
+```
+
+### 📚使用 Docker Compose
+
+```bash
+mkdir shiro
+cd shiro
+wget https://raw.githubusercontent.com/Innei/Shiro/main/docker-compose.yml
+wget https://raw.githubusercontent.com/Innei/Shiro/main/.env.template .env
+
+vim .env # 粘贴在 准备步骤-配置环境变量 中所复制的内容
+docker compose up -d
+```
+
+随后配置[反向代理](/docs/extra#反向代理)。
 
 ## Clerk 登录与 Mix Space 后端绑定
 

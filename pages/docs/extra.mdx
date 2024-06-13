@@ -206,13 +206,36 @@ server {
 
 如果你需要使用来自 (远端 / 非容器) 的 Redis 服务，你可以通过使用 `argv` 来动态传入对应的配置项。
 
-支持传入如下值：
+支持传入如下值：（变量名在 Docker 中均为大写）
 
 - `redis_host` Redis 服务地址，域名、IP 都可以
 - `redis_port` Redis 服务端口
 - `redis_password` Redis 服务密码
+- `disable_cache` 是否禁用缓存，默认不启用
 
 在默认情况下，我们认为这样已经足够了。
+
+### 对于 Docker 部署
+
+和编辑其他环境变量一样，在 `service.app` 的 `environment` 部分添加你需要传入的值，如下所示：
+
+```diff
+services:
+  app:
+    container_name: mx-server
+    image: innei/mx-server:latest
+    environment:
+      - TZ=Asia/Shanghai
+      - NODE_ENV=production
+      - DB_HOST=mongo
+-     - REDIS_HOST=redis
++     - REDIS_HOST=远端地址
++     - REDIS_PASSWORD=redis?passwd
+      - ALLOWED_ORIGINS=localhost
+      - JWT_SECRET=YOUR_SUPER_SECURED_JWT_SECRET_STRING
+    volumes:
+      - ./data/mx-space:/root/.mx-space
+```
 
 ### 对于进阶部署
 
@@ -247,17 +270,42 @@ pnpm prod:pm2
 
 如果你需要使用来自 (远端 / 非容器) 的 MongoDB 服务，你可以通过使用 `argv` 来动态传入对应的配置项。
 
-支持传入如下值：
+支持传入如下值：（除 `collection_name` 外其余变量名在 Docker 中变量均为对应大写）
 
-- `collection_name` 数据库集合名字
+- `collection_name` 数据库集合名字（Docker 对应变量为 `DB_COLLECTION_NAME`）
 - `db_host` MongoDB 服务地址，域名、IP 都可以
 - `db_port` MongoDB 服务端口
 - `db_user` MongoDB 服务用户名
 - `db_password` MongoDB 服务密码
+- `db_connection_string` MongoDB 数据库连接地址（以 `mongodb://` 开头的一串内容），此配置项优先级大于上述五项
+- `db_options` MongoDB 数据库连接选项
 
 <Callout type="warning" emoji="⚠️">
 如果你需要使用密码登录，你不仅仅需要传入 password，还需要传入 user，建议你对数据库集合划分好用户权限
 </Callout>
+
+### 对于 Docker 部署
+
+和编辑其他环境变量一样，在 `services.app` 的 `environment` 部分添加你需要传入的值，如下所示：
+
+```diff
+services:
+  app:
+    container_name: mx-server
+    image: innei/mx-server:latest
+    environment:
+      - TZ=Asia/Shanghai
+      - NODE_ENV=production
+-     - DB_HOST=mongo
++     - DB_HOST=远端地址
++     - DB_USER=mongodb-test
++     - DB_PASSWORD=db?passwd
+      - REDIS_HOST=redis
+      - ALLOWED_ORIGINS=localhost
+      - JWT_SECRET=YOUR_SUPER_SECURED_JWT_SECRET_STRING
+    volumes:
+      - ./data/mx-space:/root/.mx-space
+```
 
 ### 对于进阶部署
 
