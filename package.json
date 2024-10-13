@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/mogland/mog-docs#readme",
   "dependencies": {
-    "@openpanel/nextjs": "0.0.6-beta",
+    "@openpanel/nextjs": "1.0.5",
     "@vercel/og": "^0.5.20",
     "autoprefixer": "^10.4.16",
     "clsx": "^2.0.0",
