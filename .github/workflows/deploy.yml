@@ -29,6 +29,9 @@ jobs:
         run: |
           bun install
           bun run build
+      - name: Sync search index
+        run: |
+          bun run sync-search
       - name: Add CNAME
         run: |
           echo "mx-space.js.org" > out/CNAME
