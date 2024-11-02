@@ -34,14 +34,15 @@ var y=(0,chunk_RPAKKUMI.a)(e=>e.toLowerCase().split("-").map(o=>o.charAt(0).toUp
  */
 //# sourceMappingURL=index.mjs.map
 ;// CONCATENATED MODULE: ./app/components/search-orama.tsx
+/* provided dependency */ var process = __webpack_require__(357);
 /* __next_internal_client_entry_do_not_use__ default auto */ 
 
 function SearchDialog(props) {
     return /*#__PURE__*/ (0,jsx_runtime.jsx)(We, {
         ...props,
         index: {
-            endpoint: "https://cloud.orama.run/v1/indexes/mxspace-no50lj",
-            api_key: "HHIpRwosmxFfAs7l2gsJv5m5A3ew2PRB"
+            endpoint: process.env.NEXT_PUBLIC_ORAMA_ENDPOINT || "https://cloud.orama.run/v1/indexes/mxspace-no50lj",
+            api_key: process.env.NEXT_PUBLIC_ORAMA_API_KEY || "HHIpRwosmxFfAs7l2gsJv5m5A3ew2PRB"
         },
         resultMap: {
             path: "url",
