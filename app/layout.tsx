@@ -1,16 +1,25 @@
 import './global.css';
 import { Provider } from './components/provider';
-import { Inter } from 'next/font/google';
+import { Oxanium, Noto_Serif_SC } from 'next/font/google';
 import type { ReactNode } from 'react';
 
-const inter = Inter({
+const oxanium = Oxanium({
   subsets: ['latin'],
+  variable: '--font-oxanium',
+  display: 'swap'
+});
+
+const notoSerifSC = Noto_Serif_SC({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-noto-serif-sc',
+  display: 'swap'
 });
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={inter.className} suppressHydrationWarning>
-      <body>
+    <html lang="zh-CN" suppressHydrationWarning>
+      <body className={`${oxanium.variable} ${notoSerifSC.variable}`}>
         <Provider>
           {children}
         </Provider>

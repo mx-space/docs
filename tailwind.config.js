@@ -14,4 +14,12 @@ export default {
       preset: 'vitepress',
     }),
   ],
+  theme: {
+    extend: {
+      fontFamily: {
+        oxanium: ['var(--font-oxanium)'],
+        notoSerif: ['var(--font-noto-serif)'],
+      },
+    },
+  },
 };
