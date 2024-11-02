@@ -28,36 +28,66 @@ import {
 
 // 修改 Powered 组件，使用新的 SVG 组件
 function Powered(): React.ReactElement {
+  const technologies = [
+    {
+      name: 'Vercel',
+      icon: SiVercel,
+      href: 'https://vercel.com',
+      description: '为现代 web 提供最佳托管平台'
+    },
+    {
+      name: 'Next.js',
+      icon: SiNextdotjs,
+      href: 'https://nextjs.org',
+      description: 'React 框架，为生产环境而生'
+    },
+    {
+      name: 'Vue',
+      icon: SiVuedotjs,
+      href: 'https://vuejs.org',
+      description: '渐进式 JavaScript 框架'
+    },
+    {
+      name: 'Docker',
+      icon: SiDocker,
+      href: 'https://www.docker.com',
+      description: '领先的容器化平台'
+    },
+    {
+      name: 'MongoDB',
+      icon: SiMongodb,
+      href: 'https://www.mongodb.com',
+      description: '现代化的 NoSQL 数据库'
+    },
+    {
+      name: 'Redis',
+      icon: SiRedis,
+      href: 'https://redis.io',
+      description: '高性能的内存数据存储'
+    }
+  ];
+
   return (
     <div className="flex flex-col items-center border-x border-t px-4 py-16 text-center">
-      <h2 className="mb-8 text-xl font-semibold sm:text-2xl">
-        技术支持
+      <h2 className="mb-12 text-xl font-semibold sm:text-2xl">
+        由业界领先的技术驱动
       </h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-        <a href="https://vercel.com" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
-          <SiVercel size={32} />
-          <span className="text-sm text-fd-muted-foreground">Vercel</span>
-        </a>
-        <a href="https://nextjs.org" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
-          <SiNextdotjs size={32} />
-          <span className="text-sm text-fd-muted-foreground">Next.js</span>
-        </a>
-        <a href="https://vuejs.org" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
-          <SiVuedotjs size={32} />
-          <span className="text-sm text-fd-muted-foreground">Vue</span>
-        </a>
-        <a href="https://www.docker.com" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
-          <SiDocker size={32} />
-          <span className="text-sm text-fd-muted-foreground">Docker</span>
-        </a>
-        <a href="https://www.mongodb.com" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
-          <SiMongodb size={32} />
-          <span className="text-sm text-fd-muted-foreground">MongoDB</span>
-        </a>
-        <a href="https://redis.io" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
-          <SiRedis size={32} />
-          <span className="text-sm text-fd-muted-foreground">Redis</span>
-        </a>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl">
+        {technologies.map((tech) => (
+          <a 
+            key={tech.name}
+            href={tech.href}
+            className="group flex items-center gap-4 rounded-xl border p-4 transition-colors hover:border-primary hover:bg-secondary/40"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg border bg-background group-hover:border-primary">
+              <tech.icon size={24} className="text-primary" />
+            </div>
+            <div className="text-left">
+              <div className="font-medium">{tech.name}</div>
+              <div className="text-sm text-muted-foreground">{tech.description}</div>
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   );
