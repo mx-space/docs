@@ -17,8 +17,51 @@ import {
   PersonStandingIcon 
 } from 'lucide-react';
 import { ReactNode } from 'react';
+import { 
+  SiVercel,
+  SiNextdotjs,
+  SiVuedotjs,
+  SiDocker,
+  SiMongodb,
+  SiRedis 
+} from 'react-icons/si'  // si 代表 Simple Icons
 
-
+// 修改 Powered 组件，使用新的 SVG 组件
+function Powered(): React.ReactElement {
+  return (
+    <div className="flex flex-col items-center border-x border-t px-4 py-16 text-center">
+      <h2 className="mb-8 text-xl font-semibold sm:text-2xl">
+        技术支持
+      </h2>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
+        <a href="https://vercel.com" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
+          <SiVercel size={24} />
+          <span className="text-sm text-fd-muted-foreground">Vercel</span>
+        </a>
+        <a href="https://nextjs.org" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
+          <SiNextdotjs size={24} />
+          <span className="text-sm text-fd-muted-foreground">Next.js</span>
+        </a>
+        <a href="https://vuejs.org" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
+          <SiVuedotjs size={24} />
+          <span className="text-sm text-fd-muted-foreground">Vue</span>
+        </a>
+        <a href="https://www.docker.com" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
+          <SiDocker size={24} />
+          <span className="text-sm text-fd-muted-foreground">Docker</span>
+        </a>
+        <a href="https://www.mongodb.com" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
+          <SiMongodb size={24} />
+          <span className="text-sm text-fd-muted-foreground">MongoDB</span>
+        </a>
+        <a href="https://redis.io" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
+          <SiRedis size={24} />
+          <span className="text-sm text-fd-muted-foreground">Redis</span>
+        </a>
+      </div>
+    </div>
+  );
+}
 
 export default function Page(): React.ReactElement {
   return (
@@ -86,6 +129,7 @@ export default function Page(): React.ReactElement {
               你可以在后台设置前端的配置，比如网站名称，网站描述，网站图标，以及一些其他配置。
             </Highlight>
           </div>
+          <Powered />
           <Contributing />
         </div>
       </main>
@@ -302,7 +346,7 @@ function Contributing(): React.ReactElement {
     <div className="flex flex-col items-center border-x border-t px-4 py-16 text-center">
       <Heart className="mb-4" />
       <h2 className="mb-4 text-xl font-semibold sm:text-2xl">
-        MixSpace 由你创造
+        MixSpace 是由像你一样的人创造的
       </h2>
       <p className="mb-4 text-fd-muted-foreground">
        MixSpace 由 100% 的热情和开源社区提供动力
