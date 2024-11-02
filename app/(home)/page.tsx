@@ -1,4 +1,4 @@
-import { Heart, LucideIcon } from 'lucide-react';
+import { Heart, LucideIcon, MousePointerClick, Code2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/utils/cn';
@@ -25,6 +25,40 @@ import {
   SiMongodb,
   SiRedis 
 } from 'react-icons/si'  // si 代表 Simple Icons
+
+// 添加特性数据数组
+const highlights = [
+  {
+    icon: RocketIcon,
+    heading: "基于Next.js",
+    description: "内置代码分割和图片优化，服务器端渲染（SSR）支持，性能强劲，速度快，SEO 友好。"
+  },
+  {
+    icon: TimerIcon,
+    heading: "前端轻量快速",
+    description: "其前端主题 Shiro 在 LightHouse 中表现优秀，Performance 和 Best practice 指数均大于 90%。"
+  },
+  {
+    icon: LayoutIcon,
+    heading: "UI 现代化",
+    description: "前端后端用户界面设计现代化，简洁而不简单，让你的体验更加流畅。"
+  },
+  {
+    icon: PencilLine,
+    heading: "Markdown 语法支持",
+    description: "Mix Space 原生支持Markdown语法，也支持自定义 Markdown 内语法，您可以使用自定义语法来丰富您的内容。"
+  },
+  {
+    icon: KeyboardIcon,
+    heading: "后台云函数配置",
+    description: "无限扩展、无限可能，通过Core内置的云函数配置功能实现歌单解析，追番列表等功能，还有更多。"
+  },
+  {
+    icon: PersonStandingIcon,
+    heading: "动态化配置前端",
+    description: "你可以在后台设置前端的配置，比如网站名称，网站描述，网站图标，以及一些其他配置。"
+  }
+];
 
 // 修改 Powered 组件，使用新的 SVG 组件
 function Powered(): React.ReactElement {
@@ -69,8 +103,8 @@ function Powered(): React.ReactElement {
 
   return (
     <div className="flex flex-col items-center border-x border-t px-4 py-16 text-center">
-      <h2 className="mb-12 text-xl font-semibold sm:text-2xl">
-        由业界领先的技术驱动
+      <h2 className="mb-12 text-xl font-semibold sm:text-2xl flex items-center gap-2">
+        <Code2 className="size-5" /> Development
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl">
         {technologies.map((tech) => (
@@ -141,25 +175,21 @@ export default function Page(): React.ReactElement {
           </div>
 
           <Feedback />
-          <div className="grid grid-cols-1 border-r md:grid-cols-2 lg:grid-cols-3">
-            <Highlight icon={RocketIcon} heading="基于Next.js">
-              内置代码分割和图片优化，服务器端渲染（SSR）支持，性能强劲，速度快，SEO 友好。
-            </Highlight>
-            <Highlight icon={TimerIcon} heading="前端轻量快速">
-              其前端主题 Shiro 在 LightHouse 中表现优秀，Performance 和 Best practice 指数均大于 90%。
-            </Highlight>
-            <Highlight icon={LayoutIcon} heading="UI 现代化">
-              前端后端用户界面设计现代化，简洁而不简单，让你的体验更加流畅。
-            </Highlight>
-            <Highlight icon={PencilLine} heading="Markdown 语法支持">
-              Mix Space 原生支持Markdown语法，也支持自定义 Markdown 内语法，您可以使用自定义语法来丰富您的内容。
-            </Highlight>
-            <Highlight icon={KeyboardIcon} heading="后台云函数配置">
-              无限扩展、无限可能，通过Core内置的云函数配置功能实现歌单解析，追番列表等功能，还有更多。
-            </Highlight>
-            <Highlight icon={PersonStandingIcon} heading="动态化配置前端">
-              你可以在后台设置前端的配置，比如网站名称，网站描述，网站图标，以及一些其他配置。
-            </Highlight>
+          <div className="flex flex-col items-center border-x border-t px-4 py-16 text-center">
+            <h2 className="mb-12 text-xl font-semibold sm:text-2xl flex items-center gap-2">
+              <MousePointerClick className="size-5" /> Highlight
+            </h2>
+            <div className="grid grid-cols-1 border-r md:grid-cols-2 lg:grid-cols-3 w-full">
+              {highlights.map((item, index) => (
+                <Highlight 
+                  key={index} 
+                  icon={item.icon} 
+                  heading={item.heading}
+                >
+                  {item.description}
+                </Highlight>
+              ))}
+            </div>
           </div>
           <Powered />
           <Contributing />
