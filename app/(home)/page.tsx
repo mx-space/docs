@@ -67,7 +67,7 @@ function Powered(): React.ReactElement {
       name: 'Vercel',
       icon: SiVercel,
       href: 'https://vercel.com',
-      description: '为现代 web 提供最佳托管平台'
+      description: '为现代 Web 提供最佳托管平台'
     },
     {
       name: 'Next.js',
@@ -104,7 +104,7 @@ function Powered(): React.ReactElement {
   return (
     <div className="flex flex-col items-center border-x border-t px-4 py-16 text-center">
       <h2 className="mb-12 text-xl font-semibold sm:text-2xl flex items-center gap-2">
-        <Code2 className="size-5" /> Development
+        <Code2 className="size-5" /> Development By
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl">
         {technologies.map((tech) => (
@@ -177,7 +177,7 @@ export default function Page(): React.ReactElement {
           <Feedback />
           <div className="flex flex-col items-center border-x border-t px-4 py-16 text-center">
             <h2 className="mb-12 text-xl font-semibold sm:text-2xl flex items-center gap-2">
-              <MousePointerClick className="size-5" /> Highlight
+              <MousePointerClick className="size-5" /> Highlight Features
             </h2>
             <div className="grid grid-cols-1 border-r md:grid-cols-2 lg:grid-cols-3 w-full">
               {highlights.map((item, index) => (
