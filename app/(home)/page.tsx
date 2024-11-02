@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/utils/cn';
 import { buttonVariants } from '@/app/components/ui/button';
-import { UwuHero } from '@/app/(home)/uwu';
+
 import ContributorCounter from '@/app/components/contributor-count';
 import Img from './img.png';
 import { 
@@ -39,7 +39,6 @@ export default function Page(): React.ReactElement {
         >
           <div className="relative">
             <Hero />
-            <UwuHero />
           </div>
           <Feedback />
           <div
