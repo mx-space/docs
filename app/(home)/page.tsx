@@ -316,7 +316,7 @@ function Contributing(): React.ReactElement {
           加入开源社区
         </Link>
       </div>
-      <ContributorCounter repoOwner="mx-space" repoName="docs" />
+      <ContributorCounter repoOwner="mx-space" repoName="docs-v2-legacy" />
     </div>
   );
 }
