@@ -1,0 +1,16 @@
+{
+  "index": "使用指南",
+  "description": "探索 MixSpace 的使用方式",
+  "icon": "BookMarked",
+  "root": true,
+  "pages": [
+    "---文档---",
+    "serverless",
+    "xlog",
+    "search",
+    "backup",
+    "update",
+    "security",
+    "oauth"
+  ]
+}

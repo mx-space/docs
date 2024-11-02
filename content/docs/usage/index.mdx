@@ -1,0 +1,62 @@
+---
+title: 使用指南
+description: 探索 MixSpace 的使用方式
+---
+
+本章节将会带您了解 Mix Space 的一些功能，以及如何使用它们。
+
+
+<Callout type="info">
+温馨提示：此指南需要一定的基础知识 & 理解能力，请准备好哦～
+</Callout>
+
+### 官方指南
+
+import { 
+  Database,
+  Search,
+  LifeBuoy,
+  Bitcoin,
+  History,
+  ArrowUp,
+  Key,
+  Lock
+} from 'lucide-react'
+
+<Cards>
+  <Card
+    icon={<Database />}
+    href={'/docs/usage/serverless'}
+    title="云函数"
+  />
+  <Card
+    icon={<Search />}
+    href={'/docs/usage/search'}
+    title="Algolia Search"
+  />
+  <Card 
+    icon={<Bitcoin />}
+    href={'/docs/usage/xlog'} 
+    title="xLog 集成" 
+  />
+  <Card
+    icon={<History />}
+    href={'/docs/usage/backup'}
+    title="备份与回滚"
+  />
+  <Card
+    icon={<ArrowUp />}
+    href={'/docs/usage/update'}
+    title="更新 Mix Space"
+  />
+  <Card
+    icon={<Key />}
+    href={'/docs/usage/security'}
+    title="Key 加密与安全性"
+  />
+  <Card
+    icon={<Lock />}
+    href={'/docs/usage/oauth'}
+    title="OAuth 2.0"
+  />
+</Cards>

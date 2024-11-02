@@ -1,0 +1,70 @@
+---
+title: 引言
+icon: CirclePlay
+---
+
+<Callout type="warn">
+在本章节，我们将完成的是 **后端** 的安装，而 **前端** 的安装则需要你阅读 [前端主题文档](/themes)。
+</Callout>
+
+**Mix Space** 是一个一款简洁而不简单的个人博客系统，它够快，够现代。你可以利用它构建一个属于自己的个人空间，记录生活，分享知识。
+
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+ 
+<Accordions>
+<Accordion title="系统要求">
+ 
+- **Linux** / **macOS**
+- Linux 内核版本 >= **4.19**
+- Memory >= **1G**
+ 
+</Accordion>
+</Accordions>
+
+## 快速开始
+
+<Callout type="info">
+我们提供了两种部署方式，并且社区也提供了更多的部署方式，你可以根据自己的喜好选择一种部署方式。
+</Callout>
+
+import { Container, Pickaxe, Share2, Ellipsis, Paintbrush } from 'lucide-react';
+
+<Cards>
+  <Card title="Docker 部署" href="/docs/core/docker" icon={<Container />} />
+  <Card title="进阶部署" href="/docs/core/advanced" icon={<Pickaxe />} />
+  <Card title="拓展内容" href="/docs/core/extra" icon={<Ellipsis />} />
+  <Card title="社区分享" href="/docs/core/community" icon={<Share2 />} />
+</Cards>
+
+还有更多部署方式吗？欢迎您向文档提交 [Pull Request](https://github.com/mx-space/docs/pulls) 以分享您的部署方式。按上方**后端部署文档**完成你的部署后，你可以通过下面的方式继续部署 Mix Space **前端** *（为什么分开部署？请查看 [一些你需要知道的事情](#一些你需要知道的事情)）*
+
+<Cards>
+  <Card title="浏览前端主题" href="/themes" icon={<Paintbrush />} />
+</Cards>
+
+## 一些你需要知道的事情
+
+### 遇到报错怎么办？
+
+新时代新风气，我们遇到了一个人工智能蓬勃发展的时代，所以在你遇到了问题的时候请**先询问** 各种 Ai 助手程序，它们会帮助你解决大部分疑问。
+
+如果你遇到了一些**人工智能解决不了**的问题，那么请**再次阅读文档**，如果文档依旧没有解决你的问题，那么请在**对应仓库**的 **GitHub Issues** 中提出你的问题，我们会尽快解决。
+
+### Mix Space 的组成结构
+
+import { File, Folder, Files } from 'fumadocs-ui/components/files';
+
+<Files>
+  <Folder name="Mix Space 系统结构" defaultOpen>
+    <Folder name="后端（一般也称为「服务端、Server 端」）" />
+    <Folder name="前端（一般也称为「客户端、网页端、Web 端」）" />
+  </Folder>
+</Files>
+
+所以，**Mix Space** 由两部分组成：**后端** 和 **前端**。如果你没法理解的话，请**先询问** 各种 Ai 助手程序关于前后端分离博客程序的定义，比如`ChatGPT`、`Claude`、`Gemini`、`Kimi` 等等，以此来了解它们、以及知道它们的区别。
+
+总之你需要知道的便是：这不是像 **Typecho**、**WordPress** 这样的「一步曲」就搞定的系统，而是需要 **「两步曲」** 才能完成安装。
+
+但万幸的是，我们开发者已经为你准备好了一切，你只需要按照文档**推荐的步骤**来操作即可，即使你不是开发者，也可以轻松完成安装。
+
+知道了这些，你就可以避免掉大部分的问题了，开始安装体验吧！

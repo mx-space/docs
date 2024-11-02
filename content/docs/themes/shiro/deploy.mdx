@@ -1,0 +1,331 @@
+---
+title: 部署
+description: 一个极简主义的个人网站，纸的纯净和雪的清新
+icon: Hammer
+---
+
+import { ToGitHub } from 'app/components/ToGitHub'
+
+<ToGitHub repo="Innei/Shiro" />
+
+## Demo
+
+## 前提要求
+
+- 你已安装 Mix Space 后端并且已启动
+- （选择 Vercel 部署）已注册 [Vercel](https://vercel.com/) 和 [GitHub](https://github.com/) 账号
+
+<Callout type="warn">
+  自 Core v7 起，已抛弃 Clerk，取而代之的是 GitHub 和 Google 的 OAuth 2.0，
+  配置步骤请参考[OAuth 2.0](/usage/oauth)
+
+  ~~请注意，Shiro 主题的部署教程与初版有所不同，如果你已经部署过 Shiro
+  主题，请重新阅读本文档（尤其是填入配置文件环节，配置有所变化），并阅读
+  [「移除 Edge Config」](#移除-edge-config) 部分。~~
+</Callout>
+
+## 准备步骤
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+import Video from 'app/components/Video'
+
+export function FAQBox({ title, children }) {
+  return (
+    <details
+      className="last-of-type:mb-0 rounded-lg bg-neutral-50 dark:bg-neutral-800 p-2 mt-4"
+    >
+      <summary>
+        <strong className="text-lg">{title}</strong>
+      </summary>
+      <div className="nx-p-2">{children}</div>
+    </details>
+  )
+}
+
+<Steps>
+
+<Step>
+### 设置主题配置
+
+进入 Mix Space 后台，进入「配置与云函数」页面，点击右上角的新增按钮，在编辑页面中，填入以下设置：
+
+- 名称：`shiro`
+- 引用：`theme`
+- 数据类型：`JSON`
+- 数据：（点击下方的按钮复制）
+
+<Callout type="info">
+  请注意，这份配置你需要自行修改成符合你的需求的配置。直接使用下面的配置可能会导致你的博客无法按照你的预期运行。
+
+  下面的配置可能不全，更多配置项的信息请移步 [配置项](./shiro/config.mdx) 了解。
+
+  此外，配置也可写成 yaml 格式，此时数据类型应选择 `YAML`。
+</Callout>
+
+```json showLineNumbers
+{
+  "footer": {
+    "otherInfo": {
+      "date": "2020-{{now}}",
+      "icp": {
+        "text": "萌 ICP 备 20236136 号",
+        "link": "https://icp.gov.moe/?keyword=20236136"
+      }
+    },
+    "linkSections": [
+      {
+        "name": "关于",
+        "links": [
+          {
+            "name": "关于本站",
+            "href": "/about-site"
+          },
+          {
+            "name": "关于我",
+            "href": "/about"
+          },
+          {
+            "name": "关于此项目",
+            "href": "https://github.com/innei/Shiro",
+            "external": true
+          }
+        ]
+      },
+      {
+        "name": "更多",
+        "links": [
+          {
+            "name": "时间线",
+            "href": "/timeline"
+          },
+          {
+            "name": "友链",
+            "href": "/friends"
+          },
+          {
+            "name": "监控",
+            "href": "https://status.innei.in/status/main",
+            "external": true
+          }
+        ]
+      },
+      {
+        "name": "联系",
+        "links": [
+          {
+            "name": "写留言",
+            "href": "/message"
+          },
+          {
+            "name": "发邮件",
+            "href": "mailto:i@innei.ren",
+            "external": true
+          },
+          {
+            "name": "GitHub",
+            "href": "https://github.com/innei",
+            "external": true
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "color": {
+      "light": [
+        "#33A6B8",
+        "#FF6666",
+        "#26A69A",
+        "#fb7287",
+        "#69a6cc",
+        "#F11A7B",
+        "#78C1F3",
+        "#FF6666",
+        "#7ACDF6"
+      ],
+      "dark": [
+        "#F596AA",
+        "#A0A7D4",
+        "#ff7b7b",
+        "#99D8CF",
+        "#838BC6",
+        "#FFE5AD",
+        "#9BE8D8",
+        "#A1CCD1",
+        "#EAAEBA"
+      ]
+    },
+
+    "bg": [
+      "https://github.com/Innei/static/blob/master/images/F0q8mwwaIAEtird.jpeg?raw=true",
+      "https://github.com/Innei/static/blob/master/images/IMG_2111.jpeg.webp.jpg?raw=true"
+    ],
+    "custom": {
+      "css": [],
+      "styles": [],
+      "js": [],
+      "scripts": []
+    },
+    "site": {
+      "favicon": "/innei.svg",
+      "faviconDark": "/innei-dark.svg"
+    },
+    "hero": {
+      "title": {
+        "template": [
+          {
+            "type": "h1",
+            "text": "Hi, I'm ",
+            "class": "font-light text-4xl"
+          },
+          {
+            "type": "h1",
+            "text": "Innei",
+            "class": "font-medium mx-2 text-4xl"
+          },
+          {
+            "type": "h1",
+            "text": "👋。",
+            "class": "font-light text-4xl"
+          },
+          {
+            "type": "br"
+          },
+          {
+            "type": "h1",
+            "text": "A NodeJS Full Stack ",
+            "class": "font-light text-4xl"
+          },
+          {
+            "type": "code",
+            "text": "<Developer />",
+            "class": "font-medium mx-2 text-3xl rounded p-1 bg-gray-200 dark:bg-gray-800/0 hover:dark:bg-gray-800/100 bg-opacity-0 hover:bg-opacity-100 transition-background duration-200"
+          },
+          {
+            "type": "span",
+            "class": "inline-block w-[1px] h-8 -bottom-2 relative bg-gray-800/80 dark:bg-gray-200/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200 group-hover:animation-blink"
+          }
+        ]
+      },
+      "description": "An independent developer coding with love."
+    },
+    "module": {
+      "activity": {
+        "enable": true,
+        "endpoint": "/fn/ps/update"
+      },
+      "donate": {
+        "enable": true,
+        "link": "https://afdian.net/@Innei",
+        "qrcode": [
+          "https://cdn.jsdelivr.net/gh/Innei/img-bed@master/20191211132347.png",
+          "https://cdn.innei.ren/bed/2023/0424213144.png"
+        ]
+      },
+      "bilibili": {
+        "liveId": 1434499
+      }
+    }
+  }
+}
+```
+
+点击按钮保存配置，随后继续进行下面的步骤。
+</Step>
+
+<Step>
+### 配置环境变量
+
+<Video 
+  src="https://pan.vinua.cn/f/GqdSM/shiro_input_env.mp4" 
+  autoPlay={false}
+  controls
+  playsInline
+/>
+
+在下方的配置表格中，填入你的环境变量，然后点击复制按钮，将环境变量复制到剪贴板中。
+
+import { EnvVariableConfig } from 'app/components/EnvVariableConfig'
+
+<EnvVariableConfig
+  variableNames={[
+    {
+      key: 'NEXT_PUBLIC_API_URL',
+      name: '后端 API 地址',
+    },
+    {
+      key: 'NEXT_PUBLIC_GATEWAY_URL',
+      name: '后端网关地址',
+    },
+    {
+      key: 'ENABLE_EXPERIMENTAL_COREPACK',
+      name: 'vercel 部署时启用 corepack（取默认值即可）',
+      defaultVal: '1',
+    },
+  ]}
+/>
+</Step>
+</Steps>
+
+## 通过 Vercel 部署
+
+<Steps>
+
+<Step>
+### 克隆仓库
+
+登陆 GitHub 账号，打开 [Innei/Shiro](https://github.com/Innei/Shiro)，点击右上角的 Fork 按钮，将仓库克隆到你的账号下。
+
+<Video src="https://pan.vinua.cn/f/73dt6/fork_shiro.mp4" />
+</Step>
+
+<Step>
+### 打开 Vercel 创建项目
+
+登陆 Vercel 账号，点击右上角的 New Project 按钮，选择 Import Git Repository，选择你刚刚 Fork 的仓库，点击 Import 按钮，即可进入到项目配置页面。
+
+<Video src="https://pan.vinua.cn/f/52ocj/shiro_create_new_project.mp4" />
+</Step>
+
+<Step>
+### 键入环境变量 & 开始部署
+
+在刚刚进入的 Vercel 项目配置页面中，点击 Environment Variables，然后键盘上的 Ctrl + V 将环境变量粘贴到输入框中，然后点击 Deploy 按钮，等待部署完成。
+
+有关配置自定义域名的教程，请参考 [Vercel 文档](https://vercel.com/docs/custom-domains)。
+
+<Video src="https://pan.vinua.cn/f/g3YfL/shiro_deploy.mp4" />
+</Step>
+</Steps>
+
+## 通过预构建运行 & Docker Compose
+
+参见 [README 相关部分](https://github.com/Innei/Shiro/blob/main/README.md#whale-运行) 完成对应操作，随后配置[反向代理](/docs/core/extra#反向代理)。
+
+## 完成！
+
+至此，你已完成了 Shiro 主题的部署，你可以访问你的博客了。
+
+## 更新主题
+
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+ 
+<Accordions>
+<Accordion title="Vercel 托管">
+ 
+使用 Vercel 托管的话，只需要在自己 Fork 的项目上 Sync Fork 即可（如图）。如果自己有魔改某些内容的话不要点击 Discard Changes，会把自己的魔改搞没了。
+
+![GitPull](https://pan.vinua.cn/f/GRefM/0.png)
+ 
+</Accordion>
+
+<Accordion title="Docker Compose 预构建">
+
+```bash
+docker compose pull && docker compose up -d
+```
+</Accordion>
+</Accordions>
+
+

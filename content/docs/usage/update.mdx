@@ -1,0 +1,43 @@
+---
+title: 更新 Mix Space
+description: 更新你的 MixSpace
+---
+
+import { FileText } from 'lucide-react'
+
+
+开头介绍就说过，Mx-Space 分为前端和后端两个部分，因此，更新的时候二者也需要分开更新。
+
+## Core（后端）更新
+
+根据部署方式的不同，更新方式也有不同。
+
+### Docker 部署
+
+进入 core 所在文件夹，然后 `docker compose pull && docker compose up -d`
+
+### 进阶部署
+
+进入克隆 core 的文件夹，执行 `git pull origin master` 拉取新版本源码，随后正常进行 `pnpm i` -> `pnpm build` -> `pnpm bundle`。
+
+随后 进入 `./apps/core/out`，执行以下命令启动服务 `pm2 start ecosystem.config.js`
+
+## 前端更新
+
+请根据自己所部署的主题跳转到对应的更新部分完成更新。
+
+<Cards>
+  <Card 
+    title="Shiro 更新" 
+    href="/docs/themes/shiro#更新" 
+    icon={<FileText />} 
+    target="_blank" 
+  />
+
+  <Card 
+    title="Kami 更新" 
+    href="/docs/themes/kami#更新" 
+    icon={<FileText />} 
+    target="_blank" 
+  />
+</Cards>

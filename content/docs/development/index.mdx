@@ -1,0 +1,60 @@
+---
+title: 开发指南
+description: 开发 Mix Space 的指南
+---
+
+为了方便开发者快速上手，我们提供了一些开发指南，帮助开发者快速了解和使用我们的产品。
+
+## 项目技术栈
+
+- [React](https://reactjs.org/)
+- [NestJS](https://nestjs.com/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [MongoDB](https://www.mongodb.com/)
+- [Redis](https://redis.io/)
+- [Docker](https://www.docker.com/)
+
+你可以点击上面的链接了解更多有关这些技术的信息。
+
+## 启动开发环境
+
+此系统采用了前后端分离的形式，因此需要分别启动前端和后端的开发环境。
+
+但是由于不同的前端不同写法，我们认为作为一名开发者都应该知道如何 **`「举一反三」`**，并且不同的前端可能步骤会 **大相径庭** ，因此我们不会提供如何启动前端开发环境的指南。
+
+<Callout type="info">
+有关前端开发设计指南，你可以在侧边栏中找到。
+</Callout>
+
+你需要确定好你的开发环境中已经安装了以下工具：
+
+- [Node.js](https://nodejs.org/en/) (>= 20)
+- [PNPM](https://pnpm.js.org/)
+- [MongoDB](https://www.mongodb.com/)
+- [Redis](https://redis.io/)
+- [Git](https://git-scm.com/)
+
+### 启动后端
+
+首先，你需要克隆本仓库到你的本地（你可能需要 fork 一份到你的仓库中，并且使用 `--depth=1` 来加速克隆）：
+
+```bash
+git clone https://github.com/mx-space/core
+```
+
+然后，你需要安装依赖，我们使用了 PNPM 作为包管理器，并不建议你使用其他的管理器安装。
+
+<Callout type="warn">
+在您提交相关 PR 时，我们也会检查您是否使用了 PNPM，如果没有，我们将会拒绝您的 PR（一个项目多个 lock 总不是一个好的选择）。
+</Callout>
+
+```bash
+cd core
+pnpm i
+```
+
+接下来，我们就可以开始启动后端的开发环境了。
+
+```bash
+pnpm run dev
+```

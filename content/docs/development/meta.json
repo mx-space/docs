@@ -1,0 +1,11 @@
+{
+  "index": "开发指南",
+  "description": "探索 MixSpace 的开发部署",
+  "icon": "Cpu",
+  "root": true,
+  "pages": [
+    "---文档---",
+    "admin",
+    "frontend"
+  ]
+}

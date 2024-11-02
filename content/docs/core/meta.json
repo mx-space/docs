@@ -1,0 +1,16 @@
+{
+  "title": "部署 Core",
+  "description": "探索部署 MixSpace Core",
+  "icon": "Server",
+  "root": true,
+  "pages": [
+    "---信息---",
+    "index",
+    "features",
+    "---部署---",
+    "docker",
+    "advanced",
+    "extra",
+    "community"
+  ]
+}

@@ -1,0 +1,56 @@
+---
+title: Key 加密与安全性
+description: 加密你的 MixSpace 
+---
+
+在 v3.41.0 后续版本，加入了敏感 Key 加密功能。默认为关。
+
+为什么需要 Key 加密。
+
+假设黑客通过某种手段数据库被脱库。如果开启了 Key 加密，即便是拿到了全部数据也不能解密某些关键数据，例如配置项中的各类 API Key。
+
+但是，也需要谨慎开启此功能，开启后你需要记住加密秘钥。否则，你也将会永远丢失这些数据。
+
+## 如何开启
+
+你可以附加 `--encrypt_enable` 来启动服务。如：
+
+```bash
+node index.js --encrypt_enable
+```
+
+可以通过附加 `--encrypt_key <key>` 来指定加密密钥，长度必须为 64 位，且只有小写字母和数字。请牢记此密钥。或者通过环境变量 `MX_ENCRYPT_KEY` 也可以指定密钥。
+
+<Callout type="warn">
+  若开启加密，则需注意密钥长度**必须为 64 位且只有小写字母和数字**，不然会在初始化时报错。注意这是**不可逆**的，务必保存自己的秘钥。
+  API Key.
+
+</Callout>
+
+密钥可以通过 `openssl rand -hex 32` 命令生成。请务必牢记。
+
+<Callout type="info">
+  `MX_ENCRYPT_KEY` `--encrypt_key` 不是必须的，默认取机器的
+  [machine-id](https://www.npmjs.com/package/node-machine-id)。
+</Callout>
+
+<Callout type="warn">
+此操作是不可逆的，操作前请备份数据库。
+
+</Callout>
+
+## 自动化加密配置（进阶指令）（非必要）
+
+<Callout type="error">
+此操作是不可逆的，操作前请备份数据库。
+
+</Callout>
+
+```bash
+cd core
+tsx src/migration/helper/encrypt-configs.ts
+```
+
+## 疑难解答
+
+如果出现 `Invalid key length`，请你确定是否开启了此功能，并且 key 的长度是否为 64 位长度，且只有小写字母和数字。

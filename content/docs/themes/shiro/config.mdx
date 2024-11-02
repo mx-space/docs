@@ -1,0 +1,150 @@
+---
+title: 配置
+description: Shiro 主题的配置文件信息
+icon: Bolt
+---
+
+# 配置项
+
+## 页脚信息 (`footer`)
+
+此部分定义页脚的部分信息，主要包括备案、建站年份和页脚导航三部分。
+
+### 备案信息 (`otherInfo.icp`)
+
+**如何使用**: 根据示例，修改位于 `text` 的备案号以及备案号所指向的链接 `link`。
+
+### 建站年份 (`otherInfo.date`)
+
+**如何使用**: `{{now}}` 指向当前年份，其他略。
+
+### 页脚导航 (`linkSections`)
+
+分类包括 `name` 和 `links` 两个字段，对应分类名字及其下链接，其下链接又分为 `name`、`href`、`external` 三个字段，对应链接名字，指向链接和是否外链三个属性。
+
+**如何使用**: 根据自己需要增删或修改特定链接及分类，需要注意如果指向外链的话需要加一行 `"external": true`。
+
+## 站点信息 (`config.site`)
+
+此部分包含了网站的基础信息设置，例如 favicon（网站图标）的配置。
+
+### Favicon
+
+- **`favicon`**: 设置网站在浅色模式下使用的图标。
+- **`faviconDark`**: 设置网站在深色模式下使用的图标。
+
+## Hero 部分 (`config.hero`)
+
+`hero` 部分定义了网站首页的主要欢迎信息或介绍部分，这是访问者首次进入网站时看到的部分。
+
+### Title 模板 (`title.template`)
+
+包括多个元素（如 `h1`, `code`, `span`），每个元素都可以自定义文本内容和样式（通过 CSS 类）。
+
+**如何使用**: 修改 `text` 和 `class` 字段来自定义标题的文本内容和样式。你可以通过添加或删除元素来调整标题的结构。
+
+### 描述 (`description`)
+
+提供了对主页 `hero` 部分的简短描述。
+
+**如何使用**: 直接修改 `description` 的值以更改介绍文本。
+
+### 一言 (`hitokoto`)
+
+<Callout type="warn">
+此特性为闭源版本特有
+</Callout>  
+
+提供自定义首页一言的功能。
+
+接受一个对象，包含 `random` 和 `custom` 两个可选字段。
+
+当存在 `random` 字段时，将会随机获取一言。优先级高于 `custom` 字段。
+
+当存在 `custom` 字段时，将会使用自定义的一言。
+
+如果两个字段都不存在，将会使用默认的一言。
+
+```ts
+interface Hitokoto {
+  random?: boolean
+  custom?: string
+}
+```
+
+## 自定义脚本 (`config.custom`)
+
+可以配置自定义的 CSS, Script。
+
+### Scripts (`scripts`)
+
+接受一个 [Script](https://nextjs.org/docs/app/api-reference/components/script#props) Props 参数数组。
+
+### Styles (`styles`)
+
+自定义 CSS。接受一个字符串数组。
+
+### JavaScript tag (`js`)
+
+自定义 JS 脚本。接受一个字符串数组。
+
+### CSS href link (`css`)
+
+加载外部 CSS，接受一个 CSS 外部样式表链接数组。
+
+## 模块 (`config.module`)
+
+此部分配置了网站的一些特定功能模块，比如活动跟踪、捐赠支持、社交媒体链接等。
+
+### 实时活动 (`activity`) 模块
+
+- **`enable`**: 控制模块是否启用。
+- **`endpoint`**: 指定活动更新的服务器端点。
+
+**如何使用**: 若需开启活动跟踪功能，将 `enable` 设为 `true` 并设置 `endpoint` 为处理活动数据的服务器地址。
+
+### 捐赠 (`donate`) 模块
+
+- **`enable`**: 控制捐赠模块是否启用。
+- **`link`**: 提供捐赠页面的链接。
+- **`qrcode`**: 提供一或多个捐赠二维码图片的链接。
+
+**如何使用**: 启用捐赠功能，并提供捐赠链接或捐赠二维码，以便支持者可以直接进行捐赠。
+
+### 社交媒体 (`bilibili`) 模块
+
+- **`liveId`**: b 站直播间 ID
+
+### OpenPanel 模块
+
+<Callout type="warn">
+此特性为闭源版本特有
+</Callout>
+
+[OpenPanel](https://openpanel.dev) 是一个交互式面板工具。
+
+- **`enable`**: 控制 OpenPanel 功能是否启用。
+- **`id`**: OpenPanel 的 ID。
+- **`url`**: OpenPanel 的访问地址。
+
+**如何使用**: 如果你使用 OpenPanel 提供交互式面板或其他功能，通过这些配置连接并显示面板。
+
+### 签名动画 (`signature`) 模块
+
+<Callout type="warn">
+此特性为闭源版本特有
+</Callout>
+
+- **`svg`**: 签名的 svg 代码。
+
+**如何使用**: 请参考[文档](extra#%E7%AD%BE%E5%90%8D%E5%8A%A8%E7%94%BB-)。
+
+### 文章列表设定 (`posts`)
+
+<Callout type="warn">
+此特性为闭源版本特有
+</Callout>
+
+- **`mode`**: 文章列表的预览模式。可选的值：`"loose"`(默认值) `"compact"`
+
+两个模式，紧凑模式和松散模式。

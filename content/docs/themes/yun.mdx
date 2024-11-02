@@ -1,0 +1,65 @@
+---
+title: Yun 主题
+description: A light & fast & lovely mx web style.
+---
+import { ToGitHub } from 'app/components/ToGitHub';
+
+<ToGitHub repo="mx-space/mx-web-yun" />
+
+
+<Callout type="warn">
+由于 Yun 主题将不再维护，此文档将不再更新，但是你仍然可以使用它。
+</Callout>
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+## 安装步骤
+<Steps>
+<Step>
+### 克隆项目
+
+```bash
+git clone https://github.com/mx-space/mx-web-yun.git --depth=1
+```
+</Step>
+<Step> 
+### 安装依赖
+
+```bash
+pnpm i
+```
+</Step>
+<Step>
+### 配置服务
+
+<Callout type="info">
+如果你部署 Mix Space 后端与部署 Yun 前端在同一台服务器，并且后端监听的端口为 2333，那么你可以跳过这一步。
+</Callout>
+
+1. 前往 `./server/constant.ts`
+
+```ts {3,4,5} filename="./server/constant.ts"
+export const isProduction = process.env.NODE_ENV === 'production'
+export const isDev = !isProduction
+export const apiBase = isDev
+  ? 'https://api.innei.ren/v2/'
+  : 'http://localhost:2333/api/v2/'
+```
+
+修改为你的后端 API 地址。
+</Step>
+<Step>
+### 开始构建
+
+```bash
+pnpm build
+```
+</Step>
+<Step>
+### 启动前端
+
+```bash
+pnpm pm2
+```
+</Step>
+</Steps>

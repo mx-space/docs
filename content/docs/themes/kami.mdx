@@ -1,0 +1,128 @@
+---
+title: Kami 主题
+description: 一个简洁、优雅、现代的博客主题
+---
+
+import { ToGitHub } from 'app/components/ToGitHub';
+
+<ToGitHub repo="mx-space/kami" />
+
+
+> 下一个代替项目将会是 Shiro，当它完成之时，我便不再投入任何精力到 Kami 中。迎接未来总需要舍弃一些东西，非常感谢大家三年来使用 Kami，不管你是谁，都需要对你说声谢谢。**—— Innei**
+
+
+
+## 现状
+
+Kami 目前由 `wibus-wee` 维护，处于最小程度更新的兼容状态。更新仅针对与 Core 接口不兼容的问题，以确保 Kami 能继续正常运行。
+
+<Callout type="warn">
+由于 Kami 主题已进入存档状态，本文档仅保持最小程度更新。请注意：使用 Kami 需要 Linux 内核版本 ≥ 4.19。
+</Callout>
+
+<Callout type="info">
+如发现 Kami 与 Core 的不兼容问题，请在 Kami 仓库提交 issue 并详细描述问题。
+</Callout>
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+
+## 安装步骤
+
+<Steps>
+<Step>
+### 检查内核版本
+
+```bash
+uname -r
+```
+如果你的内核版本小于 4.19，请升级内核。或者使用最新的 Ubuntu / Debian 。
+</Step>
+<Step>
+### 克隆项目
+
+```bash
+git clone https://github.com/mx-space/kami.git --depth=1
+cd kami && git fetch --tags && git checkout $(git rev-list --tags --max-count=1)
+```
+</Step>
+<Step> 
+### 安装依赖
+
+```bash
+git lfs fetch --all
+git lfs pull
+pnpm i
+```
+</Step>
+<Step>
+### 配置 ENV
+
+1. 复制 .env.example 为 .env
+2. 编辑 .env 文件，它看起来应该是这个样子的
+
+```env
+# API 地址
+NEXT_PUBLIC_API_URL=https://server.test.cn/api/v2
+# GATEWAY 地址
+NEXT_PUBLIC_GATEWAY_URL=https://server.test.cn
+#前端使用的配置项名字
+NEXT_PUBLIC_SNIPPET_NAME=kami
+# 如果使用 CDN, 修改产物前缀；一般留空
+ASSETPREFIX=
+```
+</Step>
+<Step>  
+### 开始构建
+
+```bash
+pnpm build
+```
+</Step>
+<Step>
+### 启动前端
+
+```bash
+pnpm prod:pm2
+```
+</Step>
+</Steps>
+
+## 更新指南
+
+根据是否对 Kami 进行过修改，可以选择以下两种更新方式：
+
+### 标准更新
+适用于未修改源代码的用户。
+
+```bash
+cd ~/mx-space/kami
+git pull origin master
+pnpm i && pnpm build
+pm2 start
+```
+
+<Callout type="warning">
+即使未进行源码修改，也可能遇到代码合并冲突。此时建议参考下方的手动更新方法。
+</Callout>
+
+### 手动更新
+适用于修改过源码的用户。
+
+将 `kami` 文件夹改为任意名字，例如修改为 `kami.d`，然后拉取 kami 前端仓库，更新到稳定版本：
+
+```bash
+cd ~/mx-space
+git clone https://github.com/mx-space/kami.git --depth=1
+cd kami && git fetch --tags && git checkout $(git rev-list --tags --max-count=1)
+```
+
+然后将更新前之前配置时修改过的文件，如在 `kami.d` 中的 `.env` 和 `public` 文件夹复制到 `kami`，将你的修改的部分依次修改替换完成。
+
+安装依赖、构建、启动前端：
+
+```bash
+pnpm i
+pnpm build
+pm2 start
+```

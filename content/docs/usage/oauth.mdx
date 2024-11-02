@@ -1,0 +1,29 @@
+---
+title: OAuth 2.0
+description: 使用 OAuth 2.0 登录 MixSpace
+---
+
+在 Core v7.0.0 版本，Mx-Space 重写了第三方登录功能，抛弃了 Clerk，转而直接使用对应的账户授权 SDK 实现第三方登录。
+
+## 如何配置
+
+### 新建应用
+
+参考以下两篇：
+
+- [在 GitHub 新建 OAuth 应用](https://docs.github.com/zh/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app)
+- [在 Google Cloud Console 新建 OAuth 应用](https://developers.google.com/identity/protocols/oauth2/web-server?hl=zh-cn#creatingcred)
+
+对于 GitHub，`Homepage URL` 填写前端地址，`Authorization callback URL` 根据后台提示复制粘贴。
+
+对于 Google，你可能需要先配置好 OAuth 权限请求页面，其中已获授权的网域填写根域名，API 范围选择非敏感范围的三项。OAuth 应用中 `已获授权的 JavaScript 来源` 填写前端地址，`已获授权的重定向 URI` 根据后台提示复制粘贴。
+
+完成后会获取 Client ID 和 Client Secret，将他们复制下来备用。
+
+### 后台设置
+
+进入博客后台 -> 设定 -> 登录方式，在 OAuth 部分对应的平台名称下填写对应的 Client ID 和 Client Secret，保存后测试是否可以调用授权，若可调用即可启用并保存。
+
+### 和主人身份绑定
+
+在测试时通过 OAuth 授权登录后会提示是否将此账号设置为主人，允许即可。

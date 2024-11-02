@@ -1,0 +1,38 @@
+---
+title: 云函数
+description: 使用 MixSpace 的云函数功能
+---
+
+import { ToGitHub } from 'app/components/ToGitHub';
+
+
+## 介绍
+
+云函数是 Mix Space 中的一个重要功能，它极大地提升了使用者在 Mix Space 中的体验。通过云函数，Mix Space 可以额外实现实现歌单解析，追番列表等等的功能。
+
+你可以在此处看到 Mix Space 目前收录的云函数 Snappets
+
+<ToGitHub repo="mx-space/snippets" />
+
+## 使用
+
+有一些前端主题需要使用云函数，这个时候你需要进入到云函数设置界面，将云函数代码填入到对应的位置。
+
+
+### 1. 进入云函数设置界面
+进入后台管理，点击左侧菜单栏的 `其他 - 云函数`，即可进入云函数管理页面。
+
+### 2. 下载扩展包
+
+在右上方，点击 `下载拓展包`，你将会看到一个弹窗。
+
+### 3. 导入
+
+请在弹窗内请找到对应的主题的云函数代码，点击导入，即可完成下载对应的云函数代码。
+
+
+接下来，你可以在云函数管理页面看到你刚刚导入的云函数代码。
+
+## 开发者文档
+
+<ToGitHub repo="mx-space/core/blob/master/apps/core/src/modules/serverless/serverless.readme.md" />
