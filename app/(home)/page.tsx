@@ -113,7 +113,7 @@ export default function Page(): React.ReactElement {
           <div className="relative">
             <Hero />
           </div>
-          <Feedback />
+
           <div
             className="container relative overflow-hidden border-x border-t py-4 sm:py-8 mt-[-1px]"
             style={{
@@ -139,6 +139,8 @@ export default function Page(): React.ReactElement {
               }}
             />
           </div>
+
+          <Feedback />
           <div className="grid grid-cols-1 border-r md:grid-cols-2 lg:grid-cols-3">
             <Highlight icon={RocketIcon} heading="基于Next.js">
               内置代码分割和图片优化，服务器端渲染（SSR）支持，性能强劲，速度快，SEO 友好。
@@ -224,149 +226,120 @@ function Hero(): React.ReactElement {
 
 function Feedback(): React.ReactElement {
   return (
-    <div className="relative flex flex-col items-center overflow-hidden border-x border-t px-6 pb-8 pt-8 md:pb-8">
-      <div className="rounded-xl border bg-gradient-to-b from-secondary p-4 shadow-lg">
-        <p className="text-sm font-medium">
-          {`"Mix Space，是一个小型的个人空间程序。继承了传统的博客，有着不同于博客的丰富的内容。适合那些喜欢写不同风格或类型的写作爱好者。"`}
-        </p>
-        <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <div className="flex items-center gap-2">
+    <div className="relative flex flex-col items-center overflow-hidden border-x border-t px-6 pb-16 pt-16 text-center">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl w-full">
+        <div className="rounded-xl border bg-gradient-to-b from-secondary/50 p-6 shadow-lg hover:shadow-xl transition-shadow">
+          <p className="text-base font-medium mb-6">
+            "Mix Space，是一个小型的个人空间程序。继承了传统的博客，有着不同于博客的丰富的内容。适合那些喜欢写不同风格或类型的写作爱好者。"
+          </p>
+          <div className="flex items-center gap-3">
             <Image
               src="https://avatars.githubusercontent.com/u/41265413"
               alt="avatar"
-              width="32"
-              height="32"
-              className="size-8 rounded-full"
+              width="48"
+              height="48"
+              className="size-12 rounded-full"
             />
-            <div>
+            <div className="text-left">
               <a
                 href="https://github.com/Innei"
                 rel="noreferrer noopener"
-                className="text-sm font-medium"
+                className="text-base font-medium hover:underline"
               >
                 Innei
               </a>
-              <p className="text-xs text-fd-muted-foreground">
-                Mix Space 的开发者
+              <p className="text-sm text-fd-muted-foreground">
+                Mix Space 程序开发者
               </p>
             </div>
           </div>
-          <Link
-            href="https://innei.in"
-            className={cn(
-              buttonVariants({ variant: 'outline', className: 'sm:ml-auto w-full sm:w-auto justify-center' }),
-            )}
-          >
-            他的个人空间
-          </Link>
         </div>
-      </div>
-      <div className="mt-8 rounded-xl border bg-gradient-to-b from-secondary p-4 shadow-lg">
-        <p className="text-sm font-medium">
-          {`"Mix Space 的文档非常详细，总有新的内容和功能在开发中。我自己也在用Mix Space，体验非常不错。"`}
-        </p>
-        <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <div className="flex items-center gap-2">
+        <div className="rounded-xl border bg-gradient-to-b from-secondary/50 p-6 shadow-lg hover:shadow-xl transition-shadow">
+          <p className="text-base font-medium mb-6">
+            "Mix Space 的文档非常详细，总有新的内容和功能在开发中。我自己也在用Mix Space，博文加手记的记录个人空间体验非常不错。它改变了我的写作方式。"
+          </p>
+          <div className="flex items-center gap-3">
             <Image
               src="https://avatars.githubusercontent.com/u/96452465"
               alt="avatar"
-              width="32"
-              height="32"
-              className="size-8 rounded-full"
+              width="48"
+              height="48"
+              className="size-12 rounded-full"
             />
-            <div>
+            <div className="text-left">
               <a
                 href="https://github.com/PaloMiku"
                 rel="noreferrer noopener"
-                className="text-sm font-medium"
+                className="text-base font-medium hover:underline"
               >
                 Mikuの鬆
               </a>
-              <p className="text-xs text-fd-muted-foreground">
+              <p className="text-sm text-fd-muted-foreground">
                 Mix Space 文档贡献者
               </p>
             </div>
           </div>
-          <Link
-            href="/docs/core"
-            className={cn(
-              buttonVariants({ variant: 'outline', className: 'sm:ml-auto w-full sm:w-auto justify-center' }),
-            )}
-          >
-            查看文档
-          </Link>
         </div>
-      </div>
-      <div className="mt-8 flex flex-col md:flex-row gap-4">
-        <div className="rounded-xl border bg-gradient-to-b from-secondary p-4 shadow-lg flex-1">
-          <p className="text-sm font-medium">
-            {`"Mix Space 是个小众但不简单的博客系统，设计了文稿、手记、思考三个不同类型的写作方式，在此基础上还写了很多有意思的特性。"`}
+        <div className="rounded-xl border bg-gradient-to-b from-secondary/50 p-6 shadow-lg hover:shadow-xl transition-shadow">
+          <p className="text-base font-medium mb-6">
+            "Mix Space 是个小众但不简单的博客系统，设计了文稿、手记、思考三个不同类型的写作方式，在此基础上还写了很多有意思的特性。"
           </p>
-          <div className="mt-4 flex flex-row items-center gap-2">
+          <div className="flex items-center gap-3">
             <Image
               src="https://avatars.githubusercontent.com/u/108316419"
               alt="avatar"
-              width="32"
-              height="32"
-              className="size-8 rounded-full"
+              width="48"
+              height="48"
+              className="size-12 rounded-full"
             />
-            <div>
+            <div className="text-left">
               <a
                 href="https://github.com/wuhang2003"
                 rel="noreferrer noopener"
-                className="text-sm font-medium"
+                className="text-base font-medium hover:underline"
               >
                 WuHang2003
               </a>
-              <p className="text-xs text-fd-muted-foreground">
-                Mix Space Team 成员
+              <p className="text-sm text-fd-muted-foreground">
+                Mix Space 开源社区成员
               </p>
             </div>
-            {/* <Link
-              href="https://docs.mx-space.com"
-              className={cn(
-                buttonVariants({ variant: 'outline', className: 'ml-auto' }),
-              )}
-            >
-              查看文档
-            </Link> */}
           </div>
         </div>
-        <div className="rounded-xl border bg-gradient-to-b from-secondary p-4 shadow-lg flex-1">
-          <p className="text-sm font-medium">
-            {`"用了一年多的 Mix Space，最让我觉得舒服的一点是别人如果要和我换友链，可以自助提交，我只需要点个通过就可以了，也借此交到了很多的朋友，光这一点我觉得就很不错了"`}
+        <div className="rounded-xl border bg-gradient-to-b from-secondary/50 p-6 shadow-lg hover:shadow-xl transition-shadow">
+          <p className="text-base font-medium mb-6">
+            "用了一年多的 Mix Space，最让我觉得舒服的一点是别人如果要和我换友链，可以自助提交，我只需要点个通过就可以了，也借此交到了很多的朋友，光这一点我觉得就很不错了"
           </p>
-          <div className="mt-4 flex flex-row items-center gap-2">
+          <div className="flex items-center gap-3">
             <Image
               src="https://avatars.githubusercontent.com/u/62463715"
               alt="avatar"
-              width="32"
-              height="32"
-              className="size-8 rounded-full"
+              width="48"
+              height="48"
+              className="size-12 rounded-full"
             />
-            <div>
+            <div className="text-left">
               <a
                 href="https://github.com/NiuBoss123"
                 rel="noreferrer noopener"
-                className="text-sm font-medium"
+                className="text-base font-medium hover:underline"
               >
                 MisakaAkio
               </a>
-              <p className="text-xs text-fd-muted-foreground">
+              <p className="text-sm text-fd-muted-foreground">
                 Mix Space 用户
               </p>
             </div>
-            {/* <Link
-              href="https://docs.mx-space.com"
-              className={cn(
-                buttonVariants({ variant: 'outline', className: 'ml-auto' }),
-              )}
-            >
-              查看文档
-            </Link> */}
           </div>
         </div>
       </div>
+      
+      <div 
+        className="absolute inset-0 z-[-1] opacity-50"
+        style={{
+          backgroundImage: 'radial-gradient(circle at center, hsl(var(--secondary)), transparent 70%)'
+        }}
+      />
     </div>
   );
 }
@@ -376,10 +349,10 @@ function Contributing(): React.ReactElement {
     <div className="flex flex-col items-center border-x border-t px-4 py-16 text-center">
       <Heart className="mb-4" />
       <h2 className="mb-4 text-xl font-semibold sm:text-2xl">
-        MixSpace 是由像你一样的人创造的
+        MixSpace 是由像你一样热爱它的人共同创造的
       </h2>
       <p className="mb-4 text-fd-muted-foreground">
-       MixSpace 由 100% 的热情和开源社区提供动力
+       MixSpace 是由 100% 的热情和开放包容的开源社区提供动力的
       </p>
       <div className="mb-8 flex flex-row items-center gap-2">
         <Link
