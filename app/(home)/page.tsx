@@ -35,27 +35,27 @@ function Powered(): React.ReactElement {
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
         <a href="https://vercel.com" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
-          <SiVercel size={24} />
+          <SiVercel size={32} />
           <span className="text-sm text-fd-muted-foreground">Vercel</span>
         </a>
         <a href="https://nextjs.org" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
-          <SiNextdotjs size={24} />
+          <SiNextdotjs size={32} />
           <span className="text-sm text-fd-muted-foreground">Next.js</span>
         </a>
         <a href="https://vuejs.org" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
-          <SiVuedotjs size={24} />
+          <SiVuedotjs size={32} />
           <span className="text-sm text-fd-muted-foreground">Vue</span>
         </a>
         <a href="https://www.docker.com" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
-          <SiDocker size={24} />
+          <SiDocker size={32} />
           <span className="text-sm text-fd-muted-foreground">Docker</span>
         </a>
         <a href="https://www.mongodb.com" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
-          <SiMongodb size={24} />
+          <SiMongodb size={32} />
           <span className="text-sm text-fd-muted-foreground">MongoDB</span>
         </a>
         <a href="https://redis.io" className="flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
-          <SiRedis size={24} />
+          <SiRedis size={32} />
           <span className="text-sm text-fd-muted-foreground">Redis</span>
         </a>
       </div>
