@@ -23,7 +23,6 @@
     "fumadocs-ui": "14.2.0",
     "lucide-react": "^0.454.0",
     "next": "15.0.2",
-    "orama": "^2.0.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-feather": "^2.0.10"
