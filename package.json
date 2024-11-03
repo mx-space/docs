@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "next build && pnpm generate-sitemap",
+    "build": "next build",
     "dev": "next dev --turbo",
     "start": "next start",
     "postinstall": "fumadocs-mdx",
@@ -19,7 +19,6 @@
     "@types/prettier": "^3.0.0",
     "autocorrect-node": "^2.13.0",
     "commitizen": "^4.3.1",
-    "autocorrect-node": "^2.13.0",
     "copy-to-clipboard": "^3.3.3",
     "cz-conventional-changelog": "^3.3.0",
     "dotenv": "^16.4.5",
