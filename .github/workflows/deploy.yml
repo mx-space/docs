@@ -30,21 +30,21 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
         with:
-          bun-version: latest
+          version: latest
 
       - name: Build project
         run: |
-          bun install
-          bun run build
+          pnpm install
+          pnpm build
       - name: Sync search index
         run: |
-          bun run sync-search
+          pnpm run sync-search
       - name: Generate sitemap
         run: |
-          bun run generate-sitemap  
+          pnpm run generate-sitemap  
         env:
           ORAMA_PRIVATE_API_KEY: ${{ secrets.ORAMA_PRIVATE_API_KEY }}
       - name: Add CNAME

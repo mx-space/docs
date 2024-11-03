@@ -7,7 +7,7 @@
     "dev": "next dev --turbo",
     "start": "next start",
     "postinstall": "fumadocs-mdx",
-    "sync-search": "bun run sync-index.mjs",
+    "sync-search": "node sync-index.mjs",
     "commit": "cz",
     "generate-sitemap": "tsx scripts/generate-sitemap.ts"
   },
@@ -15,7 +15,6 @@
     "@orama/orama": "^3.0.1",
     "@orama/tokenizers": "^3.0.1",
     "@oramacloud/client": "^1.3.19",
-    "@types/prettier": "^3.0.0",
     "autocorrect-node": "^2.13.0",
     "commitizen": "^4.3.1",
     "copy-to-clipboard": "^3.3.3",

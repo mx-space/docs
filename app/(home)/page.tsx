@@ -23,7 +23,10 @@ import {
   SiVuedotjs,
   SiDocker,
   SiMongodb,
-  SiRedis 
+  SiRedis,
+  SiNestjs,
+  SiAlgolia,
+  SiSwift
 } from 'react-icons/si'  // si 代表 Simple Icons
 
 // 添加特性数据数组
@@ -60,7 +63,6 @@ const highlights = [
   }
 ];
 
-// 修改 Powered 组件，使用新的 SVG 组件
 function Powered(): React.ReactElement {
   const technologies = [
     {
@@ -68,6 +70,12 @@ function Powered(): React.ReactElement {
       icon: SiVercel,
       href: 'https://vercel.com',
       description: '为现代 Web 提供最佳托管平台'
+    },
+    {
+      name: 'Docker',
+      icon: SiDocker,
+      href: 'https://www.docker.com',
+      description: '领先的容器化平台'
     },
     {
       name: 'Next.js',
@@ -82,10 +90,10 @@ function Powered(): React.ReactElement {
       description: '渐进式 JavaScript 框架'
     },
     {
-      name: 'Docker',
-      icon: SiDocker,
-      href: 'https://www.docker.com',
-      description: '领先的容器化平台'
+      name: 'NestJS',
+      icon: SiNestjs,
+      href: 'https://nestjs.com',
+      description: '用于构建高效可扩展的服务器端应用程序'
     },
     {
       name: 'MongoDB',
@@ -98,6 +106,18 @@ function Powered(): React.ReactElement {
       icon: SiRedis,
       href: 'https://redis.io',
       description: '高性能的内存数据存储'
+    },
+    {
+      name: 'Algolia',
+      icon: SiAlgolia,
+      href: 'https://www.algolia.com',
+      description: '高性能的全文搜索引擎'
+    },
+    {
+      name: 'Swift',
+      icon: SiSwift,
+      href: 'https://swift.org',
+      description: 'Apple 生态系统的现代编程语言'
     }
   ];
 

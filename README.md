@@ -4,12 +4,12 @@
 
 这个站点使用的是 [Fumadocs](https://fumadocs.vercel.app) 程序。站点内容使用 MDX 编写，文档文件在 `/content/docs` 文件夹中。如果只有一些简单的修改，你可以直接在 GitHub 网页端进行修改并新建一个 Pull Request.
 
-在本地开发中，[bun](https://bun.sh/) 被选用为项目的包管理器，你需要使用 bun 安装依赖：
+在本地开发中，[pnpm](https://pnpm.io) 被选用为项目的包管理器，你需要使用 pnpm 安装依赖：
 
 ```bash
-  bun i
-  bun run dev
-  bun run build
+  pnpm install
+  pnpm dev
+  pnpm build
 ```
 
 ## Working on the content 修改文字
