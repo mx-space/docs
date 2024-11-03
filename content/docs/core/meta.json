@@ -1,6 +1,6 @@
 {
-  "title": "部署 Core",
-  "description": "探索部署 MixSpace Core",
+  "title": "后端部署",
+  "description": "部署 Mix Space 的后端部分",
   "icon": "Server",
   "root": true,
   "pages": [

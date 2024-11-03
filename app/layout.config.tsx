@@ -1,10 +1,8 @@
 import { type LinkItemType } from 'fumadocs-ui/layouts/docs';
 import {
-  AlbumIcon,
   BookMarked,
   PaintRoller,
   Cpu,
-  LayoutTemplate,
   Pencil,
   Server,
 } from 'lucide-react';
@@ -51,7 +49,7 @@ export const baseOptions: BaseLayoutProps = {
         {
           icon: <BookMarked />,
           text: '使用文档',
-          description: '了解你的 Mix Space 如何使用',
+          description: '了解 Mix Space 如何使用',
           url: '/docs/usage',
           menu: {
             className: 'md:row-span-2',
@@ -69,7 +67,7 @@ export const baseOptions: BaseLayoutProps = {
         {
           icon: <PaintRoller />,
           text: '前端主题',
-          description: '部署 Mix Space 多彩的前端主题',
+          description: '部署 Mix Space 的前端主题',
           url: '/docs/themes',
           menu: {
             className: 'lg:col-start-2',
