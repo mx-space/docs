@@ -408,7 +408,7 @@ function Contributing(): React.ReactElement {
         由像你一样充满热情的开发者共同创造
       </h2>
       <p className="mb-8 text-muted-foreground">
-        Mix Space 由开放包容的开源社区提供持续动力
+        Some of our best contributors.
       </p>
       <Link
         href="https://github.com/mx-space"

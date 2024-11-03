@@ -52,7 +52,7 @@ export default async function ContributorCounter({
         )}
       </div>
       <div className="mt-4 text-center text-sm text-muted-foreground">
-        感谢这些优秀的贡献者
+        感谢这些为文档做出贡献的优秀贡献者
       </div>
     </div>
   );
