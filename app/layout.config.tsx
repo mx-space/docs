@@ -39,7 +39,13 @@ export const logo = (
 
 export const baseOptions: BaseLayoutProps = {
   nav: {
-    title: <Image src="/assets/images/logo/image.png" alt="Logo" layout="fixed" width={100} height={100} />,
+    title: <Image 
+      src="/assets/images/logo/image.png" 
+      alt="Logo" 
+      width={220}
+      height={220}
+      className="h-10 w-auto"
+    />,
   },
   links: [
     {
