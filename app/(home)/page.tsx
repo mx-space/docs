@@ -340,7 +340,7 @@ function Feedback(): React.ReactElement {
                 Mikuの鬆
               </a>
               <p className="text-sm text-fd-muted-foreground">
-                Mix Space 档贡献者
+                Mix Space 文档贡献者
               </p>
             </div>
           </div>
