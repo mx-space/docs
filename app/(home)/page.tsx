@@ -123,20 +123,20 @@ function Powered(): React.ReactElement {
 
   return (
     <div className="flex flex-col items-center border-x border-t px-4 py-16 text-center">
-      <h2 className="mb-12 text-xl font-semibold sm:text-2xl flex items-center gap-2">
-        <Code2 className="size-5" /> Development By
+      <h2 className="mb-12 text-xl font-semibold sm:text-2xl flex items-center gap-2 group">
+        <Code2 className="size-5 transition-transform duration-300 ease-in-out group-hover:scale-125" /> Development By
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl">
         {technologies.map((tech) => (
           <a 
             key={tech.name}
             href={tech.href}
-            className="group flex items-center gap-4 rounded-xl border p-4 transition-colors hover:border-primary hover:bg-secondary/40"
+            className="group flex items-center gap-4 rounded-xl border p-4 transition-all duration-300 ease-in-out hover:border-primary hover:bg-secondary/40 hover:scale-105 hover:shadow-lg hover:-translate-y-1"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg border bg-background group-hover:border-primary">
-              <tech.icon size={24} className="text-primary" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg border bg-background transition-all duration-300 ease-in-out group-hover:border-primary group-hover:scale-110">
+              <tech.icon size={24} className="text-primary transition-transform duration-300 ease-in-out group-hover:scale-125" />
             </div>
-            <div className="text-left">
+            <div className="text-left transition-all duration-300 ease-in-out group-hover:translate-x-1">
               <div className="font-medium">{tech.name}</div>
               <div className="text-sm text-muted-foreground">{tech.description}</div>
             </div>
@@ -338,7 +338,7 @@ function Feedback(): React.ReactElement {
         </div>
         <div className="rounded-xl border bg-gradient-to-b from-secondary/50 p-6 shadow-lg hover:shadow-xl transition-shadow">
           <p className="text-base font-medium mb-6">
-            "Mix Space 是个小众但不简单的博客系统，设计了文稿、手记、思考三个不同类型的写作方式，在此基础上还写了很多有意思的特性。"
+            "Mix Space 是个小众但不简单博客系统，设计了文稿、手记、思考三个不同类型的写作方式，在此基础上还写了很多有意思的特性。"
           </p>
           <div className="flex items-center gap-3">
             <Image
