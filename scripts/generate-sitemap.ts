@@ -9,7 +9,7 @@ async function generate() {
   const pages = await globby([
     'content/docs/core/**/*.mdx',
     'content/docs/development/**/*.mdx', 
-    'content/docs/markdown/**/*.mdx',
+    'content/docs/document/**/*.mdx',
     'content/docs/themes/**/*.mdx',
     'content/docs/usage/**/*.mdx',
     '!content/docs/**/meta.json',

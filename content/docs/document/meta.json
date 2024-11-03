@@ -1,6 +1,6 @@
 {
-    "index": "Markdown",
-    "description": "探索 Mix Space 的 Markdown 扩展语法",
+    "index": "文档撰写",
+    "description": "了解 Mix Space 的文档撰写规范",
     "icon": "Pencil",
     "root": true,
     "pages": [

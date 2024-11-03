@@ -75,9 +75,9 @@ export const baseOptions: BaseLayoutProps = {
         },
         {
           icon: <Pencil />,
-          text: 'Markdown',
-          description: '了解 Mix Space 的 Markdown 语法',
-          url: '/docs/markdown',
+          text: '文档撰写',
+          description: '了解 Mix Space 的文档撰写规范',
+          url: '/docs/document',
           menu: {
             className: 'lg:col-start-3 lg:row-start-1',
           },
