@@ -127,6 +127,12 @@ function Powered(): React.ReactElement {
   );
 }
 
+// 在文件顶部添加 metadata 导出
+export const metadata = {
+  title: "Mix Space - An Alternative Personal Space",
+  description: "Mix Space 是一个小型个人空间站点程序，采用前后端分离设计。"
+}
+
 export default function Page(): React.ReactElement {
   return (
     <>
