@@ -69,55 +69,64 @@ function Powered(): React.ReactElement {
       name: 'Vercel',
       icon: SiVercel,
       href: 'https://vercel.com',
-      description: '为现代 Web 提供最佳托管平台'
+      description: '为现代 Web 提供最佳托管平台',
+      color: '#000000'
     },
     {
       name: 'Docker',
       icon: SiDocker,
       href: 'https://www.docker.com',
-      description: '领先的容器化平台'
+      description: '领先的容器化平台',
+      color: '#2496ED'
     },
     {
       name: 'Next.js',
       icon: SiNextdotjs,
       href: 'https://nextjs.org',
-      description: 'React 框架，为生产环境而生'
+      description: 'React 框架，为生产环境而生',
+      color: '#000000'
     },
     {
       name: 'Vue',
       icon: SiVuedotjs,
       href: 'https://vuejs.org',
-      description: '渐进式 JavaScript 框架'
+      description: '渐进式 JavaScript 框架',
+      color: '#4FC08D'
     },
     {
       name: 'NestJS',
       icon: SiNestjs,
       href: 'https://nestjs.com',
-      description: '用于构建高效可扩展的服务器端应用程序'
+      description: '用于构建高效可扩展的服务器端应用程序',
+      color: '#E0234E'
     },
     {
       name: 'MongoDB',
       icon: SiMongodb,
       href: 'https://www.mongodb.com',
-      description: '现代化的 NoSQL 数据库'
+      description: '现代化的 NoSQL 数据库',
+      color: '#47A248'
     },
     {
       name: 'Redis',
       icon: SiRedis,
       href: 'https://redis.io',
-      description: '高性能的内存数据存储'
+      description: '高性能的内存数据存储',
+      color: '#DC382D'
     },
     {
       name: 'Algolia',
       icon: SiAlgolia,
       href: 'https://www.algolia.com',
-      description: '高性能的全文搜索引擎'
+      description: '高性能的全文搜索引擎',
+      color: '#5468FF'
     },
     {
       name: 'Swift',
       icon: SiSwift,
       href: 'https://swift.org',
-      description: 'Apple 生态系统的现代编程语言'
+      description: 'Apple 生态系统的现代编程语言',
+      color: '#F05138'
     }
   ];
 
@@ -134,7 +143,7 @@ function Powered(): React.ReactElement {
             className="group flex items-center gap-4 rounded-xl border p-4 transition-all duration-300 ease-in-out hover:border-primary hover:bg-secondary/40 hover:scale-105 hover:shadow-lg hover:-translate-y-1"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-lg border bg-background transition-all duration-300 ease-in-out group-hover:border-primary group-hover:scale-110">
-              <tech.icon size={24} className="text-primary transition-transform duration-300 ease-in-out group-hover:scale-125" />
+              <tech.icon size={24} className="transition-transform duration-300 ease-in-out group-hover:scale-125" style={{ color: tech.color }} />
             </div>
             <div className="text-left transition-all duration-300 ease-in-out group-hover:translate-x-1">
               <div className="font-medium">{tech.name}</div>
@@ -331,7 +340,7 @@ function Feedback(): React.ReactElement {
                 Mikuの鬆
               </a>
               <p className="text-sm text-fd-muted-foreground">
-                Mix Space 文档贡献者
+                Mix Space ���档贡献者
               </p>
             </div>
           </div>
