@@ -30,7 +30,7 @@ import {
 const highlights = [
   {
     icon: RocketIcon,
-    heading: "基于Next.js",
+    heading: "基于 Next.js",
     description: "内置代码分割和图片优化，服务器端渲染（SSR）支持，性能强劲，速度快，SEO 友好。"
   },
   {
@@ -46,12 +46,12 @@ const highlights = [
   {
     icon: PencilLine,
     heading: "Markdown 语法支持",
-    description: "Mix Space 原生支持Markdown语法，也支持自定义 Markdown 内语法，您可以使用自定义语法来丰富您的内容。"
+    description: "Mix Space 原生支持 Markdown 语法，也支持自定义 Markdown 内语法，您可以使用自定义语法来丰富您的内容。"
   },
   {
     icon: KeyboardIcon,
     heading: "后台云函数配置",
-    description: "无限扩展、无限可能，通过Core内置的云函数配置功能实现歌单解析，追番列表等功能，还有更多。"
+    description: "无限扩展、无限可能，通过 Core 内置的云函数配置功能实现歌单解析，追番列表等功能，还有更多。"
   },
   {
     icon: PersonStandingIcon,
@@ -286,7 +286,7 @@ function Feedback(): React.ReactElement {
         </div>
         <div className="rounded-xl border bg-gradient-to-b from-secondary/50 p-6 shadow-lg hover:shadow-xl transition-shadow">
           <p className="text-base font-medium mb-6">
-            "Mix Space 的文档非常详细，总有新的内容和功能在开发中。我自己也在用Mix Space，博文加手记的记录个人空间体验非常不错。它改变了我的写作方式。"
+            "Mix Space 的文档非常详细，总有新的内容和功能在开发中。我自己也在用 Mix Space，博文加手记的记录个人空间体验非常不错。它改变了我的写作方式。"
           </p>
           <div className="flex items-center gap-3">
             <Image
