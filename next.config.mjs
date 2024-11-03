@@ -9,6 +9,14 @@ const config = {
   images: {
     domains: ['github.com', 'avatars.githubusercontent.com', 'pan.vinua.cn'],
     unoptimized: true
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/sitemap.xml',
+        destination: '/api/sitemap'
+      }
+    ]
   }
 };
 

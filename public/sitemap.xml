@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://mx-space.js.org/docs/core/advanced</loc>
+    <lastmod>2024-11-03T02:32:41.298Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/core/community</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/core/docker</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/core/extra</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/core/features</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/core</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/development/admin</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/development/frontend</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/development</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/markdown</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/themes</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/themes/kami</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/themes/yun</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/themes/shiro/config</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/themes/shiro/deploy</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/themes/shiro/extra</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/usage/backup</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/usage</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/usage/oauth</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/usage/search</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/usage/security</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/usage/serverless</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/usage/update</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://mx-space.js.org/docs/usage/xlog</loc>
+    <lastmod>2024-11-03T02:32:41.299Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>

@@ -51,7 +51,7 @@ export const baseOptions: BaseLayoutProps = {
         {
           icon: <BookMarked />,
           text: '使用文档',
-          description: '了解你的Mix Space如何使用',
+          description: '了解你的 Mix Space 如何使用',
           url: '/docs/usage',
           menu: {
             className: 'md:row-span-2',
@@ -60,7 +60,7 @@ export const baseOptions: BaseLayoutProps = {
         {
           icon: <Server />,
           text: '后端部署',
-          description: '部署Mix Space的后端部分',
+          description: '部署 Mix Space 的后端部分',
           url: '/docs/core',          
           menu: {
             className: 'lg:col-start-2',
@@ -69,7 +69,7 @@ export const baseOptions: BaseLayoutProps = {
         {
           icon: <PaintRoller />,
           text: '前端主题',
-          description: '部署Mix Space多彩的前端主题',
+          description: '部署 Mix Space 多彩的前端主题',
           url: '/docs/themes',
           menu: {
             className: 'lg:col-start-2',
@@ -78,7 +78,7 @@ export const baseOptions: BaseLayoutProps = {
         {
           icon: <Pencil />,
           text: 'Markdown',
-          description: '了解Mix Space的Markdown 语法',
+          description: '了解 Mix Space 的 Markdown 语法',
           url: '/docs/markdown',
           menu: {
             className: 'lg:col-start-3 lg:row-start-1',
@@ -87,7 +87,7 @@ export const baseOptions: BaseLayoutProps = {
         {
           icon: <Cpu />,
           text: '开发指南',
-          description: '了解如何为Mix Space开发后端和前端',
+          description: '了解如何为 Mix Space 开发后端和前端',
           url: '/docs/development',
           menu: {
             className: 'lg:col-start-3',

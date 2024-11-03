@@ -9,7 +9,7 @@ const updateSearchIndexes = async (): Promise<void> => {
   const indexId = 'k2hnq39jnt7u8l41bfv0ezhd'; 
  
   if (!apiKey) {
-    console.log('未找到 Orama 私钥, 跳过索引更新');
+    console.log('未找到 Orama 私钥，跳过索引更新');
     return;
   }
  
@@ -24,9 +24,9 @@ const updateSearchIndexes = async (): Promise<void> => {
       documents: records,
     });
  
-    console.log(`搜索索引更新完成: ${records.length} 条记录`);
+    console.log(`搜索索引更新完成：${records.length} 条记录`);
   } catch (error) {
-    console.error('更新搜索索引时发生错误:', error);
+    console.error('更新搜索索引时发生错误：', error);
   }
 }
  

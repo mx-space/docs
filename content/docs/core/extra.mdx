@@ -217,7 +217,7 @@ server {
 
 和编辑其他环境变量一样，在 `service.app` 的 `environment` 部分添加你需要传入的值，如下所示：
 
-```yml {9-10}
+```yml
 services:
   app:
     container_name: mx-server
@@ -226,8 +226,8 @@ services:
       - TZ=Asia/Shanghai
       - NODE_ENV=production
       - DB_HOST=mongo
-      - REDIS_HOST=远端地址
-      - REDIS_PASSWORD=redis?passwd
+      - REDIS_HOST=远端地址 // [!code highlight]
+      - REDIS_PASSWORD=redis?passwd // [!code highlight]
       - ALLOWED_ORIGINS=localhost
       - JWT_SECRET=YOUR_SUPER_SECURED_JWT_SECRET_STRING
     volumes:
@@ -286,7 +286,7 @@ pnpm prod:pm2
 
 和编辑其他环境变量一样，在 `services.app` 的 `environment` 部分添加你需要传入的值，如下所示：
 
-```yaml 
+```yml 
 services:
   app:
     container_name: mx-server
@@ -294,9 +294,9 @@ services:
     environment:
       - TZ=Asia/Shanghai
       - NODE_ENV=production
-      - DB_HOST=远端地址
-      - DB_USER=mongodb-test
-      - DB_PASSWORD=db?passwd
+      - DB_HOST=远端地址 // [!code highlight]
+      - DB_USER=mongodb-test // [!code highlight]
+      - DB_PASSWORD=db?passwd // [!code highlight]
       - REDIS_HOST=redis
       - ALLOWED_ORIGINS=localhost
       - JWT_SECRET=YOUR_SUPER_SECURED_JWT_SECRET_STRING
