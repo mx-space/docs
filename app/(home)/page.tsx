@@ -338,7 +338,7 @@ function Feedback(): React.ReactElement {
         </div>
         <div className="rounded-2xl border bg-gradient-to-b from-secondary/50 p-6 shadow-lg hover:shadow-xl transition-shadow">
           <p className="text-base font-medium mb-6">
-            "Mix Space 是个小众但不简单博客系统，设计了文稿、手记、思考三个不同类型的写作方式，在此基础上还写了很多有意思的特性。"
+            "Mix Space 是个小众但不简单博客系统，设计了文稿、手记、思考三个不同型的写作方式，在此基础上还写了很多有意思的特性。"
           </p>
           <div className="flex items-center gap-3">
             <Image
@@ -403,22 +403,30 @@ function Feedback(): React.ReactElement {
 function Contributing(): React.ReactElement {
   return (
     <div className="flex flex-col items-center border-x border-t px-4 py-16 text-center">
-      <Heart className="mb-4" />
+      <Heart className="mb-4 text-primary animate-pulse" />
       <h2 className="mb-4 text-xl font-semibold sm:text-2xl">
-        MixSpace 是由像你一样热爱它的人共同创造的
+        由像你一样充满热情的开发者共同创造
       </h2>
-      <p className="mb-4 text-fd-muted-foreground">
-        MixSpace 由 100% 的热情和开放包容的开源社区提供动力
+      <p className="mb-8 text-muted-foreground">
+        Mix Space 由开放包容的开源社区提供持续动力
       </p>
-      <div className="mb-8 flex flex-row items-center gap-2">
-        <Link
-          href="https://github.com/mx-space"
-          className={cn(buttonVariants({ variant: 'outline' }))}
-        >
-          加入开源社区
-        </Link>
+      <Link
+        href="https://github.com/mx-space"
+        className={cn(buttonVariants({ 
+          variant: 'outline',
+          className: 'mb-8 group transition-all duration-300 hover:scale-105'
+        }))}
+      >
+        <Github className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:scale-105" /> 加入开源社区
+      </Link>
+      <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+        <ContributorCounter 
+          repoOwner="mx-space" 
+          repoName="docs-v2-legacy"
+          displayCount={20}
+          className="w-full"
+        />
       </div>
-      <ContributorCounter repoOwner="mx-space" repoName="docs-v2-legacy" />
     </div>
   );
 }

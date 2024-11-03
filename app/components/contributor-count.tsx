@@ -22,39 +22,37 @@ export default async function ContributorCounter({
     .slice(0, displayCount);
 
   return (
-    <div
-      {...props}
-      className={cn('flex flex-col items-center gap-4', props.className)}
-    >
-      <div className="flex flex-row flex-wrap items-center justify-center md:pe-4">
+    <div {...props}>
+      <div className="flex flex-wrap justify-center gap-2">
         {topContributors.map((contributor, i) => (
           <a
             key={contributor.login}
             href={`https://github.com/${contributor.login}`}
             rel="noreferrer noopener"
             target="_blank"
-            className="size-10 overflow-hidden rounded-full border-4 border-fd-background bg-fd-background md:-mr-4 md:size-12"
-            style={{
-              zIndex: topContributors.length - i,
-            }}
+            className="group relative block"
           >
-            <Image
-              src={contributor.avatar_url}
-              alt={`${contributor.login}'s avatar`}
-              unoptimized
-              width={48}
-              height={48}
-            />
+            <div className="absolute -inset-0.5 animate-tilt rounded-full bg-gradient-to-r from-primary to-secondary opacity-0 blur transition duration-300 group-hover:opacity-100" />
+            <div className="relative size-12 overflow-hidden rounded-full border-2 border-background bg-background transition duration-300 group-hover:scale-110">
+              <Image
+                src={contributor.avatar_url}
+                alt={`${contributor.login}'s avatar`}
+                className="size-full object-cover"
+                width={48}
+                height={48}
+                unoptimized
+              />
+            </div>
           </a>
         ))}
-        {displayCount < contributors.length ? (
-          <div className="size-12 content-center rounded-full bg-fd-secondary text-center">
+        {displayCount < contributors.length && (
+          <div className="flex size-12 items-center justify-center rounded-full border-2 border-muted bg-muted font-medium">
             +{contributors.length - displayCount}
           </div>
-        ) : null}
+        )}
       </div>
-      <div className="text-center text-sm text-fd-muted-foreground">
-        Some of our best contributors.
+      <div className="mt-4 text-center text-sm text-muted-foreground">
+        感谢这些优秀的贡献者
       </div>
     </div>
   );
