@@ -7,14 +7,17 @@
     "dev": "next dev --turbo",
     "start": "next start",
     "postinstall": "fumadocs-mdx",
-    "sync-search": "bun run sync-index.mjs"
+    "sync-search": "bun run sync-index.mjs",
+    "commit": "cz"
   },
   "dependencies": {
     "@orama/orama": "^3.0.1",
     "@orama/react-components": "^0.1.11",
     "@orama/tokenizers": "^3.0.1",
     "@oramacloud/client": "^1.3.19",
+    "commitizen": "^4.3.1",
     "copy-to-clipboard": "^3.3.3",
+    "cz-conventional-changelog": "^3.3.0",
     "dotenv": "^16.4.5",
     "framer-motion": "^11.11.11",
     "fumadocs-core": "14.2.0",
@@ -37,5 +40,10 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   }
 }
