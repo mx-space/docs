@@ -72,84 +72,84 @@ function Powered(): React.ReactElement {
       name: 'Vercel',
       icon: SiVercel,
       href: 'https://vercel.com',
-      description: '为现代 Web 提供最佳托管平台',
+      description: '现代化的全栈开发与部署平台',
       color: 'var(--foreground)'
     },
     {
       name: 'Docker',
       icon: SiDocker,
       href: 'https://www.docker.com',
-      description: '领先的容器化平台',
+      description: '领先的应用容器化解决方案',
       color: '#2496ED'
     },
     {
       name: 'Node.js',
       icon: SiNodedotjs,
       href: 'https://nodejs.org',
-      description: '基于 Chrome V8 引擎的 JavaScript 运行时',
+      description: '强大的 JavaScript 运行时环境',
       color: '#339933'
     },
     {
       name: 'Next.js',
       icon: SiNextdotjs,
       href: 'https://nextjs.org',
-      description: 'React 框架，为生产环境而生',
+      description: '企业级 React 应用开发框架',
       color: 'var(--foreground)'
     },
     {
       name: 'Vue',
       icon: SiVuedotjs,
       href: 'https://vuejs.org',
-      description: '渐进式 JavaScript 框架',
+      description: '流行的渐进式前端开发框架',
       color: '#4FC08D'
     },
     {
       name: 'NestJS',
       icon: SiNestjs,
       href: 'https://nestjs.com',
-      description: '用于构建高效可扩展的服务器端应用程序',
+      description: '企业级 Node.js 后端开发框架',
       color: '#E0234E'
     },
     {
       name: 'MongoDB',
       icon: SiMongodb,
       href: 'https://www.mongodb.com',
-      description: '现代化的 NoSQL 数据库',
+      description: '灵活高效的 NoSQL 数据库',
       color: '#47A248'
     },
     {
       name: 'Redis',
       icon: SiRedis,
       href: 'https://redis.io',
-      description: '高性能的内存数据存储',
+      description: '高性能的内存数据存储系统',
       color: '#DC382D'
     },
     {
       name: 'Algolia',
       icon: SiAlgolia,
       href: 'https://www.algolia.com',
-      description: '高性能的全文搜索引擎',
+      description: '强大的搜索服务解决方案',
       color: '#5468FF'
     },
     {
       name: 'Swift',
       icon: SiSwift,
       href: 'https://swift.org',
-      description: 'Apple 生态系统的现代编程语言',
+      description: 'Apple 生态现代编程语言',
       color: '#F05138'
     },
     {
       name: 'Python',
       icon: SiPython,
       href: 'https://www.python.org',
-      description: '简单易用的高级编程语言',
+      description: '简洁优雅的通用编程语言',
       color: '#3776AB'
     },
     {
       name: 'Rust',
       icon: SiRust,
       href: 'https://www.rust-lang.org',
-      description: '高性能、可靠的系统编程语言',
+      description: '高性能系统级编程语言',
       color: 'var(--foreground)'
     }
   ];
