@@ -70,7 +70,7 @@ function Powered(): React.ReactElement {
       icon: SiVercel,
       href: 'https://vercel.com',
       description: '为现代 Web 提供最佳托管平台',
-      color: '#000000'
+      color: 'var(--foreground)'
     },
     {
       name: 'Docker',
@@ -84,7 +84,7 @@ function Powered(): React.ReactElement {
       icon: SiNextdotjs,
       href: 'https://nextjs.org',
       description: 'React 框架，为生产环境而生',
-      color: '#000000'
+      color: 'var(--foreground)'
     },
     {
       name: 'Vue',
