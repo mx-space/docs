@@ -27,7 +27,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - name: Setup pnpm
@@ -51,7 +51,7 @@ jobs:
         run: |
           echo "mx-space.js.org" > out/CNAME
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: out

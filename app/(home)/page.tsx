@@ -373,7 +373,7 @@ function Feedback(): React.ReactElement {
         </div>
         <div className="rounded-2xl border bg-gradient-to-b from-secondary/50 p-6 shadow-lg hover:shadow-xl transition-shadow">
           <p className="text-base font-medium mb-6">
-            "用了一年多的 Mix Space，最让我觉得舒服的一点是别人如果要和我换友链，可以自助提交，我只需要点个通过就可以了，也借此交到了很多的朋友，光这一点我觉���就很不错了"
+            "用了一年多的 Mix Space，最让我觉得舒服的一点是别人如果要和我换友链，可以自助提交，我只需要点个通过就可以了，也借此交到了很多的朋友，光这一点我觉得就很不错了"
           </p>
           <div className="flex items-center gap-3">
             <Image
