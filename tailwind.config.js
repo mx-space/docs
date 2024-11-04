@@ -18,7 +18,6 @@ export default {
     extend: {
       fontFamily: {
         oxanium: ['var(--font-oxanium)'],
-        notoSerif: ['var(--font-noto-serif)'],
       },
     },
   },
