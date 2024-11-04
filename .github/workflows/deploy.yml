@@ -15,7 +15,7 @@ jobs:
         node-version: [20.x]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       # 添加 Next.js 缓存配置
       - name: Cache Next.js build
