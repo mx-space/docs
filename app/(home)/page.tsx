@@ -28,7 +28,8 @@ import {
   SiAlgolia,
   SiSwift,
   SiPython,
-  SiRust
+  SiRust,
+  SiNodedotjs
 } from 'react-icons/si'  // si 代表 Simple Icons
 
 // 添加特性数据数组
@@ -80,6 +81,13 @@ function Powered(): React.ReactElement {
       href: 'https://www.docker.com',
       description: '领先的容器化平台',
       color: '#2496ED'
+    },
+    {
+      name: 'Node.js',
+      icon: SiNodedotjs,
+      href: 'https://nodejs.org',
+      description: '基于 Chrome V8 引擎的 JavaScript 运行时',
+      color: '#339933'
     },
     {
       name: 'Next.js',
