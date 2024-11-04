@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
-import Logo from '@/public/assets/images/logo/image.png';
+import Logo from '@/public/logo.png';
 
 export const linkItems: LinkItemType[] = [
   {
