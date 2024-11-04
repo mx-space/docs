@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@orama/orama": "^3.0.1",
+    "@orama/react-components": "^0.1.11",
     "@orama/tokenizers": "^3.0.1",
     "@oramacloud/client": "^1.3.19",
     "autocorrect-node": "^2.13.0",
