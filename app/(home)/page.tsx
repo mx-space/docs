@@ -373,7 +373,7 @@ function Feedback(): React.ReactElement {
         </div>
         <div className="rounded-2xl border bg-gradient-to-b from-secondary/50 p-6 shadow-lg hover:shadow-xl transition-shadow">
           <p className="text-base font-medium mb-6">
-            "用了一年多的 Mix Space，最让我觉得舒服的一点是别人如果要和我换友链，可以自助提交，我只需要点个通过就可以了，也借此交到了很多的朋友，光这一点我觉得就很不错了"
+            "用了一年多的 Mix Space，最让我觉得舒服的一点是别人如果要和我换友链，可以自助提交，我只需要点个通过就可以了，也借此交到了很多的朋友，光这一点我觉���就很不错了"
           </p>
           <div className="flex items-center gap-3">
             <Image
@@ -430,9 +430,23 @@ function Contributing(): React.ReactElement {
       </Link>
       <div className="flex flex-wrap justify-center gap-2 md:gap-3">
         <ContributorCounter 
-          repoOwner="mx-space" 
-          repoName="docs-v2-legacy"
-          displayCount={20}
+          repos={[
+            { owner: 'mx-space', name: 'docs-v2-legacy' },
+            { owner: 'mx-space', name: 'docs' },
+            { owner: 'mx-space', name: 'docs-archived' },
+            { owner: 'mx-space', name: 'netease-blil-api' },
+            { owner: 'mx-space', name: 'ProcessReporterMac' },
+            { owner: 'mx-space', name: 'core' },
+            { owner: 'mx-space', name: 'mx-web-yun' },
+            { owner: 'mx-space', name: 'kami' },
+            { owner: 'Innei', name: 'Shiro' }
+          ]}
+          excludeUsers={[
+            'dependabot[bot]', 
+            'renovate[bot]',
+            'renovate-bot',
+            'code-factor'
+          ]}
           className="w-full"
         />
       </div>

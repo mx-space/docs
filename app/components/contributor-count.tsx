@@ -1,35 +1,62 @@
 import type { HTMLAttributes } from 'react';
 import Image from 'next/image';
-import { cn } from '@/utils/cn';
 import { fetchContributors } from '@/utils/get-contributors';
 
 export interface ContributorCounterProps
   extends HTMLAttributes<HTMLDivElement> {
-  repoOwner: string;
-  repoName: string;
+  repos: Array<{
+    owner: string;
+    name: string;
+  }>;
   displayCount?: number;
+  excludeUsers?: string[];
 }
 
 export default async function ContributorCounter({
-  repoOwner,
-  repoName,
+  repos,
   displayCount = 20,
+  excludeUsers = [],
   ...props
 }: ContributorCounterProps): Promise<React.ReactElement> {
-  const contributors = await fetchContributors(repoOwner, repoName);
-  const topContributors = contributors
-    .filter((contributor) => contributor.login !== repoOwner)
-    .slice(0, displayCount);
+  
+  const contributorsPromises = repos.map(repo => 
+    fetchContributors(repo.owner, repo.name)
+  );
+  
+  const allContributorsList = await Promise.all(contributorsPromises);
+  
+  
+  const mergedContributors = new Map<string, {
+    login: string;
+    avatar_url: string;
+    contributions: number;
+  }>();
+  
+  allContributorsList.flat().forEach(contributor => {
+    if (excludeUsers.includes(contributor.login)) {
+      return;
+    }
+    
+    if(mergedContributors.has(contributor.login)) {
+      const existing = mergedContributors.get(contributor.login)!;
+      existing.contributions += contributor.contributions;
+    } else {
+      mergedContributors.set(contributor.login, contributor);
+    }
+  });
+
+  const sortedContributors = Array.from(mergedContributors.values())
+    .sort((a, b) => b.contributions - a.contributions);
 
   return (
     <div {...props}>
       <div className="flex flex-wrap justify-center gap-2">
-        {topContributors.map((contributor, i) => (
+        {sortedContributors.map((contributor) => (
           <a
             key={contributor.login}
             href={`https://github.com/${contributor.login}`}
             rel="noreferrer noopener"
-            target="_blank"
+            target="_blank" 
             className="group relative block"
           >
             <div className="absolute -inset-0.5 animate-tilt rounded-full bg-gradient-to-r from-primary to-secondary opacity-0 blur transition duration-300 group-hover:opacity-100" />
@@ -45,14 +72,9 @@ export default async function ContributorCounter({
             </div>
           </a>
         ))}
-        {displayCount < contributors.length && (
-          <div className="flex size-12 items-center justify-center rounded-full border-2 border-muted bg-muted font-medium">
-            +{contributors.length - displayCount}
-          </div>
-        )}
       </div>
       <div className="mt-4 text-center text-sm text-muted-foreground">
-        感谢这些为文档做出贡献的优秀贡献者
+        感谢这些为 Mix Space 开源社区做出贡献的优秀开发者
       </div>
     </div>
   );
