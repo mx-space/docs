@@ -26,7 +26,9 @@ import {
   SiRedis,
   SiNestjs,
   SiAlgolia,
-  SiSwift
+  SiSwift,
+  SiPython,
+  SiRust
 } from 'react-icons/si'  // si 代表 Simple Icons
 
 // 添加特性数据数组
@@ -127,6 +129,20 @@ function Powered(): React.ReactElement {
       href: 'https://swift.org',
       description: 'Apple 生态系统的现代编程语言',
       color: '#F05138'
+    },
+    {
+      name: 'Python',
+      icon: SiPython,
+      href: 'https://www.python.org',
+      description: '简单易用的高级编程语言',
+      color: '#3776AB'
+    },
+    {
+      name: 'Rust',
+      icon: SiRust,
+      href: 'https://www.rust-lang.org',
+      description: '高性能、可靠的系统编程语言',
+      color: 'var(--foreground)'
     }
   ];
 
