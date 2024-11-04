@@ -1,3 +1,41 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 无衬线字体 */
+.font-sans {
+  font-family: 'Inter', 'LXGW Neo XiHei', system-ui, -apple-system, sans-serif;
+}
+
+/* 衬线字体 */
+.font-serif {
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', serif;
+}
+
+/* 等宽字体 */
+.font-mono {
+  font-family: 'JetBrains Mono', 'LXGW WenKai Mono', monospace;
+}
+
+/* 预加载字体 */
+@font-face {
+  font-family: 'LXGW Neo XiHei';
+  src: url('https://cdn.jsdelivr.net/gh/chawyehsu/lxgw-neo-xihei-webfont@latest/dist/LXGWNeoXiHei.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'LXGW WenKai Mono';
+  src: url('https://cdn.jsdelivr.net/gh/chawyehsu/lxgw-wenkai-webfont@latest/dist/LXGWWenKaiMono-Regular.woff2') format('woff2');
+  font-display: swap;
+}
+
+@layer base {
+  body {
+    transition: font-family 0.3s ease;
+  }
+}
