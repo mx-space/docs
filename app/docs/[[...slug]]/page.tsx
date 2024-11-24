@@ -30,8 +30,8 @@ export default async function Page(props: {
       full={page.data.full}
       lastUpdate={time ?? undefined}
       editOnGithub={{
-        owner: 'fuma-nama',
-        repo: 'fumadocs',
+        owner: 'mx-space',
+        repo: 'docs',
         sha: 'main',
         path: `content/docs/${page.file.path}`,
       }}
