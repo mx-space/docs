@@ -6,6 +6,10 @@ icon: Ellipsis
 
 ## 反向代理
 
+<Callout type="info">
+这里的反代配置写的是前后端均通过本地进行部署的情况，若前端通过 Vercel 等平台部署，请忽略/修改对应前端配置部分。
+</Callout>
+
 在这里提供双域名（前端和后端各用一个域名）与单域名（前后端共用一个域名）的配置步骤。
 
 当然不管使用哪种方法，都建议用控制面板（如宝塔、1Panel 等）的使用面板提供的反代功能单独粘贴对应的反代配置部分完成配置（需要删掉开头和结尾的 server 块），手写反代配置的大佬随意。
@@ -47,7 +51,7 @@ server {
 }
 ```
 
-前端 `www.example.com` 反代部分
+前端（本地部署） `www.example.com` 反代部分
 
 ```nginx
 server{
@@ -91,6 +95,8 @@ server{
 
 ### 单域名
 
+此处仅提供前端通过本地部署的情况，若前端通过 Vercel 等平台部署，请忽略/修改对应前端配置部分。
+
 以下配置文件以 Nginx 为例，请自行修改 SSL 证书路径以及自己的网站域名。
 
 若使用 Caddy 进行配置可参考 [Caddyfile 文件示例](https://github.com/mx-space/docker/blob/master/Caddyfile.example)进行相应修改。
@@ -116,7 +122,7 @@ server {
     location /render {
         proxy_pass http://127.0.0.1:2333/render; 
     }
-    ## Kami 地址
+    ## 前端地址
     location / {
         proxy_pass http://127.0.0.1:2323; 
     }
@@ -209,7 +215,7 @@ server {
 - `redis_host` Redis 服务地址，域名、IP 都可以
 - `redis_port` Redis 服务端口
 - `redis_password` Redis 服务密码
-- `disable_cache` 是否禁用缓存，默认不启用
+- `disable_cache` 是否禁用缓存，默认为 `false`
 
 在默认情况下，我们认为这样已经足够了。
 
