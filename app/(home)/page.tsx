@@ -2,17 +2,16 @@ import { Contributing } from "@/app/components/home/Contributing"
 import { Hero } from "@/app/components/home/Hero"
 import { Powered } from "@/app/components/home/Powered"
 import { Feedback } from '@/app/components/home/Feedback';
-import { ReactNode } from 'react';
 import { 
   RocketIcon,
   TimerIcon,
   LayoutIcon,
   KeyboardIcon,
   PencilLine,
-  LucideIcon,
   MousePointerClick,
   PersonStandingIcon 
 } from 'lucide-react';
+import { Highlight } from 'app/components/home/Highlight';
 
 export const metadata = {
   title: "Mix Space - An Alternative Personal Space",
@@ -88,26 +87,6 @@ export default function Page(): React.ReactElement {
         </div>
       </main>
     </>
-  );
-}
-
-function Highlight({
-  icon: Icon,
-  heading,
-  children,
-}: {
-  icon: LucideIcon;
-  heading: ReactNode;
-  children: ReactNode;
-}){
-  return (
-    <div className="border-l border-t border-b px-6 py-12 group text-left">
-      <div className="mb-4 flex flex-row items-center gap-2 text-fd-muted-foreground">
-      <Icon {...{ className: "size-4 transition-transform duration-300 ease-in-out group-hover:scale-125 group-hover:text-primary" }} />
-        <h2 className="text-sm font-medium">{heading}</h2>
-      </div>
-      <span className="font-medium">{children}</span>
-    </div>
   );
 }
 
