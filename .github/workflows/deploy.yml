@@ -42,11 +42,11 @@ jobs:
       - name: Sync search index
         run: |
           pnpm run sync-search
+        env:
+            ORAMA_PRIVATE_API_KEY: ${{ secrets.ORAMA_PRIVATE_API_KEY }}
       - name: Generate sitemap
         run: |
           pnpm run generate-sitemap  
-        env:
-          ORAMA_PRIVATE_API_KEY: ${{ secrets.ORAMA_PRIVATE_API_KEY }}
       - name: Add CNAME
         run: |
           echo "mx-space.js.org" > out/CNAME
