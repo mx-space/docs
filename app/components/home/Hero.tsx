@@ -57,8 +57,8 @@ export function Hero() {
               onClick={() => setCurrentImage(index)}
               className={`px-3 py-1 text-sm rounded-full transition-colors ${
                 index === currentImage
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-primary text-gray-900 dark:text-white'
+                  : 'bg-gray-300 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-700'
               }`}
             >
               {imageNames[index]}
