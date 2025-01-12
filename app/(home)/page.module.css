@@ -1,0 +1,21 @@
+.backgroundPattern {
+  background:
+    repeating-linear-gradient(to right, hsl(var(--primary)/.1),hsl(var(--primary)/.1) 1px,transparent 1px,transparent 50px),
+    repeating-linear-gradient(to bottom, hsl(var(--primary)/.1),hsl(var(--primary)/.1) 1px,transparent 1px,transparent 50px);
+}
+
+.mainBackground {
+  background:
+    repeating-linear-gradient(to bottom, transparent, hsl(var(--secondary)/.2) 500px, transparent 1000px);
+}
+
+.sectionBackground {
+  background:
+    radial-gradient(circle at bottom center, hsl(var(--secondary)), transparent 70%),
+    linear-gradient(90deg, rgba(78, 191, 255, 0.1), transparent 30%, rgba(233, 42, 103, 0.1));
+}
+
+.overlayBackground {
+  background: linear-gradient(to bottom, transparent, rgba(var(--secondary), 0.2));
+  opacity: 0.5;
+}

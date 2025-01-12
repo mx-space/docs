@@ -1,7 +1,6 @@
-import { Contributing } from "@/app/components/home/Contributing"
-import { Hero } from "@/app/components/home/Hero"
-import { Powered } from "@/app/components/home/Powered"
-import { Feedback } from '@/app/components/home/Feedback';
+import { Suspense, lazy } from 'react';
+import { Hero } from "@/app/components/home/Hero";
+import styles from './page.module.css';
 import { 
   RocketIcon,
   TimerIcon,
@@ -11,7 +10,15 @@ import {
   MousePointerClick,
   PersonStandingIcon 
 } from 'lucide-react';
-import { Highlight } from 'app/components/home/Highlight';
+
+const Feedback = lazy(() => import('@/app/components/home/Feedback').then(m => ({ default: m.Feedback })));
+const Highlight = lazy(() => import('app/components/home/Highlight').then(m => ({ default: m.Highlight })));
+const Powered = lazy(() => import('@/app/components/home/Powered').then(m => ({ default: m.Powered })));
+const Contributing = lazy(() => import('@/app/components/home/Contributing').then(m => ({ default: m.Contributing })));
+
+function Loading() {
+  return <div className="min-h-[200px] flex items-center justify-center">Loading...</div>;
+}
 
 export const metadata = {
   title: "Mix Space - An Alternative Personal Space",
@@ -65,25 +72,32 @@ export default function Page(): React.ReactElement {
             />
           </div>
 
-          <Feedback />
+          <Suspense fallback={<Loading />}>
+            <Feedback />
+          </Suspense>
           <div className="flex flex-col items-center border-x border-t px-4 py-16 text-center">
             <h2 className="mb-12 text-xl font-semibold sm:text-2xl flex items-center gap-2">
               <MousePointerClick className="size-5" /> Highlight Features
             </h2>
             <div className="grid grid-cols-1 border-r md:grid-cols-2 lg:grid-cols-3 w-full">
               {highlights.map((item, index) => (
-                <Highlight 
-                  key={index} 
-                  icon={item.icon} 
-                  heading={item.heading}
-                >
-                  {item.description}
-                </Highlight>
+                <Suspense key={index} fallback={<Loading />}>
+                  <Highlight 
+                    icon={item.icon} 
+                    heading={item.heading}
+                  >
+                    {item.description}
+                  </Highlight>
+                </Suspense>
               ))}
             </div>
           </div>
-          <Powered />
-          <Contributing />
+          <Suspense fallback={<Loading />}>
+            <Powered />
+          </Suspense>
+          <Suspense fallback={<Loading />}>
+            <Contributing />
+          </Suspense>
         </div>
       </main>
     </>
