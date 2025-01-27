@@ -31,3 +31,10 @@ next-env.d.ts
 
 # sitemap
 public/sitemap.xml
+
+# Webstorm
+/.idea/.gitignore
+/.idea/docs.iml
+/.idea/MarsCodeWorkspaceAppSettings.xml
+/.idea/modules.xml
+/.idea/vcs.xml
