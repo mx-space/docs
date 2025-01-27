@@ -18,8 +18,8 @@ export function EnvVariableConfig({ variableNames, format }: { variableNames: { 
       copy(envContent);
     }
     iziToast.success({
-      title: '成功',
-      message: '复制成功',
+      title: '复制成功',
+      message: '请继续下一步操作',
       position: 'topRight',
       backgroundColor: '#4CAF50', // 背景颜色
       color: '#FFFFFF', // 字体颜色
