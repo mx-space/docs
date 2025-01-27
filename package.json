@@ -12,6 +12,7 @@
     "generate-sitemap": "tsx scripts/generate-sitemap.ts"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
     "@orama/orama": "^3.0.4",
     "@orama/tokenizers": "^3.0.4",
     "@oramacloud/client": "^2.1.4",

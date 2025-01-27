@@ -4,6 +4,7 @@ import { useState } from 'react';
 import copy from 'copy-to-clipboard';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
+import '@fortawesome/fontawesome-free/css/all.min.css'; // 引入 Font Awesome
 
 export function EnvVariableConfig({ variableNames, format }: { variableNames: { key: string; name: string;defaultVal?: string }[]; format?: "yaml" | "env" }) {
   const [values, setValues] = useState(variableNames.map((name) => name.defaultVal || ''));
@@ -19,7 +20,12 @@ export function EnvVariableConfig({ variableNames, format }: { variableNames: { 
     iziToast.success({
       title: '成功',
       message: '复制成功',
-      position: 'topRight'
+      position: 'topRight',
+      backgroundColor: '#4CAF50', // 背景颜色
+      color: '#FFFFFF', // 字体颜色
+      timeout: 3000, // 自动关闭时间
+      icon: 'fas fa-check', // 图标
+      iconColor: '#FFFFFF' // 图标颜色
     });
   };
 
