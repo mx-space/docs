@@ -44,12 +44,16 @@ export function EnvVariableConfig({ variableNames, format }: { variableNames: { 
             className="border rounded-lg px-2 py-2 w-1/2 bg-transparent focus:outline-none focus:border-black hover:border-white-400 transition duration-300 font-[400] font-sans text-sm cursor-not-allowed dark:border-gray-700 dark:text-gray-300 dark:bg-gray-800"
             value={name.name || name.key}
             data-tip={name.key}
+            title={name.name || name.key}
+            placeholder={name.name || name.key}
             onMouseOver={(e: any) => {
-              e.target.style.color = 'transparent';
-              setTimeout(() => {
-                e.target.style.color = 'inherit';
-                e.target.value = e.target.dataset.tip;
-              }, 300);
+              if (typeof window !== 'undefined') {
+                e.target.style.color = 'transparent';
+                setTimeout(() => {
+                  e.target.style.color = 'inherit';
+                  e.target.value = e.target.dataset.tip;
+                }, 0);
+              }
             }}
             onMouseLeave={(e: any) => {
               e.target.style.color = 'transparent';
@@ -62,8 +66,7 @@ export function EnvVariableConfig({ variableNames, format }: { variableNames: { 
           />
           <input
             type="text"
-            className="border rounded-lg px-2 py-2 w-1/2 focus:outline-none focus:border-black hover:border-gray-400 transition duration-300 font-[400] font-sans text-sm dark:border-gray-700 dark:text-gray-300 dark:bg-gray-800" 
-            style={{ outline: "none", boxShadow: "none" }}
+            className="border rounded-lg px-2 py-2 w-1/2 focus:outline-none focus:border-black hover:border-gray-400 transition duration-300 font-[400] font-sans text-sm dark:border-gray-700 dark:text-gray-300 dark:bg-gray-800 focus:shadow-none"
             placeholder={`Enter value...`}
             value={values[index]}
             onChange={(e) => handleChange(index, e.target.value)}
