@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import copy from 'copy-to-clipboard';
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
 
 export function EnvVariableConfig({ variableNames, format }: { variableNames: { key: string; name: string;defaultVal?: string }[]; format?: "yaml" | "env" }) {
   const [values, setValues] = useState(variableNames.map((name) => name.defaultVal || ''));
@@ -10,10 +12,15 @@ export function EnvVariableConfig({ variableNames, format }: { variableNames: { 
     if (format === 'yaml') {
       const yamlContent = variableNames.map((name, index) => `- ${name.key}=${values[index]}`).join('\n');
       copy(yamlContent);
-      return;
+    } else {
+      const envContent = variableNames.map((name, index) => `${name.key}=${values[index]}`).join('\n');
+      copy(envContent);
     }
-    const envContent = variableNames.map((name, index) => `${name.key}=${values[index]}`).join('\n');
-    copy(envContent);
+    iziToast.success({
+      title: '成功',
+      message: '复制成功',
+      position: 'topRight'
+    });
   };
 
   const handleChange = (index: number, value: string) => {
