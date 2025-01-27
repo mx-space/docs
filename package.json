@@ -8,6 +8,7 @@
     "start": "next start",
     "postinstall": "fumadocs-mdx",
     "sync-search": "node sync-index.mjs",
+    "preinstall": "npx only-allow pnpm",
     "commit": "cz",
     "generate-sitemap": "tsx scripts/generate-sitemap.ts"
   },
@@ -30,6 +31,7 @@
     "globby": "^14.0.2",
     "lucide-react": "^0.469.0",
     "next": "15.1.2",
+    "only-allow": "^1.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-feather": "^2.0.10",
