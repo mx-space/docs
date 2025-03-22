@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
-import Logo from '@/public/logo.png';
+import Logo from '@/public/corelogo.png';
 
 export const linkItems: LinkItemType[] = [
   {
@@ -40,10 +40,10 @@ export const logo = (
 export const baseOptions: BaseLayoutProps = {
   nav: {
     title: <Image 
-      src="/logo.png" 
+      src="/corelogo.png" 
       alt="Logo" 
-      width={220}
-      height={220}
+      width={180}
+      height={180}
       className="h-10 w-auto"
     />,
   },
