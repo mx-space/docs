@@ -7,7 +7,7 @@ import { Contributing } from '@/app/components/home/Contributing';
 
 
 export const metadata = {
-  title: "Mix Space",
+  title: "首页",
   description: "Mix Space 是一个小型个人空间站点程序，采用前后端分离设计。"
 }
 
