@@ -1,24 +1,10 @@
-import { Suspense, lazy } from 'react';
 import { Hero } from "@/app/components/home/Hero";
-import styles from './page.module.css';
-import { 
-  RocketIcon,
-  TimerIcon,
-  LayoutIcon,
-  KeyboardIcon,
-  PencilLine,
-  MousePointerClick,
-  PersonStandingIcon 
-} from 'lucide-react';
 
-const Feedback = lazy(() => import('@/app/components/home/Feedback').then(m => ({ default: m.Feedback })));
-const Highlight = lazy(() => import('app/components/home/Highlight').then(m => ({ default: m.Highlight })));
-const Powered = lazy(() => import('@/app/components/home/Powered').then(m => ({ default: m.Powered })));
-const Contributing = lazy(() => import('@/app/components/home/Contributing').then(m => ({ default: m.Contributing })));
+import { Feedback } from '@/app/components/home/Feedback';
+import { HighlightGrid } from 'app/components/home/Highlight';
+import { Powered } from '@/app/components/home/Powered';
+import { Contributing } from '@/app/components/home/Contributing';
 
-function Loading() {
-  return <div className="min-h-[200px] flex items-center justify-center">Loading...</div>;
-}
 
 export const metadata = {
   title: "Mix Space - An Alternative Personal Space",
@@ -72,67 +58,12 @@ export default function Page(): React.ReactElement {
             />
           </div>
 
-          <Suspense fallback={<Loading />}>
-            <Feedback />
-          </Suspense>
-          <div className="flex flex-col items-center border-x border-t px-4 py-16 text-center">
-            <h2 className="mb-12 text-xl font-semibold sm:text-2xl flex items-center gap-2">
-              <MousePointerClick className="size-5" /> Highlight Features
-            </h2>
-            <div className="grid grid-cols-1 border-r md:grid-cols-2 lg:grid-cols-3 w-full">
-              {highlights.map((item, index) => (
-                <Suspense key={index} fallback={<Loading />}>
-                  <Highlight 
-                    icon={item.icon} 
-                    heading={item.heading}
-                  >
-                    {item.description}
-                  </Highlight>
-                </Suspense>
-              ))}
-            </div>
-          </div>
-          <Suspense fallback={<Loading />}>
-            <Powered />
-          </Suspense>
-          <Suspense fallback={<Loading />}>
-            <Contributing />
-          </Suspense>
+          <Feedback />
+          <HighlightGrid />
+          <Powered />
+          <Contributing />
         </div>
       </main>
     </>
   );
 }
-
-const highlights = [
-  {
-    icon: RocketIcon,
-    heading: "基于 Next.js",
-    description: "内置代码分割和图片优化，服务器端渲染（SSR）支持，性能强劲，速度快，SEO 友好。"
-  },
-  {
-    icon: TimerIcon,
-    heading: "前端轻量快速",
-    description: "其前端主题 Shiro 在 LightHouse 中表现优秀，Performance 和 Best practice 指数均大于 90%。"
-  },
-  {
-    icon: LayoutIcon,
-    heading: "UI 现代化",
-    description: "前端后端用户界面设计现代化，简洁而不简单，让你的体验更加流畅。"
-  },
-  {
-    icon: PencilLine,
-    heading: "Markdown 语法支持",
-    description: "Mix Space 原生支持 Markdown 语法，也支持自定义 Markdown 内语法，您可以使用自定义语法来丰富您的内容。"
-  },
-  {
-    icon: KeyboardIcon,
-    heading: "后台云函数配置",
-    description: "无限扩展、无限可能，通过 Core 内置的云函数配置功能实现歌单解析，追番列表等功能，还有更多。"
-  },
-  {
-    icon: PersonStandingIcon,
-    heading: "动态化配置前端",
-    description: "你可以在后台设置前端的配置，比如网站名称，网站描述，网站图标，以及一些其他配置。"
-  }
-];
