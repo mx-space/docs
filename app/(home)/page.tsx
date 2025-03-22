@@ -7,20 +7,13 @@ import { Contributing } from '@/app/components/home/Contributing';
 
 
 export const metadata = {
-  title: "Mix Space - An Alternative Personal Space",
+  title: "Mix Space",
   description: "Mix Space 是一个小型个人空间站点程序，采用前后端分离设计。"
 }
 
 export default function Page(): React.ReactElement {
   return (
     <>
-      <div
-        className="absolute inset-x-0 top-[200px] h-[250px] max-md:hidden"
-        style={{
-          background:
-            'repeating-linear-gradient(to right, hsl(var(--primary)/.1),hsl(var(--primary)/.1) 1px,transparent 1px,transparent 50px), repeating-linear-gradient(to bottom, hsl(var(--primary)/.1),hsl(var(--primary)/.1) 1px,transparent 1px,transparent 50px)',
-        }}
-      />
       <main className="container relative max-w-[1100px] px-2 py-4 lg:py-16">
         <div
           style={{

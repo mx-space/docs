@@ -57,26 +57,26 @@ export function Hero() {
   return (
     <div className="container relative z-[2] flex flex-col overflow-hidden rounded-lg bg-background px-6 pt-12 max-md:text-center md:px-12 md:pt-16">
       <div className="md:flex md:items-center md:gap-8 mb-8">
-      <div className="flex-shrink-0 md:w-1/3">
+      <div className="flex-shrink-0 md:w-2/5">
         <Image
-        src="/logo.png"
-        alt="Mix Space Logo"
-        width={300}
-        height={100}
-        className="max-w-full h-auto max-md:mx-auto"
-        priority
+          src="/logo.png"
+          alt="Mix Space Logo"
+          width={400}
+          height={133}
+          className="max-w-full h-auto max-md:mx-auto"
+          priority
         />
       </div>
-      <p className="text-muted-foreground md:text-xl max-md:mt-4">
-        Mix Space 是一个小型个人空间站点程序。不同于传统的博客程序，采用前后端分离设计，
-        适合那些喜欢写不同风格或类型的写作爱好者。
-      </p>
-      </div>
-      <div className="inline-flex items-center gap-3 max-md:mx-auto">
+      <div className="md:flex md:flex-col md:gap-4">
+        <p className="text-muted-foreground md:text-xl max-md:mt-4">
+        Mix Space 是一个个人空间，也可以作为个人博客使用，具有更全面的功能，并且可以保持持续更新。
+        </p>
+        
+        <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4 md:mt-2 mb-4">
         <Link
           href="/docs/core"
           className={cn(
-            buttonVariants({ size: 'lg', className: 'rounded-full' }),
+          buttonVariants({ size: 'lg', className: 'rounded-full min-w-[140px] justify-center' }),
           )}
         >
           <LuCirclePlay className="size-4 mr-2" /> 开始使用
@@ -84,20 +84,22 @@ export function Hero() {
         <a
           href="https://github.com/mx-space"
           className={cn(
-            buttonVariants({
-              size: 'lg',
-              variant: 'outline',
-              className: 'rounded-full bg-background flex items-center',
-            }),
+          buttonVariants({
+            size: 'lg',
+            variant: 'outline',
+            className: 'rounded-full bg-background min-w-[140px] justify-center',
+          }),
           )}
         >
           <FaGithub className="size-4 mr-2" /> Github
         </a>
+        </div>
+      </div>
       </div>
       
       <div 
         ref={containerRef}
-        className="relative mt-10 md:mt-16 mb-12 overflow-visible"
+        className="relative mt-6 md:mt-8 mb-12 overflow-visible"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
@@ -181,7 +183,6 @@ export function Hero() {
           </div>
         </div>
       </div>
-      <div className="absolute inset-0 z-[-1] bg-gradient-to-b from-background/50 to-background" />
     </div>
   );
 }
