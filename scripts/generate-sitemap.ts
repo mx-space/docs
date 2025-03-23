@@ -1,12 +1,12 @@
 import { writeFileSync } from 'fs'
-import { globby } from 'globby'
+import fg from 'fast-glob'
 import prettier from 'prettier'
 
 async function generate() {
   const prettierConfig = await prettier.resolveConfig('./.prettierrc.js')
   
   // 根据 meta.json 文件结构生成路径
-  const pages = await globby([
+  const pages = await fg([
     'content/docs/core/**/*.mdx',
     'content/docs/development/**/*.mdx', 
     'content/docs/document/**/*.mdx',
@@ -48,4 +48,4 @@ async function generate() {
   writeFileSync('public/sitemap.xml', formatted)
 }
 
-generate() 
+generate()
