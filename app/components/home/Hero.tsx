@@ -107,22 +107,22 @@ export function Hero() {
             </div>
           </div>
           
-          <div className="absolute bottom-[calc(var(--spacing)*4)] left-1/2 -translate-x-1/2 z-[2] flex flex-row border border-[var(--color-fd-border)] rounded-full bg-[var(--color-fd-card)] p-1 shadow-md shadow-[var(--color-fd-background)]">
+            <div className="absolute bottom-3 md:bottom-[calc(var(--spacing)*4)] left-1/2 -translate-x-1/2 z-[2] flex flex-row border border-[var(--color-fd-border)] rounded-full bg-[var(--color-fd-card)] p-0.5 md:p-1 shadow-md shadow-[var(--color-fd-background)] overflow-x-auto max-w-[calc(100%-2rem)] no-scrollbar">
             {imageNames.map((name, index) => (
               <button
-                key={`title-${index}`}
-                onClick={() => setCurrentImage(index)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  index === currentImage
-                    ? 'bg-[var(--color-fd-accent)] text-[var(--color-fd-accent-foreground)]'
-                    : 'text-[var(--color-fd-muted-foreground)] hover:bg-[var(--color-fd-secondary)] hover:text-[var(--color-fd-secondary-foreground)]'
-                }`}
-                aria-label={`查看${name}`}
+              key={`title-${index}`}
+              onClick={() => setCurrentImage(index)}
+              className={`px-2 md:px-4 py-1 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
+                index === currentImage
+                ? 'bg-[var(--color-fd-accent)] text-[var(--color-fd-accent-foreground)]'
+                : 'text-[var(--color-fd-muted-foreground)] hover:bg-[var(--color-fd-secondary)] hover:text-[var(--color-fd-secondary-foreground)]'
+              }`}
+              aria-label={`查看${name}`}
               >
-                {name}
+              {name}
               </button>
             ))}
-          </div>
+            </div>
         </div>
       </div>
     </div>
