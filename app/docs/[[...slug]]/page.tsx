@@ -10,17 +10,23 @@ import { getGithubLastEdit } from 'fumadocs-core/server';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 
 export default async function Page(props: {
-  params: Promise<{ slug?: string[] }>;
+  params: Promise<{ slug?: string[] }>; // 修改类型为 Promise
 }) {
-  const params = await props.params;
+  const params = await props.params; // 确保 await params
   const page = source.getPage(params.slug);
   if (!page) notFound();
 
-  const time = await getGithubLastEdit({
-    owner: 'mx-space',
-    repo: 'docs',
-    path: `content/docs/${page.file.path}`,
-  });
+  let time: Date | undefined;
+  try {
+    const lastEdit = await getGithubLastEdit({
+      owner: 'mx-space',
+      repo: 'docs',
+      path: `content/docs/${page.file.path}`,
+    });
+    time = lastEdit ?? undefined;
+  } catch (error) {
+    console.error(error);
+  }
 
   const MDX = page.data.body;
 
@@ -39,7 +45,7 @@ export default async function Page(props: {
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
-        <MDX components={{ ...defaultMdxComponents }} />
+        <MDX components={defaultMdxComponents} />
       </DocsBody>
     </DocsPage>
   );
@@ -50,9 +56,9 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(props: {
-  params: Promise<{ slug?: string[] }>;
+  params: Promise<{ slug?: string[] }>; // 修改类型为 Promise
 }) {
-  const params = await props.params;
+  const params = await props.params; // 确保 await params
   const page = source.getPage(params.slug);
   if (!page) notFound();
 
