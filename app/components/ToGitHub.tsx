@@ -1,6 +1,6 @@
 "use client";
 
-import { Github } from 'lucide-react';
+import { FaGithub } from "react-icons/fa";
 import { Card, Cards } from 'fumadocs-ui/components/card';
 
 export function ToGitHub({ repo }: { repo: string }) {
@@ -11,7 +11,7 @@ export function ToGitHub({ repo }: { repo: string }) {
         style={{ maxWidth: '100%' }}
         href={`https://github.com/${repo}`}
         title={`${repo} - GitHub`}
-        icon={<Github />}
+        icon={<FaGithub />}
         external
       />
     </Cards>
