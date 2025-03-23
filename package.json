@@ -41,6 +41,7 @@
     "tailwind-merge": "^3.0.2"
   },
   "devDependencies": {
+    "@fumadocs/cli": "^0.0.8",
     "@types/mdx": "^2.0.13",
     "@types/node": "22.13.11",
     "@types/react": "^19.0.12",
