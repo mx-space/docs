@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: { default: metaTitle, template: '%s - Mix Space 文档' },
   description: metaDescription,
   keywords: `Mix Space, 个人博客, 个人空间, 开源博客, Next.js, React, TypeScript`,
-  creator: '@riipandi',
+  creator: '@MixSpace Team',
   openGraph: {
     url: baseUrl,
     title: metaTitle,
