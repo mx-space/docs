@@ -39,13 +39,18 @@ export const logo = (
 
 export const baseOptions: BaseLayoutProps = {
   nav: {
-    title: <Image 
-      src="/corelogo.png" 
-      alt="Logo" 
-      width={180}
-      height={180}
-      className="h-10 w-auto"
-    />,
+    title: 
+    <div className="flex w-full flex-1 items-center gap-2 py-1.5">
+    <Image
+      src="/corelogo.png"
+      className="h-5 w-auto"
+      alt="MixSpace"
+      width={600}
+      height={250}
+      unoptimized
+    />
+    <span>MixSpace</span>
+  </div>
   },
   links: [
     {
