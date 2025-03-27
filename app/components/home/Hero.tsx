@@ -48,7 +48,7 @@ export function Hero() {
       </div>
       <div className="md:flex md:flex-col md:gap-4">
         <p className="text-muted-foreground md:text-xl max-md:mt-4">
-        Mix Space 是一个前后端分离的个人空间程序，也可以作为个人博客使用，并且可以保持持续更新。
+        Mix Space 是一个现代化的前后端分离个人空间解决方案，也可以作为个人博客使用。
         </p>
         
         <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4 md:mt-2 mb-4">

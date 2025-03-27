@@ -54,6 +54,10 @@ export const baseOptions: BaseLayoutProps = {
   },
   links: [
     {
+      text: '首页',
+      url: '/',
+    },
+    {
       type: 'menu',
       text: '文档',
       items: [
