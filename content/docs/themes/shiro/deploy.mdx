@@ -5,6 +5,7 @@ icon: Hammer
 ---
 
 import { ToGitHub } from 'app/components/ToGitHub'
+import Image from 'next/image'
 
 <ToGitHub repo="Innei/Shiro" />
 
@@ -156,8 +157,8 @@ export function FAQBox({ title, children }) {
     },
 
     "bg": [
-      "https://github.com/Innei/static/blob/master/images/F0q8mwwaIAEtird.jpeg?raw=true",
-      "https://github.com/Innei/static/blob/master/images/IMG_2111.jpeg.webp.jpg?raw=true"
+      "/static/images/F0q8mwwaIAEtird.jpeg",
+      "/static/images/IMG_2111.jpeg.webp.jpg"
     ],
     "custom": {
       "css": [],
@@ -217,8 +218,8 @@ export function FAQBox({ title, children }) {
         "enable": true,
         "link": "https://afdian.net/@Innei",
         "qrcode": [
-          "https://cdn.jsdelivr.net/gh/Innei/img-bed@master/20191211132347.png",
-          "https://cdn.innei.ren/bed/2023/0424213144.png"
+          "/static/images/20191211132347.png",
+          "/static/images/0424213144.png"
         ]
       },
       "bilibili": {
@@ -314,7 +315,12 @@ import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
  
 使用 Vercel 托管的话，只需要在自己 Fork 的项目上 Sync Fork 即可（如图）。如果自己有魔改某些内容的话不要点击 Discard Changes，会把自己的魔改搞没了。
 
-![GitPull](https://pic.vinua.cn/s/20/mx-space-docs/images/0.png)
+<Image 
+  src="https://pan.vinua.cn/f/GRefM/0.png" 
+  alt="GitPull" 
+  width={800} 
+  height={600} 
+/>
  
 </Accordion>
 
