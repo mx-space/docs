@@ -25,19 +25,23 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: latest
-      
-      - name: List project structure for debugging
-        run: |
-          echo "Project structure:"
-          find . -type d -not -path "*/node_modules/*" -not -path "*/.git/*" | sort
+          version: latest      
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pnpm-store
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Build project
-        id: build
-        continue-on-error: true
-        run: |
-          pnpm install
-          pnpm build
+        run: pnpm build
       
       - name: Sync search index
         run: |
