@@ -24,14 +24,15 @@ import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 ## 快速开始
 
 <Callout type="info">
-我们提供了两种部署方式，并且社区也提供了更多的部署方式，你可以根据自己的喜好选择一种部署方式。
+我们提供了两种部署方式，社区贡献了一种自动脚本模式，同时社区用户也分享了更多的部署方式，你可以根据自己的喜好选择一种部署方式。
 </Callout>
 
-import { Container, Pickaxe, Share2, Ellipsis, Paintbrush } from 'lucide-react';
+import { Container, SquareTerminal, Pickaxe, Share2, Ellipsis, Paintbrush } from 'lucide-react';
 
 <Cards>
-  <Card title="Docker 部署" href="/docs/core/docker" icon={<Container />}>使用Docker部署后端</Card>
+  <Card title="Docker 部署" href="/docs/core/docker" icon={<Container />}>使用 Docker 部署后端</Card>
   <Card title="进阶部署" href="/docs/core/advanced" icon={<Pickaxe />}>使用传统方式部署后端</Card>
+  <Card title="Bash 脚本部署" href="/docs/core/bash" icon={<SquareTerminal />}>使用 Bash 自动脚本一键部署前后端</Card>
   <Card title="拓展内容" href="/docs/core/extra" icon={<Ellipsis />}>部署常见问题与拓展内容</Card>
   <Card title="社区分享" href="/docs/core/community" icon={<Share2 />}>了解社区用户们分享的部署方式</Card>
 </Cards>
