@@ -3,11 +3,14 @@
 import React from 'react'
 import Image from 'next/image'
 import { Card, Cards } from 'fumadocs-ui/components/card'
-import { GitHub } from 'react-feather'
+import { FaGithub } from 'react-icons/fa'
+import shiroPreview from '@/public/assets/images/preview/shiro.png';
+import kamiPreview from '@/public/assets/images/preview/kami.png';
+import yunPreview from '@/public/assets/images/preview/yun.png';
 
 interface ThemeProps {
   title: string
-  preview: string
+  preview: any
   href: string
   github: string
 }
@@ -23,7 +26,7 @@ const ThemeCard = ({ title, preview, href, github }: ThemeProps) => {
           className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
           onClick={(e) => e.stopPropagation()}
         >
-          <GitHub size={16} />
+          <FaGithub size={16} />
         </a>
       </div>
       <Card 
@@ -51,26 +54,26 @@ const ThemeShowcase: React.FC = () => {
   const themes = [
     {
       title: 'Shiro (@innei)',
-      preview: '/assets/images/preview/shiro.png',
+      preview: shiroPreview,
       href: '/docs/themes/shiro/deploy',
       github: 'https://github.com/innei/shiro'
     },
     {
       title: 'Kami (@innei)',
-      preview: '/assets/images/preview/kami.png',
+      preview: kamiPreview,
       href: '/docs/themes/kami',
       github: 'https://github.com/mx-space/kami'
     },
     {
       title: 'Yun (@innei)',
-      preview: '/assets/images/preview/yun.png',
+      preview: yunPreview,
       href: '/docs/themes/yun',
       github: 'https://github.com/mx-space/mx-web-yun'
     }
   ]
 
   return (
-    <Cards>
+    <Cards className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {themes.map((theme) => (
         <ThemeCard key={theme.title} {...theme} />
       ))}
@@ -78,4 +81,4 @@ const ThemeShowcase: React.FC = () => {
   )
 }
 
-export default ThemeShowcase 
+export default ThemeShowcase
