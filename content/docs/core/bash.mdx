@@ -1,6 +1,6 @@
 ---
 title: Bash 自动脚本
-description: 一种自动部署 MixSpace 前后端的 Bash 脚本
+description: 一种自动部署 MixSpace 后端的 Bash 脚本
 icon: SquareTerminal
 ---
 
@@ -15,7 +15,7 @@ import { ToGithub } from '@/app/components/ToGithub';
 
 ## 介绍
 
-这是一种在服务器自动安装 Docker 和进行 MixSpace 前后端部署的 Bash 脚本，它可以帮助你交互式快速部署 MixSpace。
+这是一种在服务器自动安装 Docker 和进行 MixSpace 后端部署的 Bash 脚本，它可以帮助你交互式快速部署 MixSpace 后端。
 
 注意脚本会自动根据是否为中国大陆网络环境按需修改服务器 Docker 安装源和镜像源。
 
@@ -28,7 +28,7 @@ import { ToGithub } from '@/app/components/ToGithub';
 ### 海外服务器
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/PaloMiku/MxShell/refs/heads/main/install.sh -o install.sh && bash install.sh
+curl -sSL https://raw.githubusercontent.com/PaloMiku/MxShell/refs/heads/main/install/core.sh -o core.sh && bash core.sh
 ```
 
 ### 国内服务器
@@ -36,42 +36,24 @@ curl -sSL https://raw.githubusercontent.com/PaloMiku/MxShell/refs/heads/main/ins
 使用 Moeyy 的 GitHub 加速源。
 
 ```bash
-curl -sSL https://github.moeyy.xyz/https://raw.githubusercontent.com/PaloMiku/MxShell/refs/heads/main/install.sh -o install.sh && bash install.sh
+curl -sSL https://github.moeyy.xyz/https://raw.githubusercontent.com/PaloMiku/MxShell/refs/heads/main/install/core.sh -o core.sh && bash core.sh
 ```
 
 ## 预配置文件
 
-不建议新手使用，参考下方示例修改并粘贴到 mxconfig.yml 文件，并将其与脚本置于同一目录后运行脚本，脚本会根据配置文件内容自动完成前后端部署。
+参考下方示例修改并粘贴到`mxshell.env`文件,并将其与脚本置于同一目录后运行脚本，脚本会根据配置文件内容自动完成前后端部署。
 
 ### 配置文件示例
 
 ```yaml
-# 后端配置
-
-# JWT 密钥，用于加密用户的 JWT，长度需为 16 到 32 个字符
-JWT_SECRET: "your_jwt_secret_here"
-
-# 允许访问的域名，多个域名用英文逗号分隔
-ALLOWED_ORIGINS: "example.com,api.example.com"
-
+# 需要填写长度不小于 16 个字符，不大于 32 个字符的字符串，用于加密用户的 JWT，务必保存好自己的密钥，不要泄露给他人。
+JWT_SECRET=
+# 需要填写被允许访问前端的域名，如果允许多个域名访问，用英文逗号，分隔。
+ALLOWED_ORIGINS=
 # MixSpace 容器文件存储目录
-TARGET_DIR: "/opt/mxspace"
-
-# 前端配置
-FRONTEND:
-  INSTALL: true
-  VERSION: "Shiro" # 可选值: Shiro 或 Shiroi
-  NEXT_PUBLIC_API_URL: "http://127.0.0.1:2333/api/v2"
-  NEXT_PUBLIC_GATEWAY_URL: "http://127.0.0.1:2333/"
-  SHIRO_IMAGE: "your-dockerhub-username/shiroi:tag" # 仅在 Shiroi 版本时需要
-
+TARGET_DIR="/opt/mxspace"
 ```
 
 - **`JWT 密钥`**：需要填写长度不小于 16 个字符，不大于 32 个字符的字符串，用于加密用户的 JWT，务必保存好自己的密钥，不要泄露给他人。
 - **`被允许的域名`**：需要填写被允许访问容器的域名，通常是前端的域名，如果允许多个域名访问，用英文逗号，分隔。
 - **`MixSpace 容器文件存储目录`**：指定文件存储路径，通常是 `/opt/mxspace`。
-- **`前端安装`**：是否安装前端，true 为安装，false 为跳过，默认为 true。
-- **`前端版本`**：可选值为 Shiro 或 Shiroi（闭源）。
-- **`前端 API 地址`**：指定后端 API 的 URL，通常为后端加 `/api/v2`。
-- **`前端网关地址`**：指定后端网关的 URL，通常为你后端的域名。
-- **`Shiro 镜像`**：仅在前端版本选择为 Shiroi 版本时需要，填写你自构建的 shiroi docker 镜像信息。
