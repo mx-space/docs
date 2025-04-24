@@ -60,7 +60,7 @@ export const baseOptions: BaseLayoutProps = {
     {
       type: 'menu',
       text: '文档',
-      url: '/docs',
+      url: '/docs/core',
       items: [
         {
           icon: <BookMarked />,
