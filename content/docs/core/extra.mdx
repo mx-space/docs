@@ -59,15 +59,6 @@ server{
       proxy_set_header REMOTE-HOST $remote_addr;
       expires 30d;
     }
-    location ~* \/(feed|sitemap|atom.xml) {
-      proxy_pass http://127.0.0.1:2333/$1;
-      proxy_set_header Host $host;
-      proxy_set_header X-Real-IP $remote_addr;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header REMOTE-HOST $remote_addr;
-      add_header X-Cache $upstream_cache_status;
-      add_header Cache-Control max-age=60;
-    }
     location / {
       proxy_pass http://127.0.0.1:2323;
       proxy_set_header Host $host;
@@ -127,10 +118,6 @@ server {
     location /qaqdmin {
         proxy_pass http://127.0.0.1:2333/proxy/qaqdmin;
     }
-    ## RSS 地址
-    location ~* \/(feed|sitemap|atom.xml) {
-        proxy_pass http://127.0.0.1:2333/$1; 
-    }
     ## 反向代理结束
 }
 ``` 
@@ -175,9 +162,6 @@ server {
         proxy_pass http://127.0.0.1:2333/proxy;
     }
 
-    location ~* \/(feed|sitemap|atom.xml) {
-        proxy_pass http://127.0.0.1:2333/$1; 
-    }
     ssl_certificate /www/sites/www.example.com/ssl/fullchain.pem; 
     ssl_certificate_key /www/sites/www.example.com/ssl/privkey.pem; 
     ssl_protocols TLSv1.3 TLSv1.2 TLSv1.1 TLSv1; 
