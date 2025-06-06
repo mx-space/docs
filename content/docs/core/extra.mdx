@@ -28,6 +28,33 @@ icon: Ellipsis
 
 `主域名`填入你将要使用的域名，并勾选`监听IPV6`，代理类型选择`http`，地址填入`127.0.0.1:2333`
 
+### Cloudflare Tunnel
+<Callout type="warn">
+除非你在**非完整服务器环境**(如在Sealos或Huggingface Space上部署)，否则我们不推荐在容器内使用该功能，而应在宿主机内配置**Cloudflare Tunnel**以避免后期出现管理不方便等问题
+</Callout>
+
+启动该功能需要两个环境变量
+  - `ENABLE_CLOUDFLARED` = **true**
+  - `CF_ZERO_TRUST_TOKEN` = **Tunnel 给的令牌（删掉 cloudflared.exe service install，只保留令牌部分）**
+
+#### 详细步骤：
+1.申请 Cloudflare Zero Trust，关于申请方式请自行查找
+
+2.添加一条隧道，连接方式选择 Cloudflared，名称任意
+
+3.添加一个 Public Hostname，回源选择 HTTP，端口选择 2333
+
+一旦启动成功，你应当在日志中看到如下输出，并在Cloudflare后台看到客户端正常上线：
+```
+============================================
+Starting Cloudflared Tunnel
+============================================
+
+============================================
+2025-06-06T02:22:40Z INF Using SysV
+2025-06-06T02:22:41Z INF Linux service for cloudflared installed successfully
+```
+
 ### 手写配置
 
 <Callout type="warn">
