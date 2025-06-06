@@ -3,6 +3,7 @@ import { Provider } from './components/provider';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next'
 import { env } from 'std-env'
+import { ToastProvider } from '@/contexts/toast-context';
 const baseUrl = env.NEXT_PUBLIC_BASE_URL || 'https://mx-space.js.org'
 const metaDescription = `Mix Space 是一个小型个人空间站点程序，采用前后端分离设计，适合喜欢写作的你。`
 const metaTitle = 'Mix Space 文档 - 现代化的个人空间解决方案'
@@ -34,7 +35,9 @@ export default function RootLayout({
       </head>
       <body>
         <Provider>
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </Provider>
       </body>
     </html>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import copy from 'copy-to-clipboard'
+import { useCopy } from '@/hooks/use-copy'
 
 export const Configurator = ({ args, template, env }: { 
   args: string[], 
@@ -15,6 +15,7 @@ export const Configurator = ({ args, template, env }: {
   }));
 
   const [values, setValues] = useState(envVariables.map(v => v.defaultVal || ''));
+  const { copyToClipboard } = useCopy();
 
   const handleCopy = () => {
     // 处理环境变量
@@ -34,7 +35,7 @@ export const Configurator = ({ args, template, env }: {
       );
     });
 
-    copy(result);
+    copyToClipboard(result, '配置已复制到剪贴板');
   };
 
   return (
@@ -65,4 +66,4 @@ export const Configurator = ({ args, template, env }: {
       </button>
     </div>
   );
-}; 
+};
