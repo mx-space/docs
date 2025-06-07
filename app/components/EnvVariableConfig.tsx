@@ -1,23 +1,19 @@
 "use client";
 import { useState } from 'react';
-import copy from 'copy-to-clipboard';
+import { useCopy } from '@/hooks/use-copy';
 
 export function EnvVariableConfig({ variableNames, format }: { variableNames: { key: string; name: string; defaultVal?: string }[]; format?: "yaml" | "env" }) {
   const [values, setValues] = useState(variableNames.map((name) => name.defaultVal || ''));
-  const [copyButtonText, setCopyButtonText] = useState('复制'); // 新增状态用于控制按钮文本
+  const { copyToClipboard } = useCopy();
 
   const handleCopy = () => {
     if (format === 'yaml') {
       const yamlContent = variableNames.map((name, index) => `- ${name.key}=${values[index]}`).join('\n');
-      copy(yamlContent);
+      copyToClipboard(yamlContent, '环境变量配置已复制');
     } else {
       const envContent = variableNames.map((name, index) => `${name.key}=${values[index]}`).join('\n');
-      copy(envContent);
+      copyToClipboard(envContent, '环境变量配置已复制');
     }
-    setCopyButtonText('复制成功');
-    setTimeout(() => {
-      setCopyButtonText('复制');
-    }, 3000);
   };
 
   const handleChange = (index: number, value: string) => {
@@ -68,7 +64,7 @@ export function EnvVariableConfig({ variableNames, format }: { variableNames: { 
               className="border bg-black w-full text-white px-4 py-2 rounded-lg text-sm transform transition-all duration-300 focus:outline-none hover:bg-gray-700 dark:border-gray-700 dark:bg-gray-800"
               onClick={handleCopy}
           >
-            {copyButtonText}
+            复制配置
           </button>
         </div>
       </div>

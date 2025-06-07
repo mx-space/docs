@@ -6,13 +6,62 @@ icon: Ellipsis
 
 ## 反向代理
 
-在这里提供双域名（前端和后端各用一个域名）与单域名（前后端共用一个域名）的配置步骤。
+在这里提供 **Mix-Space** 的反代配置步骤。
 
-当然不管使用哪种方法，都建议用控制面板（如宝塔、1Panel 等）的使用面板提供的反代功能单独粘贴对应的反代配置部分完成配置（需要删掉开头和结尾的 server 块），手写反代配置的大佬随意。
+当然不管使用哪种方法，都建议用控制面板（如宝塔、1Panel 等）完成配置，手写反代配置的大佬随意。
 
 另外，不管是前端还是后端的域名，都需要**配置好 HTTPS 证书**以保证网站能正常访问。
 
-### 双域名
+### 图形化界面
+
+现代服务器面板（如 `1Panel` 和`宝塔面板`）自带的**反向代理**已足以满足 Mix-Space 所需的反代要求（包括 Websocket），因此我们更建议非高级用户使用图形化界面来操作和维护
+
+#### 宝塔面板
+
+进入`网站`，在`反向代理`栏目下点击`添加反代`
+
+`域名`填入你将要使用的域名，`目标`填写`URL地址` + `http://127.0.0.1:2333`
+
+#### 1Panel
+
+进入`网站 > 网站`,并创建一个新网站，选择`反向代理`
+
+`主域名`填入你将要使用的域名，并勾选`监听 IPV6`，代理类型选择 `http` ，地址填入 `127.0.0.1:2333`
+
+### Cloudflare Tunnel
+<Callout type="warn">
+除非你在**非完整服务器环境**(如在 Sealos 或 Huggingface Space 上部署)，否则我们不推荐在容器内使用该功能，而应在宿主机内配置 **Cloudflare Tunnel** 以避免后期出现管理不方便等问题
+</Callout>
+
+启动该功能需要两个环境变量
+  - `ENABLE_CLOUDFLARED` = **true**
+  - `CF_ZERO_TRUST_TOKEN` = **Tunnel 给的令牌（删掉 cloudflared.exe service install，只保留令牌部分）**
+
+#### 详细步骤：
+1.申请 Cloudflare Zero Trust，关于申请方式请自行查找
+
+2.添加一条隧道，连接方式选择 Cloudflared，名称任意
+
+3.添加一个 Public Hostname，回源选择 HTTP，端口选择 2333
+
+一旦启动成功，你应当在日志中看到如下输出，并在 Cloudflare 后台看到客户端正常上线：
+```
+============================================
+Starting Cloudflared Tunnel
+============================================
+
+============================================
+2025-06-06T02:22:40Z INF Using SysV
+2025-06-06T02:22:41Z INF Linux service for cloudflared installed successfully
+```
+
+### 手写配置
+
+<Callout type="warn">
+手写配置文件需要较高的**技术功底**，请量力而行
+</Callout>
+
+#### 双域名
 
 这里假定前端域名为 `www.example.com`，后端为 `server.example.com`。
 
@@ -80,7 +129,7 @@ server{
 - 本地后台为 `https://server.example.com/proxy/qaqdmin`
 </Callout>
 
-### 单域名
+#### 单域名
 
 以下配置文件以 Nginx 为例，请自行修改 SSL 证书路径以及自己的网站域名。
 
