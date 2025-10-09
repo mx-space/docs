@@ -28,6 +28,126 @@ icon: Ellipsis
 
 `主域名`填入你将要使用的域名，并勾选`监听 IPV6`，代理类型选择 `http` ，地址填入 `127.0.0.1:2333`
 
+#### Vane
+<Callout type="warn">
+由于 **Vane** 是一个新开发的反向代理(2025-09-09)，**所以请做好出现异常问题的准备**，但是不要担心，出现任何代理问题的时候请携带**日志**给我们，我们会听取你们的反馈，目前已经测试过了 `mx-server` + `Shiroi` 请放心使用
+</Callout>
+
+[Vane](https://github.com/canmi21/vane) 是一个现代的，100% 使用 Rust 编写的反向代理，其优势是大约 1.5-3MB 的内存占用，整 docker 镜像部署大约占用 5MB 磁盘大小
+详细步骤：
+
+首先使用 `SSL` 需要先获取证书，`Vane` 目前不包含 SSL 证书管理，有2个办法是：
+  -  `1panel` & '宝塔面板' 这些 GUI 运维工具自带了 acme.sh 可以GUI管理了给 Vane 导入证书文件
+  -  [lazy-acme](https://github.com/canmi21/lazy-acme) 这是 Vane 配套的管理工具，后端使用 [Lego](https://github.com/go-acme/lego), 目前只支持 `Cloudfalre` DNS 验证 + 少量主流免费 CA.
+
+如果使用`方法1`的话，需要你自行映射证书目录给 `~/vane/cert` 或者映射其他任何你喜欢的位置，内部存在的 `pem` 格式证书在下面 `zonefile` 内部修改使用
+
+关于 `Vane` 部署，推荐使用 [docker-compose.yml](https://github.com/canmi21/vane?tab=readme-ov-file#installation-and-usage) 部署
+
+然后需要编写一个 `Zone File` 采用 **TOML** 语法, 配置文件默认存放在 "~/vane/config.toml"，Vane 虽然支持 `*` wildcard 匹配，但是还是建议分离域名管理会方便一些，例如：
+
+```toml
+# Vane main configuration file
+# This file maps hostnames to their specific configuration files.
+[domains]
+"example.com" = "example.com.toml"
+"api.example.com" = "api.example.com.toml"
+```
+
+这样就创建好了2个独立的域名，接下来，在该文件夹内分别创建 `example.com.toml` 和 `api.example.com.toml` 注意请替换为实际域名
+
+
+```toml
+# Vane domain configuration for example.com
+
+# --- Core Protocol Settings ---
+# Enable HTTPS on the standard port (443 by default).
+https = true
+# Enable HTTP/3 over QUIC on the HTTPS UDP port. Requires `https` to be true.
+http3 = true
+# Enable HSTS (HTTP Strict Transport Security) header to enforce HTTPS on clients.
+hsts = true
+# Behavior for plain HTTP requests on port 80:
+# "upgrade" (redirects to HTTPS), "reject" (blocks), or "allow".
+http_options = "reject"
+
+# --- TLS Certificate Settings ---
+[tls]
+# Path to the PEM-encoded TLS certificate file. Supports '~' for the home directory.
+cert = "~/vane/cert/example.com.pem"
+# Path to the PEM-encoded private key file. Supports '~' for the home directory.
+key = "~/vane/cert/example.com.key"
+
+# --- Method Filtering ---
+# Optional: Restrict which HTTP methods are allowed for this entire domain.
+# This check happens before CORS or routing. Use "*" to allow all methods.
+[methods]
+allow = "GET, POST, OPTIONS, HEAD"
+
+# --- CORS (Cross-Origin Resource Sharing) ---
+# Optional: Fine-grained CORS configuration.
+# If this section is present, Vane will override any CORS headers from the backend.
+[cors]
+# Map of allowed origins to their allowed methods.
+[cors.origins]
+# For methods, use a comma-separated string (e.g., "GET, POST"), or use "*" to allow all methods from that origin.
+"https://canmi.net" = "GET, POST, OPTIONS"
+
+# --- Rate Limiting ---
+[rate_limit]
+# Default rate limit applied to all requests for this domain unless a more specific rule matches.
+[rate_limit.default]
+# The time window for the rate limit (e.g., "1s", "10m", "1h").
+period = "1s"
+# Number of requests allowed in the period. Set to 0 to disable.
+requests = 20
+
+# --- Routing Rules ---
+# Define how incoming paths are proxied to backend targets.
+# Rules are matched from top to bottom.
+# [[routes]]
+# The URL path to match. Supports wildcards (*) at the end.
+# path = "/api/*"
+# A list of backend servers. Vane will try them in order.
+# If the first target fails (connection error or 5xx response), it will try the second, and so on.
+# targets = ["http://12.0.0.1:8000", "http://127.0.0.1:33433"] # Primary and fallback targets
+
+[[routes]]
+path = "/"
+websocket = true
+targets = ["http://127.0.0.1:2323"]
+```
+
+以及后端 `mx-server`
+
+```toml
+# Vane domain configuration for api.example.com
+
+https = true
+http_options = "reject"
+hsts = true
+http3 = false
+
+[tls]
+cert = "~/vane/cert/api.example.com.pem"
+key = "~/vane/cert/api.example.com.key"
+
+[methods]
+allow = "GET, POST, OPTIONS, HEAD"
+
+[rate_limit.default]
+period = "1s"
+requests = 20
+
+[[routes]]
+path = "/*"
+websocket = true
+targets = ["http://localhost:2333"]
+```
+
+注意这里 `2333` 和 `2323` 端口可能会需要按照你实际部署的 `mx-space` 来决定端口，如果你自己修改了的话, 以及端口，这里例示使用了
+`example.com` 这个裸域名作为前端，`api.example.com` 具体域名可能需要按照实际情况修改，当然如果你前端想要部署在三级域名上比如 `blog.example.com`上也是可以的，按照上述配置修改即可
+
 ### Cloudflare Tunnel
 <Callout type="warn">
 除非你在**非完整服务器环境**(如在 Sealos 或 Huggingface Space 上部署)，否则我们不推荐在容器内使用该功能，而应在宿主机内配置 **Cloudflare Tunnel** 以避免后期出现管理不方便等问题
