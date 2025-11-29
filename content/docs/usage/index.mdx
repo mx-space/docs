@@ -15,12 +15,12 @@ description: 探索 MixSpace 的使用方式
 import { 
   Database,
   Search,
-  LifeBuoy,
   Bitcoin,
   History,
   ArrowUp,
   Key,
-  Lock
+  Lock,
+  Image as ImageIcon
 } from 'lucide-react'
 
 <Cards>
@@ -28,6 +28,11 @@ import {
     icon={<Database />}
     href={'/docs/usage/serverless'}
     title="云函数"
+  />
+  <Card
+    icon={<ImageIcon />}
+    href={'/docs/usage/image-upload'}
+    title="编辑器图片上传"
   />
   <Card
     icon={<Search />}

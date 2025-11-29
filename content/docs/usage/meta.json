@@ -6,6 +6,7 @@
   "pages": [
     "---文档---",
     "serverless",
+    "image-upload",
     "xlog",
     "search",
     "backup",

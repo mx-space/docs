@@ -1,0 +1,101 @@
+---
+title: 编辑器图片上传
+description: 为编辑器配置自动图片上传
+---
+
+import { ToGithub } from '@/app/components/ToGithub';
+import { Cloud } from 'lucide-react'
+
+Mix Space 编辑器支持直接粘贴 / 拖拽图片，后端会根据配置自动上传并返回外链。你可以根据自己的部署环境选择**站内附件**、**S3 兼容存储**或**云函数**三种策略。
+
+<Callout type="warn">
+该章节所述的统一上传配置与云函数回调能力在 v8.5.0 及更新版本才可用，请确保后端已升级。
+</Callout>
+
+<Callout type="info">
+配置入口：后台 ->「设置」->「编辑器」->「编辑器图片上传」。修改后需要刷新编辑器才能生效。
+</Callout>
+
+## 方案一：站内附件（自托管 API）
+
+当上传策略设为「自托管 API（站内附件）」时，图片会被写入服务器本地的 `STATIC_FILE_DIR`（默认为 `~/.mx-space/static`）。系统会自动返回形如 `https://你的域名/objects/images/xxx.png` 的地址。
+
+### 操作步骤
+
+1. 选择「自托管 API（站内附件）」作为提供方。
+2. 确保「全局设置 -> 站点地址 (serverUrl)」指向当前可访问的域名，编辑器会据此拼接对外 URL。
+3. 服务器需要具备写权限与足够的磁盘空间，文件会按照 `STATIC_FILE_DIR/<类型>/<文件名>` 的结构保存。
+
+### 注意事项
+
+- 本地模式适合单机部署，如果后端服务多实例或挂载了 CDN，记得同步静态目录或使用共享存储。
+- 文件实际路径可以在 `apps/core/src/constants/path.constant.ts` 中调整，必要时将目录挂载到更大的磁盘。
+
+## 方案二：S3 兼容存储
+
+选择「S3 兼容 API」后，后端会通过内置的 `S3Uploader` 直接将文件上传到 AWS S3 或任何兼容 S3 协议的对象存储（如 COS、又拍云 USS、MinIO 等）。
+
+### 必填项
+
+- **Endpoint**：可选，默认为 `https://<bucket>.s3.<region>.amazonaws.com`。对接 COS / MinIO 时请填写自定义域名或 API 地址。
+- **Access Key ID / Secret Access Key**：对应存储账号的 API 凭据。
+- **Bucket / Region**：目标存储桶与地区。
+- **路径前缀**：文件在桶内的目录，默认 `images`。
+- **公共 URL 前缀**：返回给编辑器的最终 URL 域名，通常填 CDN / 自定义域，如 `https://img.example.com`。系统会自动与对象 key 拼接，避免出现双斜杠。
+
+### 额外提示
+
+- 如果对象存储需要自定义签名或者 Header，可在存储端配置策略，后端暂不支持额外自定义。
+- 上传失败时可以在服务日志中看到 `FileService` 打印的错误信息。
+
+## 方案三：云函数
+
+当选择「云函数」时，后端不会直接对接第三方，而是把图片以 Base64 的形式转交给一个固定的 Serverless 函数，让你完全掌控上传流程（例如上传到私有 API、图床、第三方审查服务等）。
+
+### 函数约定
+
+- 需要在「其他 -> 云函数」中新建 / 启用一个函数，`reference` 固定为 `file`，`name` 固定为 `editor-image-upload`。
+- 请求体结构如下：
+
+```json
+{
+  "filename": "原始文件名.jpg",
+  "ext": ".jpg",
+  "mimetype": "image/jpeg",
+  "size": 12345,
+  "buffer": "<Base64 编码的文件内容>"
+}
+```
+
+- 函数可以返回字符串（直接当成 URL）或 `{ "url": "https://..." }` 对象。
+- 如需抛错，调用 `context.res.throws(status, message)` 即可让编辑器收到提示。
+
+### 示例
+
+```ts
+async function handler(context) {
+  const { buffer, filename, mimetype } = context.req.body
+  const file = Buffer.from(buffer, 'base64')
+
+  // 将文件上传到任意对象存储 / 第三方 API
+  const url = await putObjectToStorage(file, { filename, mimetype })
+
+  return { url }
+}
+```
+
+<Callout type="warn">
+云函数运行在沙箱中，不能直接访问 `node:os`、`fs` 等高权限内置模块；如果需要系统信息，请通过提供的 `context` / HTTP API 获取。详见「云函数」章节。
+</Callout>
+
+## 延伸阅读
+
+<Cards>
+  <Card
+    title="云函数"
+    href="/docs/usage/serverless"
+    icon={<Cloud />}
+  >
+    了解如何编写和部署自定义函数，扩展图片上传逻辑。
+  </Card>
+</Cards>
