@@ -13,50 +13,50 @@
     "generate-sitemap": "tsx scripts/generate-sitemap.ts"
   },
   "dependencies": {
-    "@orama/orama": "^3.1.14",
-    "@orama/tokenizers": "^3.1.14",
+    "@orama/orama": "^3.1.18",
+    "@orama/tokenizers": "^3.1.18",
     "@oramacloud/client": "^2.1.4",
-    "@tailwindcss/postcss": "^4.1.13",
+    "@tailwindcss/postcss": "^4.1.18",
     "autocorrect-node": "^2.14.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "commitizen": "^4.3.1",
     "copy-to-clipboard": "^3.3.3",
     "cz-conventional-changelog": "^3.3.0",
-    "dotenv": "^16.6.1",
+    "dotenv": "^17.2.3",
     "fast-glob": "^3.3.3",
-    "framer-motion": "^12.23.22",
+    "framer-motion": "^12.23.26",
     "fumadocs-core": "15.1.2",
     "fumadocs-mdx": "11.5.7",
-    "fumadocs-typescript": "^3.1.0",
+    "fumadocs-typescript": "^5.0.0",
     "fumadocs-ui": "15.1.2",
-    "lucide-react": "^0.483.0",
+    "lucide-react": "^0.562.0",
     "next": "15.2.3",
-    "only-allow": "^1.2.1",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
+    "only-allow": "^1.2.2",
+    "react": "^19.1.4",
+    "react-dom": "^19.1.4",
     "react-icons": "^5.5.0",
-    "shiki": "^3.13.0",
-    "std-env": "^3.9.0",
-    "tailwind-merge": "^3.3.1"
+    "shiki": "^3.20.0",
+    "std-env": "^3.10.0",
+    "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
-    "@fumadocs/cli": "^0.0.8",
+    "@fumadocs/cli": "^1.2.0",
     "@types/mdx": "^2.0.13",
     "@types/node": "22.13.11",
-    "@types/react": "^19.1.14",
-    "@types/react-dom": "^19.1.9",
-    "autoprefixer": "^10.4.21",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.4.23",
     "postcss": "^8.5.6",
-    "prettier": "^3.6.2",
-    "tailwindcss": "^4.1.13",
-    "tsx": "^4.20.6",
-    "typescript": "^5.9.2"
+    "prettier": "^3.7.4",
+    "tailwindcss": "^4.1.18",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   },
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
     }
   },
-  "packageManager": "pnpm@9.12.3+sha512.cce0f9de9c5a7c95bef944169cc5dfe8741abfb145078c0d508b868056848a87c81e626246cb60967cbd7fd29a6c062ef73ff840d96b3c86c40ac92cf4a813ee"
+  "packageManager": "pnpm@10.26.2"
 }

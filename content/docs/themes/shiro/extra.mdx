@@ -3,6 +3,7 @@ title: 额外功能
 description: Shiro 主题的额外功能配置
 icon: SquarePlus
 ---
+
 # 额外功能
 
 ## 扩展的 Markdown 语法
@@ -18,18 +19,17 @@ icon: SquarePlus
 
 Shiro 主题中，有一个可以在顶部显示博主当前正在做的事情的功能，这个功能是通过云函数和 ProcessReporter 软件实现的。
 
-import { ToGithub } from '@/app/components/ToGithub';
+import { ToGithub } from '@/app/components/ToGithub'
 
 <ToGithub repo="mx-space/ProcessReporterMac" />
 <ToGithub repo="TNXG/ProcessReporterWinpy" />
 <ToGithub repo="ttimochan/processforlinux" />
 
-
 <Callout type="info">
   非常感谢 Innei, timochan, TNXG 的贡献，目前 ProcessReporter 已支持全平台！
 </Callout>
 
-import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Step, Steps } from 'fumadocs-ui/components/steps'
 
 <Steps>
 ### 配置云函数
@@ -166,7 +166,7 @@ LOG_ENABLE=true
 如果有什么疑问，可以去阅读该项目的 [README](https://github.com/ttimochan/processforlinux#readme)
 
 <script>
-{`
+  {`
   document.addEventListener('DOMContentLoaded', () => {
     const style = document.createElement('style');
     style.textContent = \`
@@ -220,11 +220,80 @@ LOG_ENABLE=true
 
 在主页登录之后，你可以点击此头像的右下方设置状态。
 
+## AI 参与声明
+
+<Callout type="warn">此特性为闭源版本特有</Callout>
+
+Shiro 主题支持在文章的 Meta 数据中声明 AI 的参与程度，实现创作过程的透明化。编辑时可在 `meta.aiGen` 字段选择声明类型，前端会自动展示对应的 AI 参与徽章。
+
+支持的声明类型：
+
+| 类型     | 说明                                           |
+| -------- | ---------------------------------------------- |
+| 手作     | 本文内容完全由作者独立创作，未使用任何 AI 辅助 |
+| 辅助写作 | AI 辅助构思/结构/表达，作者审阅并修改后发布    |
+| 润色     | AI 用于语言润色/语法调整，不改变核心观点       |
+| 完全     | 内容主要由 AI 生成，作者进行了选择与编辑后发布 |
+| 故事整理 | 作者口述内容，AI 进行整理与润色后发布          |
+| 标题生成 | 标题由 AI 生成或优化                           |
+| 校对     | AI 协助校对文本，检查拼写、语法和逻辑问题      |
+| 灵感提供 | AI 提供创意灵感或写作思路                      |
+| 改写     | AI 将内容改写成不同风格或语气                  |
+
+## 动态背景系统
+
+<Callout type="warn">此特性为闭源版本特有</Callout>
+
+Shiro 主题内置基于 WebGL 的高性能粒子物理背景系统，支持多种效果自动切换：
+
+### 粒子物理背景
+
+基于牛顿力学的粒子物理系统，响应页面滚动产生惯性运动效果。
+
+**技术特点：**
+
+- 滚动驱动力：与滚动速度成正比
+- 阻力模拟：每帧保留 85% 速度，模拟能量耗散
+- 恢复力系统：停止滚动后逐渐回归原始轨道
+- 智能分布：80% 粒子避开内容区域，避免干扰阅读
+
+### 雪花背景
+
+程序化生成的六重对称雪花，支持完整的物理效果。
+
+**可配置参数：**
+
+- 风力系统：风速、风向控制
+- 重力模拟：可调节下落速度
+- 湍流效果：随机扰动的自然飘落
+- 深度模糊：基于距离的景深效果
+- 雪花密度：可调整粒子数量
+
+### 萤火虫背景
+
+互动式萤火虫动画，营造梦幻氛围。
+
+**交互特性：**
+
+- 鼠标点击惊吓：萤火虫会逃离点击区域
+- 多种颜色：黄绿色、绿色、淡蓝色
+- 脉动闪烁：自然的亮度变化效果
+- 智能避让：自动避开内容阅读区域
+
+### 季节自动切换
+
+系统会根据当前日期和主题自动选择合适的背景效果：
+
+| 条件                          | 背景效果                  |
+| ----------------------------- | ------------------------- |
+| 冬季（12 月 -2 月）+ 深色模式 | 雪花背景                  |
+| 其他情况                      | 粒子物理背景 / 萤火虫背景 |
+
+文章详情页默认不显示背景动画，以保持阅读体验。
+
 ## 签名动画
 
-<Callout type="warn">
-此特性为闭源版本特有
-</Callout>
+<Callout type="warn">此特性为闭源版本特有</Callout>
 
 ![](/assets/images/themes/shiro/sign.gif)
 
