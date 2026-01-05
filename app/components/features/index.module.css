@@ -26,12 +26,14 @@
   background-color: #202020;
 }
 .feature {
-  box-shadow: 0 8px 16px rgb(0 0 0 / 8%), 0 1px 2px rgb(0 0 0 / 4%),
-    0 0 0 1px rgb(0 0 0 / 3%);
-  transition: box-shadow 0.3s ease;
+  /* Remove shadow for cleaner look */
+  box-shadow: none;
+  border: 1px solid hsl(var(--border));
+  transition: border-color 0.3s ease;
 }
 :global(.dark) .feature {
-  box-shadow: 0 0 0 1px rgb(82 82 82 / 60%);
+  /* Border will be handled by hsl(var(--border)) */
+  box-shadow: none;
 }
 .feature .link {
   position: absolute;
@@ -47,7 +49,8 @@
   justify-content: center;
   align-items: center;
   color: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 0 2px rgb(154 154 154 / 56%), 0 0 30px rgb(0 0 0 / 10%);
+  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.2s ease;
   -webkit-user-drag: none;
 }
@@ -62,13 +65,15 @@
     transform: scale(1.05);
     color: rgba(255, 255, 255, 1);
     background-color: rgba(64, 64, 64, 0.39);
-    box-shadow: 0 0 0 2px rgba(220, 220, 220, 0.56), 0 0 30px rgb(0 0 0 / 10%);
+    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
   }
   .feature .link:active {
     transform: scale(1);
     color: rgba(255, 255, 255, 0.8);
     background-color: rgba(22, 22, 22, 0.39);
-    box-shadow: 0 0 0 2px rgba(178, 178, 178, 0.56), 0 0 30px rgb(0 0 0 / 10%);
+    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.25);
   }
 }
 

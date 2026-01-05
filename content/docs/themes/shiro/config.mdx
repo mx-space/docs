@@ -49,29 +49,6 @@ icon: Bolt
 
 **如何使用**: 直接修改 `description` 的值以更改介绍文本。
 
-### 一言 (`hitokoto`)
-
-<Callout type="warn">
-此特性为闭源版本特有
-</Callout>  
-
-提供自定义首页一言的功能。
-
-接受一个对象，包含 `random` 和 `custom` 两个可选字段。
-
-当存在 `random` 字段时，将会随机获取一言。优先级高于 `custom` 字段。
-
-当存在 `custom` 字段时，将会使用自定义的一言。
-
-如果两个字段都不存在，将会使用默认的一言。
-
-```ts
-interface Hitokoto {
-  random?: boolean
-  custom?: string
-}
-```
-
 ## 自定义脚本 (`config.custom`)
 
 可以配置自定义的 CSS, Script。
@@ -114,37 +91,3 @@ interface Hitokoto {
 ### 社交媒体 (`bilibili`) 模块
 
 - **`liveId`**: b 站直播间 ID
-
-### OpenPanel 模块
-
-<Callout type="warn">
-此特性为闭源版本特有
-</Callout>
-
-[OpenPanel](https://openpanel.dev) 是一个交互式面板工具。
-
-- **`enable`**: 控制 OpenPanel 功能是否启用。
-- **`id`**: OpenPanel 的 ID。
-- **`url`**: OpenPanel 的访问地址。
-
-**如何使用**: 如果你使用 OpenPanel 提供交互式面板或其他功能，通过这些配置连接并显示面板。
-
-### 签名动画 (`signature`) 模块
-
-<Callout type="warn">
-此特性为闭源版本特有
-</Callout>
-
-- **`svg`**: 签名的 svg 代码。
-
-**如何使用**: 请参考[文档](extra#%E7%AD%BE%E5%90%8D%E5%8A%A8%E7%94%BB-)。
-
-### 文章列表设定 (`posts`)
-
-<Callout type="warn">
-此特性为闭源版本特有
-</Callout>
-
-- **`mode`**: 文章列表的预览模式。可选的值：`"loose"`(默认值) `"compact"`
-
-两个模式，紧凑模式和松散模式。

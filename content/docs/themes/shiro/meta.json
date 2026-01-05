@@ -1,5 +1,5 @@
 {
   "title": "Shiro 主题",
   "description": "一个极简主义的个人网站，纸的纯净和雪的清新",
-  "pages": ["deploy", "config", "extra"]
+  "pages": ["deploy", "config", "extra", "pro"]
 }

@@ -1,6 +1,17 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
- 
+
 /* path of `fumadocs-ui` relative to the CSS file */
 @source '../node_modules/fumadocs-ui/dist/**/*.js';
+
+/* Custom theme adjustments */
+:root {
+  --background: 0 0% 100%; /* Pure white for light mode */
+  --card: 0 0% 100%; /* Card background also pure white */
+}
+
+.dark {
+  --background: 0 0% 10%; /* Keep dark mode background */
+  --card: 0 0% 12%; /* Keep dark mode card background */
+}
