@@ -10,17 +10,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [23.x]
-
     steps:
       - uses: actions/checkout@v4
            
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - name: Use Node.js LTS
+        uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: lts/*
+          check-latest: true
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -42,12 +39,6 @@ jobs:
 
       - name: Build project
         run: pnpm build
-      
-      - name: Sync search index
-        run: |
-          pnpm run sync-search
-        env:
-            ORAMA_PRIVATE_API_KEY: ${{ secrets.ORAMA_PRIVATE_API_KEY }}
             
       - name: Generate sitemap
         run: |

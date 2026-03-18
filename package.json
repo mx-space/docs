@@ -7,15 +7,11 @@
     "dev": "next dev --turbo",
     "start": "next start",
     "postinstall": "fumadocs-mdx",
-    "sync-search": "node sync-index.mjs",
     "preinstall": "npx only-allow pnpm",
     "commit": "cz",
     "generate-sitemap": "tsx scripts/generate-sitemap.ts"
   },
   "dependencies": {
-    "@orama/orama": "^3.1.18",
-    "@orama/tokenizers": "^3.1.18",
-    "@oramacloud/client": "^2.1.4",
     "@tailwindcss/postcss": "^4.1.18",
     "autocorrect-node": "^2.14.0",
     "class-variance-authority": "^0.7.1",
@@ -23,7 +19,6 @@
     "commitizen": "^4.3.1",
     "copy-to-clipboard": "^3.3.3",
     "cz-conventional-changelog": "^3.3.0",
-    "dotenv": "^17.2.3",
     "fast-glob": "^3.3.3",
     "framer-motion": "^12.23.26",
     "fumadocs-core": "15.1.2",

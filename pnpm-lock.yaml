@@ -8,15 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@orama/orama':
-        specifier: ^3.1.18
-        version: 3.1.18
-      '@orama/tokenizers':
-        specifier: ^3.1.18
-        version: 3.1.18
-      '@oramacloud/client':
-        specifier: ^2.1.4
-        version: 2.1.4
       '@tailwindcss/postcss':
         specifier: ^4.1.18
         version: 4.1.18
@@ -38,9 +29,6 @@ importers:
       cz-conventional-changelog:
         specifier: ^3.3.0
         version: 3.3.0(@types/node@22.13.11)(typescript@5.9.3)
-      dotenv:
-        specifier: ^17.2.3
-        version: 17.2.3
       fast-glob:
         specifier: ^3.3.3
         version: 3.3.3
@@ -702,10 +690,6 @@ packages:
 
   '@orama/orama@3.1.18':
     resolution: {integrity: sha512-a61ljmRVVyG5MC/698C8/FfFDw5a8LOIvyOLW5fztgUXqUpc1jOfQzOitSCbge657OgXXThmY3Tk8fpiDb4UcA==}
-    engines: {node: '>= 20.0.0'}
-
-  '@orama/tokenizers@3.1.18':
-    resolution: {integrity: sha512-Ra4dFddWZ7hCGPAehnd/6QZjlzQvczYSt1y1Fq4HteJqRu2yvfR6fXvxiUnKi+HIgJYPxKhebJEjvJdF8LYQWg==}
     engines: {node: '>= 20.0.0'}
 
   '@oramacloud/client@2.1.4':
@@ -1576,10 +1560,6 @@ packages:
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
-
-  dotenv@17.2.3:
-    resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
-    engines: {node: '>=12'}
 
   electron-to-chromium@1.5.267:
     resolution: {integrity: sha512-0Drusm6MVRXSOJpGbaSVgcQsuB4hEkMpHXaVstcPmhu5LIedxs1xNK/nIxmQIU/RPC0+1/o0AVZfBTkTNJOdUw==}
@@ -3275,7 +3255,8 @@ snapshots:
   '@next/swc-win32-x64-msvc@15.2.3':
     optional: true
 
-  '@noble/hashes@1.8.0': {}
+  '@noble/hashes@1.8.0':
+    optional: true
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -3292,18 +3273,16 @@ snapshots:
   '@orama/cuid2@2.2.3':
     dependencies:
       '@noble/hashes': 1.8.0
+    optional: true
 
   '@orama/orama@3.1.18': {}
-
-  '@orama/tokenizers@3.1.18':
-    dependencies:
-      '@orama/orama': 3.1.18
 
   '@oramacloud/client@2.1.4':
     dependencies:
       '@orama/cuid2': 2.2.3
       '@orama/orama': 3.1.18
       lodash: 4.17.21
+    optional: true
 
   '@radix-ui/number@1.1.1': {}
 
@@ -4163,8 +4142,6 @@ snapshots:
   devlop@1.1.0:
     dependencies:
       dequal: 2.0.3
-
-  dotenv@17.2.3: {}
 
   electron-to-chromium@1.5.267: {}
 
