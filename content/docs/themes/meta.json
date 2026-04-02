@@ -4,6 +4,7 @@
     "description": "部署 Mix Space 的前端主题",
     "icon": "PaintRoller",
     "pages": [
+        "yohaku",
         "shiro",
         "kami",
         "yun",

@@ -4,6 +4,7 @@ import React from 'react'
 import Image from 'next/image'
 import { Card, Cards } from 'fumadocs-ui/components/card'
 import { FaGithub } from 'react-icons/fa'
+import yohakuPreview from '@/public/assets/images/preview/yohaku.png';
 import shiroPreview from '@/public/assets/images/preview/shiro.png';
 import kamiPreview from '@/public/assets/images/preview/kami.png';
 import yunPreview from '@/public/assets/images/preview/yun.png';
@@ -52,6 +53,12 @@ const ThemeCard = ({ title, preview, href, github }: ThemeProps) => {
 
 const ThemeShowcase: React.FC = () => {
   const themes = [
+    {
+      title: '余白 / Yohaku (@innei)',
+      preview: yohakuPreview,
+      href: '/docs/themes/yohaku',
+      github: 'https://github.com/Innei/Yohaku'
+    },
     {
       title: 'Shiro (@innei)',
       preview: shiroPreview,

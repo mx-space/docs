@@ -1,0 +1,82 @@
+---
+title: 余白 / Yohaku
+description: Shiro 的设计继承者——以「留白」为核心理念的个人博客视觉体系
+icon: Sparkles
+---
+
+import { ToGithub } from '@/app/components/ToGithub'
+import Image from 'next/image'
+
+<ToGithub repo="Innei/Yohaku" />
+
+## 概述
+
+**Yohaku**（余白）取自日文，意为**留白**。它是 [Shiro](/docs/themes/shiro/deploy) 的设计继承者，基于 Shiro 深度重构而来，延续了「纸的纯净与雪的清新」的设计语言，并在此基础上进一步打磨视觉体验与交互细节。
+
+<Image
+  src="/assets/images/preview/yohaku.png"
+  alt="Yohaku 首页预览"
+  width={1440}
+  height={900}
+  className="rounded-lg border"
+/>
+
+<Image
+  src="/assets/images/preview/yohaku-posts.png"
+  alt="Yohaku 文章列表"
+  width={1440}
+  height={900}
+  className="rounded-lg border mt-4"
+/>
+
+<Image
+  src="/assets/images/preview/yohaku-notes.png"
+  alt="Yohaku 手记页面"
+  width={1440}
+  height={900}
+  className="rounded-lg border mt-4"
+/>
+
+## 开源说明
+
+<Callout type="warn">
+  [Innei/Yohaku](https://github.com/Innei/Yohaku) 仓库为**设计语言的公开存档**，记录视觉规范与设计决策，不包含可运行的完整代码。
+
+  完整的可部署代码以闭源方式维护于私有仓库，**需要赞助后才可获得访问权限**。
+</Callout>
+
+### 如何获取完整实现
+
+1. 前往 [github.com/sponsors/Innei](https://github.com/sponsors/Innei) 赞助
+2. 赞助后通过 [Issues](https://github.com/Innei/Yohaku/issues) 或邮件告知你的 GitHub 用户名
+3. 作者会手动添加私有仓库的访问权限
+
+[![Sponsor](https://img.shields.io/badge/Sponsor-Innei-ea4aaa?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/Innei)
+
+## 设计哲学
+
+整站以**个人书写**为隐喻。页面像一封徐徐展开的信纸，文字与空白共同构成节奏，内容如手帐般自然散落。
+
+- **颜色是克制的** — 浅色模式接近真实纸张的米白，深色模式沉入暖灰
+- **动画是呼吸式的** — 元素随滚动自然浮现，而非弹出
+- **字体是有质感的** — 标题用衬线字体，注释以斜体呈现
+- **交互是低调的** — 悬停时仅颜色微微加深，如纸面被指尖轻触
+
+## 设计规范
+
+| 维度 | 浅色 | 深色 |
+|------|------|------|
+| 强调色 | 浅葱 `#33A6B8` | 桃 `#F596AA` |
+| 背景底色 | `#fefefb`（纸张本白） | `rgb(28,28,30)`（暖灰夜色） |
+| 动效缓动 | `cubic-bezier(0.22, 1, 0.36, 1)` | 同左 |
+| 基础字号 | 14px | 同左 |
+
+## 与 Shiro 的关系
+
+Yohaku 是 Shiro 的下一代演进。如果你正在使用 Shiro，可以继续使用——Shiro 仍然是一个完整的开源主题。Yohaku 在 Shiro 的基础上提供了更精致的视觉设计和更多闭源独有功能。
+
+## 相关链接
+
+- [Innei/Yohaku](https://github.com/Innei/Yohaku) — 开源设计存档
+- [Innei/Shiro](https://github.com/Innei/Shiro) — 开源前身
+- [在线演示](https://innei.in) — 作者的个人博客，使用 Yohaku 驱动

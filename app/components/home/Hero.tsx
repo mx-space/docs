@@ -4,11 +4,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
 const images = [
+  '/assets/images/preview/yohaku.png',
   '/assets/images/preview/shiro.png',
-  '/assets/images/preview/kami.png',
-  '/assets/images/preview/console.png',
 ]
-const imageNames = ['Shiro 主题', 'Kami 主题', '控制台']
+const imageNames = ['余白 / Yohaku', 'Shiro 主题']
 import { cn } from 'utils/cn'
 import { buttonVariants } from 'app/components/ui/button'
 import { LuCirclePlay } from 'react-icons/lu'
