@@ -1,0 +1,215 @@
+---
+title: 使用 AI Agent 部署
+description: 用 AI 编程助手（如 Claude Code、Codex、Cursor 等）自动化部署 Mix Space
+icon: Bot
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+如果你不熟悉 Linux 运维，或者不想手动执行命令，可以使用 AI 编程助手来帮你完成整个部署过程。你只需要用自然语言描述需求，Agent 会自动在服务器上执行操作。
+
+## 支持的 Agent 工具
+
+| 工具 | 说明 | 适用场景 |
+|------|------|----------|
+| **Claude Code** | Anthropic 的终端编程助手，支持远程执行 | 推荐新手使用 |
+| **Codex CLI** | OpenAI 的命令行 Agent | 习惯 OpenAI 生态的用户 |
+| **Cursor** | AI 代码编辑器，支持终端 | 想在编辑器里操作的用户 |
+| **其他 MCP/SSH Agent** | 任何能 SSH 到服务器的 AI 工具 | 高级用户 |
+
+<Callout type="info">
+以下以 Claude Code 为例，其他 Agent 工具的流程类似——核心都是让 Agent 通过 SSH 连接到你的服务器并执行部署命令。
+</Callout>
+
+## 准备工作
+
+<Steps>
+<Step>
+### 准备一台服务器
+
+你需要一台已安装 Linux 的服务器（推荐 Ubuntu 22.04+），并确保：
+
+- 可以通过 SSH 连接
+- 有 root 或 sudo 权限
+- 80 和 443 端口未占用
+
+记录以下信息：
+- 服务器 IP 地址
+- SSH 端口（默认 22）
+- 登录用户名和密码（或 SSH 密钥）
+</Step>
+
+<Step>
+### 准备域名
+
+将你的域名 A 记录指向服务器 IP：
+
+| 记录类型 | 名称 | 值 |
+|----------|------|-----|
+| A | `@` | 你的服务器 IP |
+| A | `www` | 你的服务器 IP（可选） |
+</Step>
+
+<Step>
+### 安装 Agent 工具
+
+以 Claude Code 为例，在本地电脑上安装：
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+其他工具请参考各自的安装文档。
+</Step>
+</Steps>
+
+## 开始部署
+
+<Steps>
+<Step>
+### 将 Mix Space 文档交给 Agent
+
+为了让 Agent 了解 Mix Space 的部署方式，先让它读取文档。在 Agent 对话中发送：
+
+```
+请帮我部署 Mix Space。先阅读以下文档了解部署方式：
+- https://mx-space.js.org/llm.txt（项目概览）
+- https://mx-space.js.org/docs/deploy/docker（Docker 部署指南）
+- https://mx-space.js.org/docs/deploy/reverse-proxy（反向代理配置）
+- https://mx-space.js.org/docs/deploy/ssl（SSL 证书配置）
+```
+
+或者如果你使用 Claude Code，可以直接让它读取 Agent Skill：
+
+```
+请读取 https://mx-space.js.org/agent-skills/mix-space-expert.md，
+然后帮我完成 Mix Space 的完整部署。
+```
+</Step>
+
+<Step>
+### 告诉 Agent 你的信息
+
+将以下信息提供给 Agent（请替换为你的实际值）：
+
+```
+我的服务器信息：
+- IP: 123.456.789.0
+- SSH 用户: root
+- SSH 端口: 22
+- 域名: example.com
+
+请帮我：
+1. SSH 连接到服务器
+2. 安装 Docker
+3. 用 Docker 部署 Mix Space 后端
+4. 配置 Nginx 反向代理
+5. 配置 SSL 证书（使用 Let's Encrypt）
+6. 验证服务可以正常访问
+```
+
+<Callout type="warn">
+不要将服务器密码直接发送给云端的 AI 服务。建议使用 SSH 密钥认证，或使用 Agent 的本地模式（如 Claude Code 的 `--dangerously-skip-permissions` 模式）。
+</Callout>
+</Step>
+
+<Step>
+### Agent 自动执行
+
+Agent 会依次执行以下操作：
+
+1. **SSH 连接**到你的服务器
+2. **安装 Docker**（如果尚未安装）
+3. **克隆配置文件**并编辑环境变量
+4. **启动服务** `docker compose up -d`
+5. **安装 Nginx** 并配置反向代理
+6. **申请 SSL 证书**（Certbot 或其他方式）
+7. **验证**服务可以通过 HTTPS 访问
+
+你只需要在 Agent 询问时确认操作即可。
+</Step>
+
+<Step>
+### 验证部署
+
+让 Agent 帮你确认：
+
+```
+请帮我验证：
+1. 访问 https://example.com/api/v2/ping 是否返回 pong
+2. 访问 https://example.com/proxy/qaqdmin 是否能打开后台
+3. 检查 Docker 容器状态是否全部 healthy
+```
+</Step>
+</Steps>
+
+## 部署后配置
+
+部署完成后，你可以继续让 Agent 帮你：
+
+```
+请帮我完成以下初始配置：
+1. 在后台「设定 → SEO」中设置网站标题和描述
+2. 在「设定 → 网站设置」中填写前端地址
+3. 配置 GitHub OAuth 登录（Client ID: xxx, Secret: xxx）
+4. 开启 AI 功能并配置 Provider（API Key: xxx）
+```
+
+<Callout type="info">
+Agent 可以帮你执行命令行操作和调用 API，但涉及敏感信息（如 API Key）时请谨慎操作。
+</Callout>
+
+## 常用 Prompt 模板
+
+### 一键完整部署
+
+```
+你是 Mix Space 部署专家。请 SSH 到我的服务器（IP: ___，用户: root），
+帮我完成以下操作：
+1. 安装 Docker 和 Docker Compose
+2. 下载 Mix Space 的 docker-compose.yml
+3. 设置 JWT_SECRET 为随机字符串，ALLOWED_ORIGINS 为我的域名
+4. 启动所有服务
+5. 配置 Nginx 反向代理，将 ___ 域名指向 localhost:2333
+6. 用 Certbot 申请 SSL 证书
+7. 验证 https://___ 可以正常访问
+
+我的域名是：___
+```
+
+### 仅部署后端
+
+```
+请 SSH 到我的服务器，帮我用 Docker 部署 Mix Space 后端。
+只需要部署后端，不需要配置 Nginx 和 SSL。
+我的服务器 IP: ___，域名: ___
+```
+
+### 排查问题
+
+```
+我的 Mix Space 部署后无法访问，请帮我排查：
+1. 检查 Docker 容器状态
+2. 检查端口 2333 是否在监听
+3. 检查 Nginx 配置是否正确
+4. 查看 Mix Space 日志是否有报错
+```
+
+### 更新版本
+
+```
+请 SSH 到我的服务器，帮我更新 Mix Space 到最新版本。
+部署目录在 ~/mx-space/core。
+```
+
+## 注意事项
+
+- **安全性**：不要将密码、API Key 等敏感信息直接发送给云端 AI 服务。建议使用 SSH 密钥认证。
+- **备份**：让 Agent 执行重大操作前，先让它做一次数据库备份。
+- **验证**：每次 Agent 完成操作后，自己也要验证结果。
+- **回滚**：如果 Agent 操作出错，可以通过 `docker compose down` 和恢复备份来回滚。
+
+<Callout type="info">
+Agent 部署是全新的方式，适合不想折腾命令行的用户。如果你更喜欢手动操作，请参考 [Docker 部署](/docs/deploy/docker) 页面。
+</Callout>

@@ -5,27 +5,25 @@ icon: GitBranch
 ---
 
 import { Card, Cards } from 'fumadocs-ui/components/card';
-import { Container, Pickaxe, SquareTerminal } from 'lucide-react';
+import { Bot, Container, Pickaxe, SquareTerminal } from 'lucide-react';
 
-Mix Space 提供三种部署方式，从简单到复杂依次为 Docker、一键脚本、源码编译。
+Mix Space 提供四种部署方式。根据你的技术背景选择最合适的一种。
 
 ## 部署方式对比
 
 | 方式 | 难度 | 维护成本 | 适合谁 |
 |------|------|----------|--------|
-| Docker | ⭐ | 低 | 大多数用户，推荐 |
+| AI Agent 部署 | ⭐ | 低 | 不熟悉命令行的用户，想用 AI 帮忙 |
+| Docker | ⭐⭐ | 低 | 有基础 Linux 知识的用户，推荐 |
 | 一键脚本 | ⭐ | 中 | 想自动化部署的用户 |
 | 源码编译 | ⭐⭐⭐ | 高 | 开发者，需要二次开发 |
 
-## 如何选择
-
-- **如果你第一次部署** → 选择 [Docker 部署](./docker)，稳定、可维护、社区支持最好。
-- **如果你想在服务器上一键搞定** → 选择 [一键脚本部署](./one-script)，自动安装依赖并配置。
-- **如果你想改后端代码，或需要深度定制** → 选择 [源码部署](./source)，完全可控但维护成本更高。
-
 ## 快速开始
 
-<Cards num={3}>
+<Cards num={4}>
+  <Card title="AI Agent 部署" href="./agent" icon={<Bot />}>
+    让 AI 助手帮你全自动部署，适合新手
+  </Card>
   <Card title="Docker 部署" href="./docker" icon={<Container />}>
     推荐大多数用户使用，简单稳定
   </Card>
@@ -37,4 +35,17 @@ Mix Space 提供三种部署方式，从简单到复杂依次为 Docker、一键
   </Card>
 </Cards>
 
-部署完成后，请继续配置 [反向代理](./reverse-proxy) 和 [SSL 证书](./ssl)。
+## 如何选择
+
+- **不想碰命令行** → 选择 [AI Agent 部署](./agent)，用自然语言让 AI 帮你完成全部操作
+- **有一定 Linux 基础** → 选择 [Docker 部署](./docker)，稳定、可维护、社区支持最好
+- **想在服务器上一键搞定** → 选择 [一键脚本部署](./one-script)，自动安装依赖并配置
+- **想改后端代码或深度定制** → 选择 [源码部署](./source)，完全可控但维护成本更高
+
+## 部署后必做
+
+无论选择哪种方式，部署完成后都需要：
+
+1. 配置 [反向代理](./reverse-proxy) — 将域名指向服务
+2. 配置 [SSL 证书](./ssl) — 启用 HTTPS
+3. 部署 [前端主题](/docs/themes) — 完成整套系统

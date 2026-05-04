@@ -6,6 +6,7 @@
   "pages": [
     "index",
     "docker",
+    "agent",
     "one-script",
     "source",
     "reverse-proxy",
