@@ -7,11 +7,14 @@ async function generate() {
   
   // 根据 meta.json 文件结构生成路径
   const pages = await fg([
-    'content/docs/core/**/*.mdx',
-    'content/docs/development/**/*.mdx', 
-    'content/docs/document/**/*.mdx',
+    'content/docs/getting-started/**/*.mdx',
+    'content/docs/deploy/**/*.mdx',
+    'content/docs/configure/**/*.mdx',
+    'content/docs/develop/**/*.mdx',
     'content/docs/themes/**/*.mdx',
-    'content/docs/usage/**/*.mdx',
+    'content/docs/use/**/*.mdx',
+    'content/docs/migrate/**/*.mdx',
+    'content/docs/reference/**/*.mdx',
     '!content/docs/**/meta.json',
     '!content/docs/**/_*.mdx'
   ])

@@ -1,0 +1,62 @@
+---
+title: 一键脚本部署
+description: 使用 Bash 脚本自动部署 Mix Space 后端
+icon: SquareTerminal
+---
+
+<Callout type="warn">
+此脚本由社区维护，官方文档仅作引用。如遇问题请前往对应的 GitHub 仓库提出 Issue。
+</Callout>
+
+<Callout type="info">
+本脚本由社区用户“[Mikuの鬆](https://github.com/PaloMiku)”维护。
+</Callout>
+
+import { ToGithub } from '@/app/components/ToGithub';
+
+<ToGithub repo="PaloMiku/MxShell" />
+
+## 介绍
+
+这是一种在服务器自动安装 Docker 和进行 Mix Space 后端部署的 Bash 脚本，它可以帮助你交互式快速部署 Mix Space 后端。
+
+注意脚本会自动根据是否为中国大陆网络环境按需修改服务器 Docker 安装源和镜像源。
+
+脚本支持交互式安装方式和预配置文件的自动安装方式。
+
+## 使用
+
+在服务器终端运行以下指令，即可自动进入交互式安装。
+
+### 海外服务器
+
+```bash
+curl -sSL https://raw.githubusercontent.com/PaloMiku/MxShell/refs/heads/main/install/core.sh -o core.sh && bash core.sh
+```
+
+### 国内服务器
+
+使用 Moeyy 的 GitHub 加速源。
+
+```bash
+curl -sSL https://github.moeyy.xyz/https://raw.githubusercontent.com/PaloMiku/MxShell/refs/heads/main/install/core.sh -o core.sh && bash core.sh
+```
+
+## 预配置文件
+
+参考下方示例修改并粘贴到 `mxshell.env` 文件，并将其与脚本置于同一目录后运行脚本，脚本会根据配置文件内容自动完成前后端部署。
+
+### 配置文件示例
+
+```yaml
+# 需要填写长度不小于 16 个字符，不大于 32 个字符的字符串，用于加密用户的 JWT，务必保存好自己的密钥，不要泄露给他人。
+JWT_SECRET=
+# 需要填写被允许访问前端的域名，如果允许多个域名访问，用英文逗号，分隔。
+ALLOWED_ORIGINS=
+# Mix Space 容器文件存储目录
+TARGET_DIR="/opt/mxspace"
+```
+
+- **`JWT 密钥`**：需要填写长度不小于 16 个字符，不大于 32 个字符的字符串，用于加密用户的 JWT，务必保存好自己的密钥，不要泄露给他人。
+- **`被允许的域名`**：需要填写被允许访问容器的域名，通常是前端的域名，如果允许多个域名访问，用英文逗号，分隔。
+- **`Mix Space 容器文件存储目录`**：指定文件存储路径，通常是 `/opt/mxspace`。

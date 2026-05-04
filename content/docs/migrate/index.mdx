@@ -1,0 +1,29 @@
+---
+title: 迁移概览
+description: 从旧版本或其他平台迁移到 Mix Space 的指南
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Card, Cards } from 'fumadocs-ui/components/card'
+import { ArrowUp, Globe } from 'lucide-react'
+
+<Cards>
+  <Card
+    icon={<ArrowUp />}
+    href={'/docs/migrate/v11-to-v12'}
+    title="v11 → v12 升级"
+  >
+    数据库从 MongoDB 迁移到 PostgreSQL 的完整指南
+  </Card>
+  <Card
+    icon={<Globe />}
+    href={'/docs/migrate/from-wordpress'}
+    title="从 WordPress 迁移"
+  >
+    将 WordPress 内容导出并导入到 Mix Space
+  </Card>
+</Cards>
+
+<Callout type="warn">
+迁移前务必备份。数据无价。
+</Callout>

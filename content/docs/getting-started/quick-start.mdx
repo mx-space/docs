@@ -1,0 +1,85 @@
+---
+title: 5 分钟快速体验
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+本指南的目标是在 **5 分钟** 内让你在本地运行起一个完整的 Mix Space，**无需配置域名，无需填写环境变量**（全部使用默认值）。
+
+<Steps>
+  <Step title="安装 Docker">
+    确保你的机器已安装 Docker 和 Docker Compose。如果没有，可以执行以下命令一键安装：
+
+    ```bash
+    curl -fsSL https://get.docker.com | bash
+    ```
+
+    安装完成后，运行 `docker --version` 和 `docker compose version` 确认安装成功。
+  </Step>
+
+  <Step title="克隆项目并启动">
+    执行以下命令克隆后端仓库并启动服务：
+
+    ```bash
+    git clone https://github.com/mx-space/core.git --depth=1
+    cd core
+    docker compose up -d
+    ```
+
+    首次启动会拉取镜像并初始化 PostgreSQL 和 Redis，可能需要几分钟时间。
+  </Step>
+
+  <Step title="等待服务就绪">
+    等待约 30 秒，让数据库和服务完成初始化。可以用以下命令检查状态：
+
+    ```bash
+    docker compose ps
+    ```
+
+    所有服务状态为 `healthy` 后，打开浏览器访问：
+
+    ```
+    http://localhost:2333/proxy/qaqdmin
+    ```
+  </Step>
+
+  <Step title="完成初始化登录">
+    第一次访问后台时，系统会引导你完成初始化设置：
+
+    - 设置管理员账号和密码
+    - 填写站点基本信息
+
+    初始化完成后，即可使用刚才设置的账号登录后台管理系统。
+  </Step>
+
+  <Step title="验证运行状态">
+    确认以下事项均正常：
+
+    - [ ] 后端 API 响应正常（访问 `http://localhost:2333/api/v2` 能返回 JSON）
+    - [ ] 后台管理页面能正常加载和登录
+    - [ ] 可以在后台发布一篇文章并保存成功
+  </Step>
+</Steps>
+
+<Callout type="warn">
+  这只是本地体验。要对外公开访问，你需要继续阅读[部署指南](/docs/deploy)，配置域名和反向代理。
+</Callout>
+
+## 服务架构
+
+本地启动后，以下服务在后台运行：
+
+| 服务 | 端口 | 说明 |
+|------|------|------|
+| **Mix Space 后端** | 2333 | NestJS API 服务 + 后台管理界面 |
+| **PostgreSQL** | 5432 | 数据库（仅容器内可访问） |
+| **Redis** | 6379 | 缓存（仅容器内可访问） |
+
+## 下一步
+
+本地体验完成后，你可以：
+
+1. [部署到服务器](/docs/deploy) — 配置域名和 HTTPS
+2. [部署前端主题](/docs/themes) — 为你的站点选择一个漂亮的前端
+3. [配置 AI 功能](/docs/use/ai-features) — 开启 AI 摘要、翻译等功能

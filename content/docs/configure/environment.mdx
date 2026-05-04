@@ -1,0 +1,56 @@
+---
+title: 环境变量参考
+description: 所有环境变量的完整说明
+---
+
+<Callout type="info">
+  如果你不确定某个变量的作用，保持默认值即可。
+</Callout>
+
+以下环境变量适用于 Mix Space Core 后端服务。Docker 用户在 `docker-compose.yml` 的 `environment` 中设置；源码用户在 `.env` 或 `ecosystem.config.js` 中设置。
+
+## 核心必填
+
+| 变量名 | 说明 | 默认值 | 示例 |
+| --- | --- | --- | --- |
+| `JWT_SECRET` | JWT 签名密钥 | - | `my-secret-key` |
+| `ALLOWED_ORIGINS` | 允许的跨域域名 | - | `example.com,www.example.com` |
+| `SNOWFLAKE_WORKER_ID` | 工作节点 ID（单实例填 1）| - | `1` |
+
+## PostgreSQL 数据库
+
+| 变量名 | 说明 | 默认值 | 示例 |
+| --- | --- | --- | --- |
+| `PG_URL` | 完整连接字符串（推荐）| - | `postgresql://mx:mx@localhost:5432/mx_core` |
+| `PG_HOST` | 数据库地址 | `127.0.0.1` | `localhost` |
+| `PG_PORT` | 端口 | `5432` | `5432` |
+| `PG_USER` | 用户名 | `mx` | `mx` |
+| `PG_PASSWORD` | 密码 | `mx` | `secret` |
+| `PG_DATABASE` | 数据库名 | `mx_core` | `mx_core` |
+| `PG_MAX_POOL_SIZE` | 连接池大小 | `20` | `20` |
+| `PG_SSL` | 启用 SSL | `false` | `true` |
+
+## Redis
+
+| 变量名 | 说明 | 默认值 | 示例 |
+| --- | --- | --- | --- |
+| `REDIS_HOST` | 地址 | `localhost` | `redis` |
+| `REDIS_PORT` | 端口 | `6379` | `6379` |
+| `REDIS_PASSWORD` | 密码 | - | `secret` |
+
+## 安全
+
+| 变量名 | 说明 | 默认值 | 示例 |
+| --- | --- | --- | --- |
+| `ENCRYPT_ENABLE` | 启用加密 | `false` | `true` |
+| `ENCRYPT_KEY` | 加密密钥（64 位 hex）| 自动获取 machine-id | `abc...` |
+
+## 其他
+
+| 变量名 | 说明 | 默认值 | 示例 |
+| --- | --- | --- | --- |
+| `PORT` | 服务端口 | `2333` | `3000` |
+| `TZ` | 时区 | `Asia/Shanghai` | `UTC` |
+| `DISABLE_CACHE` | 禁用 Redis 缓存 | `false` | `false` |
+| `THROTTLE_TTL` | 限流窗口（秒）| `10` | `10` |
+| `THROTTLE_LIMIT` | 限流次数 | `100` | `100` |

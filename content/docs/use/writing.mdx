@@ -1,0 +1,102 @@
+---
+title: 写作工作流
+description: 在 Mix Space 中高效写作的多种方式
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+Mix Space 提供了多种写作方式，无论你习惯在浏览器中编辑，还是偏爱本地 Markdown 编辑器，都能找到适合你的工作流。
+
+## 后台编辑器
+
+登录后台后，进入「文章」或「日记」页面，点击新建即可开始写作。
+
+### 编辑器功能简介
+
+- **Markdown 支持**：直接输入 Markdown 语法，实时预览渲染效果
+- **Lexical 富文本**：提供可视化的富文本编辑体验，支持拖拽排版
+- **定时发布**：设定未来的发布时间，到点自动上线
+- **密码保护**：为单篇文章设置访问密码，适合私密内容
+
+<Callout type="info">
+后台地址通常为 `你的域名/proxy/qaqdmin`，部署时可在配置中修改。
+</Callout>
+
+## Obsidian 插件
+
+[Obsidian Mix Space Plugin](https://github.com/mx-space/obsidian-mixspace-plugin) 是一个 Obsidian 插件，可以将你的 Obsidian 笔记库直接同步到 Mix Space。
+
+### 功能特性
+
+- 发布/更新内容到 Mix Space（支持 Note 和 Post）
+- 自动识别内容类型
+- 反向链接转换（`[[Obsidian 链接]]` → Mix Space URL）
+- Frontmatter 自动补全
+- 多环境配置（Profile）
+- AI 生成标题和 slug
+
+### 安装步骤
+
+<Steps>
+<Step>
+### 下载插件
+
+前往 [GitHub Releases](https://github.com/mx-space/obsidian-mixspace-plugin/releases) 下载最新版本的 `obsidian-mixspace-plugin.zip`。
+</Step>
+
+<Step>
+### 安装到 Obsidian
+
+在 Obsidian 中打开「设置 → 第三方插件」，关闭安全模式后点击「浏览」旁的「加载已解压的插件」，选择解压后的插件文件夹。
+</Step>
+
+<Step>
+### 配置 API
+
+在插件设置中填入：
+- **API Endpoint**：你的 Mix Space 地址，如 `https://example.com/api/v2`
+- **Token**：在 Mix Space 后台「设定 → 安全 → API Token」中生成
+</Step>
+
+<Step>
+### 发布内容
+
+在 Obsidian 中打开一篇笔记，按 `Ctrl/Cmd + P` 打开命令面板，搜索「Mix Space」即可看到发布/更新命令。
+</Step>
+</Steps>
+
+## Markdown 导入导出
+
+Mix Space 后台支持 Markdown 文件的批量导入与导出，方便你在不同平台之间迁移内容。
+
+### 导入 Markdown
+
+<Steps>
+<Step>
+登录后台，进入「文章」页面。
+</Step>
+<Step>
+点击右上角「导入」按钮，选择本地 Markdown 文件。
+</Step>
+<Step>
+系统会自动解析 Frontmatter（标题、标签、分类等），确认后完成导入。
+</Step>
+</Steps>
+
+### 导出 Markdown
+
+在后台文章列表中，选择需要导出的文章，点击「导出」即可下载包含完整 Frontmatter 的 Markdown 文件。
+
+<Callout type="warn">
+导入时如果文章已存在相同 slug，系统会提示是否覆盖，请谨慎操作。
+</Callout>
+
+## 写作建议
+
+为了让你的内容更容易被检索和阅读，建议养成以下习惯：
+
+- **使用标签**：为每篇文章添加 2–5 个标签，便于分类和关联推荐
+- **设置分类**：合理划分文章分类，让读者快速定位感兴趣的主题
+- **撰写摘要**：在 Frontmatter 或摘要栏中填写内容概要，有利于 SEO 和列表展示
+- **规范 slug**：使用英文小写和连字符作为文章链接，避免中文 URL

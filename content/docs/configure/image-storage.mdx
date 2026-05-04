@@ -1,0 +1,96 @@
+---
+title: 图床与存储
+description: 配置 S3 兼容对象存储作为图床，自定义存储路径与 CDN 加速
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+Mix Space 支持将图片和文件存储到 S3 兼容的对象存储服务（如 Cloudflare R2、AWS S3、阿里 OSS、腾讯 COS 等），替代默认的本地存储。
+
+## 配置 S3 图床
+
+<Steps>
+<Step>
+### 进入图床设置
+
+登录后台，前往「设定 → 图床设置」。
+</Step>
+
+<Step>
+### 开启 S3 图床
+
+打开「开启 S3 图床」开关。
+</Step>
+
+<Step>
+### 填写 S3 配置
+
+| 字段 | 说明 |
+|------|------|
+| **S3 服务端点** | S3 兼容服务的 Endpoint（如 `https://<account>.r2.cloudflarestorage.com`） |
+| **Access Key ID** | 访问密钥 ID |
+| **Secret Access Key** | 访问密钥（加密存储） |
+| **Bucket** | 存储桶名称 |
+| **Region** | 地域（Cloudflare R2 填 `auto`） |
+
+</Step>
+
+<Step>
+### 配置自定义域名（推荐）
+
+填写「自定义域名 (CDN)」字段，用于替换默认的 S3 URL。例如你的 CDN 域名是 `cdn.example.com`，则上传后的文件 URL 为 `https://cdn.example.com/{路径}/{文件名}`。
+</Step>
+
+<Step>
+### 设置文件路径前缀（可选）
+
+填写「文件路径前缀」来组织上传的文件。支持占位符：
+
+| 占位符 | 说明 |
+|--------|------|
+| `{Y}` | 年份（4 位） |
+| `{m}` | 月份 |
+| `{d}` | 日期 |
+| `{type}` | 文件类型 |
+| `{md5}` | 随机 MD5 |
+
+示例：`blog/{Y}/{m}/{d}` → 文件上传到 `blog/2024/01/15/` 路径下。
+</Step>
+</Steps>
+
+<Callout type="info">
+开启 S3 图床后，新上传的文件会存储到 S3。之前上传到本地的文件不会自动迁移，但仍然可以正常访问。
+</Callout>
+
+## 常用 S3 服务配置参考
+
+### Cloudflare R2
+
+| 字段 | 值 |
+|------|-----|
+| S3 服务端点 | `https://<account-id>.r2.cloudflarestorage.com` |
+| Region | `auto` |
+| 自定义域名 | R2 绑定的自定义域名或 `r2.dev` 公开访问地址 |
+
+### AWS S3
+
+| 字段 | 值 |
+|------|-----|
+| S3 服务端点 | 留空（使用默认）或区域端点 |
+| Region | 如 `us-east-1`、`ap-southeast-1` |
+| 自定义域名 | CloudFront 分发域名 |
+
+### 阿里 OSS / 腾讯 COS
+
+按照对应服务的 S3 兼容接口文档填写 Endpoint 和 Region 即可。
+
+## 评论图片专用前缀
+
+在「评论图片路径前缀」字段中，可以为读者评论上传的图片设置独立的存储路径前缀。该字段额外支持 `{readerId}` 占位符，按读者 ID 组织目录。
+
+留空则使用默认路径：`comments/{readerId}/{Y}/{m}/{md5}.{ext}`
+
+## 备份到 S3
+
+在「设定 → 备份」中也可以配置 S3 信息，将数据库备份文件同时上传到 S3 存储，实现异地备份。详见 [备份与恢复](/docs/use/backup-restore)。

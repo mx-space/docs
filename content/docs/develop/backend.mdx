@@ -1,0 +1,107 @@
+---
+title: 后端开发
+description: Mix Space 后端开发指南
+---
+
+## 项目结构
+
+`apps/core/src/` 是后端的核心源码目录，主要结构如下：
+
+```
+src/
+├── modules/          # 业务模块（Post、Note、User 等）
+├── processors/       # 全局处理器（Database、Gateway、Redis 等）
+├── common/           # 公共工具（装饰器、过滤器、拦截器、管道）
+├── database/         # 数据库 schema 与迁移文件
+├── constants/        # 常量定义
+├── types/            # 全局类型声明
+├── utils/            # 工具函数
+├── app.module.ts     # 根模块
+└── main.ts           # 应用入口
+```
+
+每个业务模块通常包含 `module.ts`、`controller.ts`、`service.ts` 三个标准文件，遵循 NestJS 的模块化设计。
+
+## 添加新模块
+
+标准的 NestJS 模块结构如下：
+
+```
+src/modules/example/
+├── example.module.ts
+├── example.controller.ts
+├── example.service.ts
+└── dto/
+    └── example.dto.ts
+```
+
+然后在 `app.module.ts` 中导入新模块即可。如果模块需要数据库支持，先在 `database/schema/` 中定义表结构，再通过 Drizzle ORM 进行操作。
+
+## 数据库
+
+Mix Space 使用 [Drizzle ORM](https://orm.drizzle.team/) 管理 PostgreSQL 数据库。
+
+- **Schema 位置**: `apps/core/src/database/schema/`
+- **迁移文件位置**: `apps/core/src/database/migrations/`
+- **配置文件**: `apps/core/drizzle.config.ts`
+
+### 常用命令
+
+```bash
+# 生成迁移
+pnpm drizzle-kit generate
+
+# 执行迁移
+pnpm drizzle-kit migrate
+```
+
+Schema 中统一使用 `snake_case` 命名字段，Drizzle 配置已开启 `casing: 'snake_case'` 以确保自动映射。
+
+## API 设计
+
+### RESTful 规范
+
+- 使用标准的 HTTP 方法：`GET`、`POST`、`PATCH`、`DELETE`
+- URL 使用名词复数，如 `/posts`、`/notes`
+- 嵌套资源通过路径表达，如 `/posts/:id/comments`
+
+### 响应格式
+
+接口返回统一使用 `snake_case`，结构如下：
+
+```json
+{
+  "data": {},
+  "pagination": {
+    "page": 1,
+    "per_page": 10,
+    "total": 100
+  }
+}
+```
+
+### 分页
+
+列表接口默认支持分页查询，通过 `page` 和 `per_page` 参数控制，最大 `per_page` 通常限制为 50。
+
+## 测试
+
+后端使用 [Vitest](https://vitest.dev/) 进行测试，测试文件位于 `apps/core/test/` 目录。
+
+```bash
+# 运行测试
+pnpm test
+
+# 监听模式
+pnpm test:watch
+```
+
+测试环境通过 `test/setup.ts` 完成初始化，包括内存数据库和其他依赖的启动。编写测试时请注意保持测试的独立性，避免测试之间产生状态污染。
+
+## 代码规范
+
+- **ESLint**: 统一代码风格，提交前运行 `pnpm lint`
+- **Prettier**: 自动格式化，建议开启编辑器保存时自动格式化
+- **Commit Message**: 请遵守 [Conventional Commits](https://www.conventionalcommits.org/) 规范，仓库内可使用 `pnpm commit` 引导生成
+
+更多关于文档贡献的规范，请参阅 [贡献文档](/docs/develop/contribute)。

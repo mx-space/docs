@@ -1,0 +1,260 @@
+---
+title: 反向代理
+description: 配置反向代理以通过域名访问 Mix Space
+icon: Network
+---
+
+## 为什么需要反向代理
+
+Mix Space 默认运行在本地端口（后端 `2333`，前端 `2323`），反向代理可以将域名请求转发到对应端口，并提供 HTTPS、WebSocket 支持。
+
+## 图形化面板
+
+现代服务器面板（如 1Panel、宝塔面板）自带的反向代理已足以满足 Mix Space 的需求（包括 WebSocket），非高级用户建议使用图形化界面操作。
+
+### 宝塔面板
+
+进入 `网站`，在 `反向代理` 栏目下点击 `添加反代`。
+
+- `域名` 填入你将要使用的域名
+- `目标` 填写 `URL 地址` + `http://127.0.0.1:2333`
+
+### 1Panel
+
+进入 `网站 > 网站`，创建一个新网站，选择 `反向代理`。
+
+- `主域名` 填入你将要使用的域名，并勾选 `监听 IPV6`
+- 代理类型选择 `http`，地址填入 `127.0.0.1:2333`
+
+## Vane
+
+<Callout type="warn">
+Vane 是一个较新的反向代理项目，请做好出现异常问题的准备。目前已测试过 mx-server + Shiro，如遇问题请携带日志反馈。
+</Callout>
+
+[Vane](https://github.com/canmi21/vane) 是一个使用 Rust 编写的现代反向代理，内存占用约 1.5-3MB，Docker 镜像约 5MB。
+
+### 获取证书
+
+Vane 目前不包含 SSL 证书管理，可通过以下方式获取：
+- 使用 1Panel / 宝塔面板自带的 acme.sh 生成证书，导入到 Vane
+- 使用 [lazy-acme](https://github.com/canmi21/lazy-acme)（Vane 配套工具，支持 Cloudflare DNS 验证）
+
+### 部署配置
+
+推荐使用 [docker-compose.yml](https://github.com/canmi21/vane?tab=readme-ov-file#installation-and-usage) 部署。
+
+编写主配置文件 `~/vane/config.toml`：
+
+```toml
+[domains]
+"example.com" = "example.com.toml"
+"api.example.com" = "api.example.com.toml"
+```
+
+前端域名配置 `example.com.toml`：
+
+```toml
+https = true
+http3 = true
+hsts = true
+http_options = "reject"
+
+[tls]
+cert = "~/vane/cert/example.com.pem"
+key = "~/vane/cert/example.com.key"
+
+[methods]
+allow = "GET, POST, OPTIONS, HEAD"
+
+[rate_limit.default]
+period = "1s"
+requests = 20
+
+[[routes]]
+path = "/"
+websocket = true
+targets = ["http://127.0.0.1:2323"]
+```
+
+后端域名配置 `api.example.com.toml`：
+
+```toml
+https = true
+http_options = "reject"
+hsts = true
+http3 = false
+
+[tls]
+cert = "~/vane/cert/api.example.com.pem"
+key = "~/vane/cert/api.example.com.key"
+
+[methods]
+allow = "GET, POST, OPTIONS, HEAD"
+
+[rate_limit.default]
+period = "1s"
+requests = 20
+
+[[routes]]
+path = "/*"
+websocket = true
+targets = ["http://localhost:2333"]
+```
+
+注意根据实际部署情况修改端口和域名。
+
+## Cloudflare Tunnel
+
+<Callout type="warn">
+除非你在非完整服务器环境（如 Sealos 或 Huggingface Space）部署，否则不推荐在容器内使用 Cloudflare Tunnel，而应在宿主机配置以避免管理不便。
+</Callout>
+
+启动该功能需要两个环境变量：
+- `ENABLE_CLOUDFLARED` = `true`
+- `CF_ZERO_TRUST_TOKEN` = Tunnel 给的令牌（删掉 `cloudflared.exe service install`，只保留令牌部分）
+
+### 详细步骤
+
+1. 申请 Cloudflare Zero Trust
+2. 添加一条隧道，连接方式选择 Cloudflared，名称任意
+3. 添加一个 Public Hostname，回源选择 HTTP，端口选择 `2333`
+
+启动成功后，日志中应看到：
+
+```
+============================================
+Starting Cloudflared Tunnel
+============================================
+```
+
+## Nginx 手写配置
+
+<Callout type="warn">
+手写配置文件需要较高的技术功底，请量力而行。
+</Callout>
+
+### 双域名配置
+
+假定前端域名为 `www.example.com`，后端为 `server.example.com`。
+
+后端配置：
+
+```nginx
+server {
+    location /socket.io {
+      proxy_pass http://127.0.0.1:2333/socket.io;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header REMOTE-HOST $remote_addr;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_buffering off;
+      proxy_http_version 1.1;
+      add_header Cache-Control no-cache;
+    }
+
+    location / {
+      proxy_pass http://127.0.0.1:2333;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header REMOTE-HOST $remote_addr;
+      add_header X-Cache $upstream_cache_status;
+    }
+}
+```
+
+前端配置：
+
+```nginx
+server {
+    location ~* \.(gif|png|jpg|css|js|woff|woff2)$ {
+      proxy_pass http://127.0.0.1:2323;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header REMOTE-HOST $remote_addr;
+      expires 30d;
+    }
+
+    location / {
+      proxy_pass http://127.0.0.1:2323;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header REMOTE-HOST $remote_addr;
+      add_header X-Cache $upstream_cache_status;
+      add_header Cache-Control no-cache;
+      proxy_intercept_errors on;
+    }
+}
+```
+
+<Callout type="info">
+使用双域名配置时：
+- API 地址为 `https://server.example.com/api/v2`
+- 前端地址为 `https://www.example.com`
+- Gateway 为 `https://server.example.com`
+- 后台为 `https://server.example.com/proxy/qaqdmin`
+</Callout>
+
+### 单域名配置
+
+```nginx
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name www.example.com;
+    index index.html;
+
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host $server_name;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+
+    location /socket.io {
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://127.0.0.1:2333/socket.io;
+    }
+
+    location /api/v2 {
+        proxy_pass http://127.0.0.1:2333/api/v2;
+    }
+
+    location /render {
+        proxy_pass http://127.0.0.1:2333/render;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:2323;
+    }
+
+    location /qaqdmin {
+        proxy_pass http://127.0.0.1:2333/proxy/qaqdmin;
+    }
+
+    location /proxy {
+        proxy_pass http://127.0.0.1:2333/proxy;
+    }
+
+    ssl_certificate /path/to/fullchain.pem;
+    ssl_certificate_key /path/to/privkey.pem;
+    ssl_protocols TLSv1.3 TLSv1.2;
+    error_page 497 https://$host$request_uri;
+}
+```
+
+<Callout type="info">
+使用单域名配置时：
+- API 地址为 `https://www.example.com/api/v2`
+- 前端地址为 `https://www.example.com`
+- Gateway 为 `https://www.example.com`
+- 后台为 `https://www.example.com/proxy/qaqdmin`
+</Callout>

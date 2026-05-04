@@ -53,7 +53,7 @@ export function Hero() {
 
           <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4 md:mt-2 mb-4">
             <Link
-              href="/docs/core"
+              href="/docs/getting-started"
               className={cn(
                 buttonVariants({
                   size: 'lg',

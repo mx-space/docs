@@ -1,0 +1,10 @@
+{
+  "title": "参考手册",
+  "description": "速查手册和常见问题",
+  "icon": "BookOpen",
+  "root": true,
+  "pages": [
+    "index",
+    "common-issues"
+  ]
+}

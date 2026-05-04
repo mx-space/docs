@@ -1,0 +1,60 @@
+---
+title: 开发指南
+description: 开发 Mix Space 的指南
+---
+
+Mix Space 是完全开源的，欢迎每一位开发者参与贡献。无论你是想修复 Bug、添加新功能，还是基于我们的 API 开发自己的前端主题，这里都能帮助你快速上手。
+
+## 技术栈
+
+| 层级 | 技术 |
+|------|------|
+| 后端框架 | [NestJS](https://nestjs.com/) 11 + Fastify |
+| 语言 | [TypeScript](https://www.typescriptlang.org/) |
+| 数据库 | [PostgreSQL](https://www.postgresql.org/) 16 + [Drizzle ORM](https://orm.drizzle.team/) |
+| 缓存 | [Redis](https://redis.io/) 7 |
+| 前端框架 | [React](https://react.dev/) / [Vue 3](https://vuejs.org/) |
+| 容器化 | [Docker](https://www.docker.com/) |
+
+## 环境要求
+
+在开始之前，请确保你的开发环境已安装以下工具：
+
+- [ ] [Node.js](https://nodejs.org/) >= 22（推荐使用 `.nvmrc` 中的版本）
+- [ ] [pnpm](https://pnpm.io/)（通过 Corepack 启用：`corepack enable`）
+- [ ] [PostgreSQL](https://www.postgresql.org/) >= 16
+- [ ] [Redis](https://redis.io/) >= 7
+- [ ] [Git](https://git-scm.com/)
+
+## 快速开始（后端）
+
+```bash
+# 克隆仓库
+git clone https://github.com/mx-space/core
+cd core
+
+# 安装依赖
+pnpm i
+
+# 启动 PostgreSQL 和 Redis
+docker compose up -d postgres redis
+
+# 启动开发服务器（端口 2333）
+pnpm dev
+```
+
+<Callout type="warn">
+  提交 PR 时请确保使用 pnpm 安装依赖，项目根目录只保留 `pnpm-lock.yaml`。
+</Callout>
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Card, Cards } from 'fumadocs-ui/components/card'
+
+## 了解更多
+
+<Cards>
+  <Card title="后端开发" href="/docs/develop/backend" description="项目结构、模块开发、数据库与 API 规范" />
+  <Card title="前端开发" href="/docs/develop/frontend" description="路由约定、框架建议与 SDK 使用" />
+  <Card title="后台单独部署" href="/docs/develop/admin" description="单独部署 mx-admin 后台" />
+  <Card title="贡献文档" href="/docs/develop/contribute" description="文档撰写规范与贡献流程" />
+</Cards>

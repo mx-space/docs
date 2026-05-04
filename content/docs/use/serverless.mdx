@@ -1,0 +1,142 @@
+---
+title: 云函数与 Snippet
+description: 使用云函数和自定义 Snippet 扩展 Mix Space 的能力——数据接口、自定义路由、JS/CSS 注入
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { ToGithub } from '@/app/components/ToGithub'
+
+Snippet 是 Mix Space 的扩展机制。每个 Snippet 是一段可配置的代码片段，可以为你的站点添加自定义数据接口、动态路由、前端脚本注入等能力。
+
+## 功能总览
+
+| 类型 | 说明 | 典型用途 |
+|------|------|----------|
+| **JSON / JSON5** | 结构化数据片段 | 配置数据、映射表 |
+| **Text** | 纯文本片段 | 公告、自定义 HTML |
+| **YAML** | YAML 数据片段 | 结构化配置 |
+| **Function** | 可执行函数 | 云函数 API、自定义路由 |
+
+<Callout type="info">
+Function 类型的 Snippet 就是你常听到的「云函数」。它是 Snippet 系统的一个子集，拥有最强大的扩展能力。
+</Callout>
+
+## 管理云函数 / Snippet
+
+登录后台，进入「其他 → 云函数」页面。
+
+### 导入社区云函数
+
+<Steps>
+<Step>
+### 点击「下载拓展包」
+
+在页面右上方点击「下载拓展包」按钮，弹出社区云函数列表。
+</Step>
+
+<Step>
+### 选择并导入
+
+在弹窗中找到对应主题的云函数代码，点击「导入」。
+</Step>
+
+<Step>
+### 确认启用
+
+导入后在管理页面确认 Snippet 已启用。Function 类型的 Snippet 需要手动开启「启用」开关。
+</Step>
+</Steps>
+
+社区收录的云函数 Snippets 可以在 GitHub 查看：
+
+<ToGithub repo="mx-space/snippets" />
+
+### 手动创建 Snippet
+
+1. 点击右上角「+」新建
+2. 填写以下信息：
+
+| 字段 | 说明 |
+|------|------|
+| **名称** | Snippet 名称（英文、数字、下划线，不超过 30 字符） |
+| **类型** | JSON / JSON5 / Text / YAML / Function |
+| **分组** | 用于组织 Snippet（Reference 字段） |
+| **内容** | Snippet 的实际代码 |
+| **备注** | 可选，备注说明 |
+| **私有** | 勾选后仅管理员可访问 |
+
+Function 类型额外支持：
+
+| 字段 | 说明 |
+|------|------|
+| **自定义路径** | 绑定一个 URL 路径，如 `my-api` → `/s/my-api` |
+| **HTTP 方法** | GET / POST / PUT / DELETE / PATCH / ALL |
+| **启用** | 是否启用此函数 |
+| **密钥** | 加密的配置项（如 API Key），存储时自动加密 |
+
+### 分组管理
+
+Snippet 按分组（Reference）组织。管理页面左侧显示分组列表，点击分组展开查看其中的 Snippet。你可以：
+- 展开折叠分组
+- 按 Reference 筛选
+- 查看每个分组的 Snippet 数量
+
+## Function 类型（云函数）
+
+Function 类型是最强大的 Snippet，它是一段可以在服务器端执行的 JavaScript 函数。
+
+### 自定义路由
+
+设置「自定义路径」后，你可以通过 `/s/{自定义路径}` 访问此函数的执行结果。例如：
+
+- 自定义路径 `bili-followings` → 访问 `/s/bili-followings` 获取哔哩哔哩关注列表
+- 自定义路径 `bangumi` → 访问 `/s/bangumi` 获取追番数据
+
+函数支持指定 HTTP 方法（GET、POST 等），也可以选择 ALL 匹配所有方法。
+
+<Callout type="warn">
+Function 类型 Snippet 有请求限流（每 5 秒 100 次），高频调用场景请注意缓存。
+</Callout>
+
+### 函数日志
+
+Function 类型 Snippet 的执行日志可以在管理页面查看。点击「日志」按钮可以查看函数的运行输出，方便调试。
+
+### 安装依赖
+
+Function 类型支持安装 npm 依赖包。在管理页面中：
+- 点击「安装依赖」按钮添加需要的 npm 包
+- 点击「更新依赖」更新已安装的包
+
+### 密钥管理
+
+函数中可能需要用到 API Key 等敏感信息。使用「密钥」字段存储，系统会自动加密。在函数代码中可以通过注入的上下文访问。
+
+## 数据类型 Snippet 的访问方式
+
+非 Function 类型的 Snippet 可以通过以下方式访问：
+
+| 访问方式 | URL 格式 |
+|----------|----------|
+| 按名称和分组 | `/api/v2/snippets/{reference}/{name}` |
+| 按自定义路径 | `/s/{customPath}`（需要设置自定义路径） |
+
+- **公开（Public）** Snippet 所有人可访问
+- **私有（Private）** Snippet 仅管理员登录后可访问
+
+## 前端主题集成
+
+许多前端主题依赖 Snippet 提供数据。常见用法：
+
+- Shiro 主题使用云函数提供哔哩哔哩追番、最近听歌等模块
+- 自定义 CSS/JS 注入到前端页面
+- 提供导航栏配置、社交链接等结构化数据
+
+具体需要导入哪些 Snippet，请参考你使用的前端主题文档。
+
+## 开发者文档
+
+如需编写自定义 Function 类型 Snippet，请参考完整的开发者文档：
+
+<ToGithub repo="mx-space/core/blob/master/apps/core/src/modules/serverless/serverless.readme.md" />

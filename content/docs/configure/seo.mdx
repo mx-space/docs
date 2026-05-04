@@ -1,0 +1,84 @@
+---
+title: SEO 与站点优化
+description: 配置 SEO 元数据、搜索引擎推送和 RSS/Sitemap
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+Mix Space 内置了 SEO 基础功能，包括自定义站点元数据、自动生成 Sitemap 和 RSS Feed，以及百度/Bing 搜索引擎推送。
+
+## SEO 基础设置
+
+进入后台「设定 → SEO 优化」，配置以下信息：
+
+| 配置项 | 说明 |
+|--------|------|
+| **网站标题** | 站点名称，显示在浏览器标签和搜索结果中 |
+| **网站描述** | 一段简短的站点描述，用于搜索引擎结果摘要 |
+| **浅色图标 URL** | 浅色模式下的站点图标 |
+| **深色图标 URL** | 深色模式下的站点图标 |
+| **关键字** | 站点关键词列表，用于搜索引擎识别站点主题 |
+
+这些信息会自动应用到前端页面的 `<meta>` 标签中。
+
+## 网站地址
+
+进入后台「设定 → 网站设置」，正确填写站点地址：
+
+| 配置项 | 说明 |
+|--------|------|
+| **前端地址** | 你的前端主题地址（如 `https://example.com`） |
+| **管理后台地址** | 后台管理地址（如 `https://example.com/proxy/qaqdmin`） |
+| **API 地址** | 后端 API 地址 |
+| **Gateway 地址** | WebSocket 网关地址 |
+
+<Callout type="info">
+「前端地址」非常重要，Sitemap 和 RSS 中的链接都基于此地址生成。请确保填写正确的完整 URL（包含 `https://`）。
+</Callout>
+
+## Sitemap
+
+Mix Space 自动生成 Sitemap 文件，无需额外配置。
+
+访问 `https://你的API地址/sitemap` 即可获取标准的 XML Sitemap，其中包含所有已发布内容的 URL 和更新时间。
+
+Sitemap 缓存 1 小时，内容更新后会自动刷新。
+
+## RSS Feed
+
+Mix Space 自动生成 RSS Feed，无需额外配置。
+
+访问以下地址即可获取 RSS 订阅源：
+
+- `https://你的API地址/feed`
+- `https://你的API地址/atom.xml`
+
+RSS Feed 包含最新的文章内容，支持全文输出（Markdown 文章）和链接跳转（富文本文章）。
+
+## 搜索引擎推送
+
+### 百度推送
+
+进入后台「设定 → 百度推送设定」：
+
+| 配置项 | 说明 |
+|--------|------|
+| **开启推送** | 启用百度搜索引擎推送 |
+| **Token** | 百度站长平台提供的推送 Token |
+
+在 [百度搜索资源平台](https://ziyuan.baidu.com/) 注册并验证你的站点后，可以在「链接提交」中获取 Token。
+
+### Bing 推送
+
+进入后台「设定 → Bing 推送设定」：
+
+| 配置项 | 说明 |
+|--------|------|
+| **开启推送** | 启用 Bing 搜索引擎推送 |
+| **Bing API 密钥** | Bing Webmaster Tools 的 API 密钥 |
+
+在 [Bing Webmaster Tools](https://www.bing.com/webmasters) 中注册并验证站点后，可以在 API 设置中获取密钥。
+
+<Callout type="info">
+搜索引擎推送会在内容创建和更新时自动触发，无需手动操作。
+</Callout>

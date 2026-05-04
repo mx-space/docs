@@ -1,0 +1,167 @@
+---
+title: 从 WordPress 迁移
+description: 将 WordPress 站点内容迁移到 Mix Space 的完整指南
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+Mix Space 原生支持 Markdown 文件导入，这让从 WordPress 迁移变得相对简单。本指南将帮助你完成从导出到导入的完整流程。
+
+## 迁移前准备
+
+在开始之前，建议你：
+
+- [ ] 备份 WordPress 站点的所有数据和文件
+- [ ] 准备好 Mix Space 的运行环境（参考 [快速开始](/docs/getting-started/quick-start)）
+- [ ] 确认 Mix Space 后台可以正常访问
+
+<Callout type="info">
+Mix Space 目前没有直接导入 WordPress WXR 格式的功能，需要先将内容转换为 Markdown 格式。
+</Callout>
+
+## 迁移步骤
+
+<Steps>
+<Step>
+### 导出 WordPress 内容
+
+在 WordPress 后台，进入「工具 → 导出」，选择「所有内容」，下载得到一个 XML 文件（WXR 格式）。
+
+如果你使用的是 WordPress.com，可以在「工具 → 导出」中导出站点内容。
+</Step>
+
+<Step>
+### 转换为 Markdown
+
+使用社区工具将 WordPress XML 转换为带有 Frontmatter 的 Markdown 文件。推荐工具：
+
+| 工具 | 说明 |
+|------|------|
+| [wordpress-export-to-markdown](https://github.com/lonekorean/wordpress-export-to-markdown) | 自动生成 Frontmatter，支持分类和标签 |
+| [wp2md](https://github.com/axdiamond/wp2md) | 轻量级转换工具 |
+
+以 `wordpress-export-to-markdown` 为例：
+
+```bash
+npx wordpress-export-to-markdown \
+  --input=wordpress.xml \
+  --output=markdown \
+  --frontmatter=true \
+  --save-attached-images=true
+```
+
+转换后会得到一组 `.md` 文件，每个文件的 Frontmatter 中包含标题、日期、分类、标签等信息。
+</Step>
+
+<Step>
+### 在 Mix Space 创建分类
+
+登录 Mix Space 后台，进入「分类」页面，提前创建好你在 WordPress 中使用的分类。确保分类名称一致，导入时系统才能正确匹配。
+
+<Callout type="info">
+如果导入时找不到对应分类，系统会自动创建新分类。
+</Callout>
+</Step>
+
+<Step>
+### 导入 Markdown 文件
+
+登录 Mix Space 后台，进入「文章」页面，点击「导入」按钮，批量选择上一步生成的 Markdown 文件。
+
+系统会自动解析 Frontmatter 中的以下字段：
+
+| Frontmatter 字段 | 映射到 |
+|-------------------|--------|
+| `title` | 文章标题 |
+| `date` | 创建时间 |
+| `categories` | 分类 |
+| `tags` | 标签 |
+| `slug` | URL 路径 |
+| `status` | 发布状态（`publish` → 已发布） |
+</Step>
+
+<Step>
+### 处理图片
+
+WordPress 文章中的图片通常存放在 `wp-content/uploads/` 目录。迁移图片有三种方案：
+
+**方案一：迁移到 Mix Space 本地存储**
+
+将 WordPress 的 `uploads` 目录中的图片上传到 Mix Space 后台的「文件」管理中，然后批量替换文章中的图片链接。
+
+**方案二：使用对象存储**
+
+在 Mix Space 中配置 S3 图床（详见 [图床与存储](/docs/configure/image-storage)），将图片上传到对象存储，然后批量替换链接。
+
+**方案三：保留原链接**
+
+如果原 WordPress 站点的图片链接仍然可用，可以暂时保留不做处理。但建议最终迁移到 Mix Space 的存储中，避免原站点关闭后图片丢失。
+
+推荐使用批量查找替换的方式更新文章中的图片 URL：
+
+```sql
+-- 在数据库中批量替换图片链接（请先备份！）
+UPDATE posts SET text = REPLACE(text, 'old-domain.com/wp-content/uploads', 'new-domain.com/api/v2/static/image');
+```
+</Step>
+
+<Step>
+### 验证迁移结果
+
+迁移完成后，逐一检查以下内容：
+
+- [ ] 文章数量是否与原站点一致
+- [ ] 文章内容和格式是否正确（特别是代码块、表格等）
+- [ ] 分类和标签是否正确匹配
+- [ ] 图片是否正常显示
+- [ ] 文章 slug 是否与旧站一致（影响 SEO）
+</Step>
+</Steps>
+
+## 评论迁移
+
+<Callout type="warn">
+Mix Space 目前没有直接导入 WordPress 评论的功能。评论数据需要手动迁移或借助脚本辅助。
+</Callout>
+
+如果你的站点评论较多，可以考虑：
+
+1. 通过脚本读取 WordPress 导出的 XML 中的评论数据
+2. 调用 Mix Space API 批量创建评论
+3. 或者接受从零开始，不迁移历史评论
+
+## SEO 过渡建议
+
+迁移完成后，建议进行以下 SEO 相关操作：
+
+| 操作 | 说明 |
+|------|------|
+| **301 重定向** | 将旧 WordPress 链接重定向到新的 Mix Space 链接 |
+| **更新 Sitemap** | Mix Space 会自动生成新的 Sitemap |
+| **提交搜索引擎** | 在百度/Bing 站长工具中重新提交站点地图 |
+| **保留 robots.txt** | 确保新的 robots.txt 配置正确 |
+
+### URL 映射规则
+
+WordPress 和 Mix Space 的 URL 结构不同，需要做重定向映射：
+
+| WordPress URL | Mix Space URL |
+|---------------|---------------|
+| `/?p=123` | `/{分类 slug}/{文章 slug}` |
+| `/2024/01/hello-world/` | `/{分类 slug}/{文章 slug}` |
+
+建议在 Nginx 中配置 rewrite 规则：
+
+```nginx
+# 示例：将 WordPress 固定链接重定向到 Mix Space
+location / {
+    # 如果旧文章有固定链接格式，可以逐条重定向
+    # rewrite ^/2024/01/hello-world/$ /coding/hello-world permanent;
+}
+```
+
+## 参考资源
+
+- [社区博文：从 WordPress 迁移数据到 Mix Space](https://blog.fosky.top/2024/10/09/wordpress-to-mix-space.html)
+- [GitHub: wordpress-export-to-markdown](https://github.com/lonekorean/wordpress-export-to-markdown)

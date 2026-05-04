@@ -1,0 +1,138 @@
+---
+title: HTTPS / SSL 证书
+description: 为 Mix Space 配置 HTTPS 证书
+icon: Lock
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+Mix Space 的后台管理、OAuth 登录等功能要求使用 HTTPS。现代浏览器也会标记 HTTP 站点为不安全，影响访问体验。本页介绍几种常见的 SSL 证书获取和配置方式。
+
+## 获取证书
+
+### 自动证书（Let's Encrypt + Certbot）
+
+Let's Encrypt 提供免费、自动化的 SSL 证书，有效期 90 天，支持自动续期。
+
+**使用服务器面板（推荐）：**
+
+大部分服务器面板（1Panel、宝塔）都内置了自动证书申请功能，推荐在面板中一键申请并开启自动续期。
+
+**使用 Certbot 命令行：**
+
+```bash
+# 安装 Certbot
+apt install certbot python3-certbot-nginx  # Debian/Ubuntu
+yum install certbot python3-certbot-nginx  # CentOS
+
+# 申请证书（Nginx 插件自动配置）
+certbot --nginx -d example.com -d www.example.com
+
+# 测试自动续期
+certbot renew --dry-run
+```
+
+Certbot 会自动修改 Nginx 配置并设置定时任务续期。
+
+### Cloudflare Origin Certificates
+
+如果你使用 Cloudflare CDN，可以申请 Cloudflare Origin Certificates：
+
+- 有效期最长 15 年
+- 仅用于 Cloudflare 回源到服务器的加密
+- 访客看到的是 Cloudflare 的 Edge 证书
+
+操作步骤：
+
+1. 登录 Cloudflare 后台，进入 `SSL/TLS → 源服务器`
+2. 点击「创建证书」，选择 RSA，有效期 15 年
+3. 下载 PEM（证书）和 Key（私钥）文件
+4. 在 Nginx 中配置这两个文件
+
+<Callout type="info">
+使用 Cloudflare Origin Certificates 时，Cloudflare 的 SSL/TLS 加密模式应设为「完全（严格）」，以确保端到端加密。
+</Callout>
+
+### 手动上传证书
+
+如果你已从其他 CA（如 DigiCert、Sectigo）购买或申请了证书，将证书文件和私钥上传到服务器，然后在 Nginx 中指定路径即可。
+
+## Nginx SSL 配置
+
+### 基础配置
+
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name example.com;
+
+    ssl_certificate /etc/ssl/certs/fullchain.pem;
+    ssl_certificate_key /etc/ssl/private/privkey.pem;
+}
+```
+
+### 推荐的安全配置
+
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name example.com;
+
+    # 证书路径
+    ssl_certificate /etc/ssl/certs/fullchain.pem;
+    ssl_certificate_key /etc/ssl/private/privkey.pem;
+
+    # 仅使用 TLS 1.2 和 1.3
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers 'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384';
+    ssl_prefer_server_ciphers on;
+
+    # 会话缓存
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    # HSTS（可选，启用后浏览器强制 HTTPS）
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # HTTP 自动跳转
+    error_page 497 https://$host$request_uri;
+}
+
+# HTTP 跳转 HTTPS
+server {
+    listen 80;
+    server_name example.com;
+    return 301 https://$host$request_uri;
+}
+```
+
+### 安全响应头（可选）
+
+```nginx
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+```
+
+## 常见问题
+
+### 证书续期后未生效
+
+Certbot 续期证书后需要重载 Nginx：
+
+```bash
+nginx -s reload
+```
+
+Certbot 的 `deploy-hook` 可以自动执行此操作。
+
+### 浏览器提示证书不匹配
+
+- 确认证书覆盖了所有访问域名（包括 `www` 子域名）
+- 检查证书是否过期
+- 如果使用 Cloudflare，确认 SSL 模式不是「灵活」（灵活模式会导致重定向循环）
+
+### 混合内容警告
+
+确保前端页面中所有资源（图片、脚本、样式表）都使用 HTTPS 地址。检查 HTML 中是否有硬编码的 `http://` 链接。

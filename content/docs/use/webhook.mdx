@@ -1,0 +1,106 @@
+---
+title: Webhook 与事件通知
+description: 配置 Webhook 将 Mix Space 的内容事件推送到外部服务，实现自动化集成
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+Webhook 可以将 Mix Space 中发生的事件（如发布文章、收到评论等）实时推送到你指定的外部服务。常见的用途包括：通知到 Telegram/微信、触发 CI/CD 构建、同步到第三方平台等。
+
+## 创建 Webhook
+
+<Steps>
+<Step>
+### 进入 Webhook 管理页面
+
+登录后台，进入「其他 → Webhook」。
+</Step>
+
+<Step>
+### 点击新建
+
+填写以下信息：
+
+| 字段 | 说明 |
+|------|------|
+| **Payload URL** | 接收推送的 URL 地址 |
+| **Secret** | 签名密钥，用于验证推送来源 |
+| **事件** | 勾选你关注的事件类型 |
+| **启用** | 是否启用此 Webhook |
+| **作用域** | 选择接收推送的范围（访客/管理员/系统） |
+
+</Step>
+
+<Step>
+### 保存并测试
+
+保存后，当勾选的事件发生时，系统会向 Payload URL 发送 HTTP POST 请求。
+</Step>
+</Steps>
+
+## 支持的事件
+
+| 事件 | 说明 |
+|------|------|
+| `POST_CREATE` | 文章创建 |
+| `POST_UPDATE` | 文章更新 |
+| `POST_DELETE` | 文章删除 |
+| `NOTE_CREATE` | 日记创建 |
+| `NOTE_UPDATE` | 日记更新 |
+| `NOTE_DELETE` | 日记删除 |
+| `PAGE_CREATE` | 页面创建 |
+| `PAGE_UPDATE` | 页面更新 |
+| `PAGE_DELETE` | 页面删除 |
+| `COMMENT_CREATE` | 评论创建 |
+| `COMMENT_DELETE` | 评论删除 |
+| `COMMENT_UPDATE` | 评论更新 |
+| `SAY_CREATE` | 说说创建 |
+| `SAY_UPDATE` | 说说更新 |
+| `SAY_DELETE` | 说说删除 |
+| `CATEGORY_CREATE` | 分类创建 |
+| `CATEGORY_UPDATE` | 分类更新 |
+| `CATEGORY_DELETE` | 分类删除 |
+| `TOPIC_CREATE` | 专题创建 |
+| `TOPIC_UPDATE` | 专题更新 |
+| `TOPIC_DELETE` | 专题删除 |
+| `LINK_APPLY` | 友链申请 |
+| `RECENTLY_CREATE` | 速记创建 |
+| `RECENTLY_UPDATE` | 速记更新 |
+| `RECENTLY_DELETE` | 速记删除 |
+| `TRANSLATION_CREATE` | AI 翻译创建 |
+| `TRANSLATION_UPDATE` | AI 翻译更新 |
+| `INSIGHTS_CREATE` | AI 精读创建 |
+| `INSIGHTS_UPDATE` | AI 精读更新 |
+
+## 作用域说明
+
+Webhook 可以选择不同的推送作用域：
+
+| 作用域 | 说明 |
+|--------|------|
+| **访客** | 仅推送面向访客的事件 |
+| **管理员** | 仅推送面向管理员的事件 |
+| **系统** | 仅推送系统级别的事件 |
+| **全选** | 推送所有事件 |
+
+<Callout type="info">
+合理选择作用域可以减少不必要的推送请求。例如，如果你想将评论通知推送到 Telegram，选择「访客」作用域即可。
+</Callout>
+
+## 管理推送记录
+
+在 Webhook 列表中点击某个 Webhook，可以查看该 Webhook 的推送记录：
+
+- **推送状态**：成功或失败
+- **HTTP 状态码**：目标服务返回的状态码
+- **请求头和请求体**：完整的推送内容
+- **响应内容**：目标服务的返回数据
+
+### 重试推送
+
+对于推送失败的记录，可以点击「重新推送」按钮手动重试。
+
+### 清除记录
+
+点击「清除记录」可以删除该 Webhook 的所有历史推送记录。

@@ -10,6 +10,30 @@ const config = {
     domains: ['github.com', 'avatars.githubusercontent.com', 'pan.vinua.cn'],
     unoptimized: true
   },
+  async redirects() {
+    return [
+      {
+        source: '/docs/core',
+        destination: '/docs/getting-started',
+        permanent: true,
+      },
+      {
+        source: '/docs/usage',
+        destination: '/docs/use',
+        permanent: true,
+      },
+      {
+        source: '/docs/development',
+        destination: '/docs/develop',
+        permanent: true,
+      },
+      {
+        source: '/docs/document',
+        destination: '/docs/use/writing',
+        permanent: true,
+      },
+    ]
+  },
   async rewrites() {
     return [
       {

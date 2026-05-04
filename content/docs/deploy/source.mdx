@@ -1,0 +1,104 @@
+---
+title: 源码部署
+description: 通过源码编译部署 Mix Space 后端
+icon: Pickaxe
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+<Callout type="error">
+如果你**不是开发者**，或者**不想折腾**，请不要选择源码部署。由于自身技术原因导致的问题，我们将**不会提供任何技术支持**。
+</Callout>
+
+## 要求
+
+- [Node.js](https://nodejs.org/zh-cn/) 22+
+- [PostgreSQL](https://www.postgresql.org/download/) 16+
+- [Redis](https://redis.io/download)
+- [Git](https://git-scm.com/downloads)、[PNPM](https://pnpm.io/installation)、[PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)
+
+<Steps>
+
+<Step>
+### 克隆并安装
+
+```bash
+git clone https://github.com/mx-space/core.git --depth=1
+cd core
+pnpm i
+```
+</Step>
+
+<Step>
+### 构建 & Bundle
+
+```bash
+pnpm build
+pnpm bundle
+```
+</Step>
+
+<Step>
+### 配置 ecosystem.config.js
+
+在 `./apps/core` 目录下创建 `ecosystem.config.js`：
+
+```js
+const { cpus } = require('os')
+const { execSync } = require('child_process')
+const nodePath = execSync(`npm root --quiet -g`, { encoding: 'utf-8' }).split(
+  '\n',
+)[0]
+
+const cpuLen = cpus().length
+module.exports = {
+  apps: [
+    {
+      name: 'mx-server',
+      script: './out/index.js',
+      autorestart: true,
+      exec_mode: 'cluster',
+      watch: false,
+      instances: cpuLen,
+      max_memory_restart: '520M',
+      args: '',
+      env: {
+        NODE_ENV: 'production',
+        NODE_PATH: nodePath,
+        // 必填：允许跨域的域名，多个用逗号分隔
+        ALLOWED_ORIGINS: 'your-domain.com',
+        // 必填：JWT 密钥，16-32 个字符
+        JWT_SECRET: 'your-jwt-secret',
+        // 可选：加密密钥，开启加密时填写
+        MX_ENCRYPT_KEY: '',
+      },
+    },
+  ],
+}
+```
+
+</Step>
+
+<Step>
+### 启动
+
+```bash
+pm2 start ecosystem.config.js
+```
+
+查看运行状态：
+
+```bash
+pm2 logs mx-server
+```
+</Step>
+
+</Steps>
+
+## 环境变量
+
+更多环境变量配置请参考 [环境变量说明](/docs/configure/environment)。
+
+## 下一步
+
+部署完成后，请配置 [反向代理](./reverse-proxy) 和 [SSL 证书](./ssl)。

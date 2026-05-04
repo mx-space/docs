@@ -1,0 +1,16 @@
+{
+  "title": "配置",
+  "description": "配置 Mix Space 的各项功能",
+  "icon": "Settings",
+  "root": true,
+  "pages": [
+    "index",
+    "environment",
+    "seo",
+    "oauth",
+    "account-security",
+    "image-storage",
+    "algolia",
+    "encryption"
+  ]
+}

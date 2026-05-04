@@ -1,0 +1,3763 @@
+# Mix Space — Complete Documentation (llm-full.txt)
+
+> This file contains the complete Mix Space documentation for LLM consumption.
+> Online version: https://mx-space.js.org/docs
+> Source code: https://github.com/mx-space/core
+
+## About Mix Space
+
+Mix Space is an AI-powered headless CMS for personal blogs and content sites.
+- Backend: NestJS 11 + Fastify + PostgreSQL 16 + Redis 7
+- Admin: Vue 3 + Naive UI
+- Frontend Themes: Next.js (Shiro, Yohaku) or community themes
+
+## Documentation Structure
+
+1. Getting Started — What is Mix Space, requirements, quick start
+2. Deploy — Docker, one-script, source, reverse proxy, SSL, external services
+3. Configure — Environment variables, SEO, OAuth, Algolia, encryption, account, image storage
+4. Themes — Yohaku, Shiro, Kami, Yun, community
+5. Use — Writing, content, comments, friends, says, projects, files, analytics, AI, webhook, mail, serverless, cron, backup, update, FAQ
+6. Migrate — v11→v12, WordPress
+7. Develop — Backend, frontend, admin, contribute
+8. Reference — Common issues
+
+---
+
+# Mix Space — Complete Documentation
+# Full documentation for Mix Space CMS. Source: https://mx-space.js.org/docs
+
+================================================================================
+## Mix Space 是什么
+Path: /docs/getting-started/index
+================================================================================
+
+Mix Space 是一个简洁、现代、高性能的个人博客系统，采用前后端分离架构。
+## 系统组成
+Mix Space 由两大部分组成：
+
+- **后端 (Core)**：提供数据存储、业务逻辑、RESTful API 以及后台管理界面。你可以通过后台管理文章、页面、笔记、评论等所有内容。
+- **前端 (Theme)**：面向访客的展示站点，通过调用后端 API 获取数据并渲染页面。
+这种分离设计让你可以自由搭配前端主题，而后端数据始终保持一致。
+## 官方主题
+目前官方维护的前端主题有：
+- **Shiro** —— 最受欢迎的现代化主题，设计精致，功能丰富
+- **Yohaku** —— 简约留白风格，注重阅读体验
+- **Kami** —— 经典风格，稳定可靠
+- **Yun** —— 早期主题，轻量简洁
+  这不是 WordPress 式的「一键安装」。你需要分别部署后端和前端，但这也带来了更大的灵活性。
+## 继续阅读
+
+    了解你需要准备的服务器、域名和基础知识
+
+    在本地快速启动 Mix Space，无需配置域名
+
+    完整的生产环境部署文档
+
+================================================================================
+## 准备工作
+Path: /docs/getting-started/what-you-need
+================================================================================
+
+## 你需要什么
+在正式开始之前，请确认你已准备好以下事项：
+- [ ] 一台服务器（Linux / macOS，内存 >= 1GB，推荐 2GB）
+- [ ] 一个域名（推荐，但本地体验可以不要）
+- [ ] 基础的命令行知识（会复制粘贴命令即可）
+- [ ] 预计费用：服务器 ~ 几十元/月，域名 ~ 几十元/年
+## 基础知识自查
+如果你知道以下概念是什么，那么你已经具备了部署 Mix Space 的基础：
+- **Docker** —— 容器化运行环境，帮你自动处理依赖
+- **Docker Compose** —— 多容器编排工具，一键启动所有服务
+- **反向代理** —— 如 Nginx、Caddy，用于将域名指向服务并配置 HTTPS
+如果以上术语对你来说比较陌生，不用担心，选择 **Docker 部署** 是最简单的方式，只需要复制粘贴命令即可完成。
+## 系统架构
+Mix Space 由以下几个部分组成：
+| 组件 | 说明 | 必需 |
+|------|------|------|
+| **Core（后端）** | NestJS API 服务，提供所有后端功能 | ✅ |
+| **PostgreSQL** | 关系型数据库，存储所有业务数据 | ✅ |
+| **Redis** | 缓存，用于会话、队列、实时数据 | ✅ |
+| **前端主题** | 用户访问的网站界面（Shiro、Yohaku 等） | ✅ |
+| **Admin** | 后台管理系统（内嵌在 Core 中） | ✅ |
+PostgreSQL 和 Redis 可以使用 Docker 内置的服务，也可以连接外部已有的实例。
+## 两种部署路径
+| 方式 | 难度 | 适合谁 | 预计时间 |
+| :--- | :--- | :--- | :--- |
+| Docker | 简单 | 大多数用户 | 15 分钟 |
+| 源码编译 | 较难 | 开发者 / 想折腾的用户 | 1 小时 |
+Docker 方式会帮你自动处理 PostgreSQL、Redis 和运行环境；源码编译则需要你手动安装 Node.js、数据库等依赖，并进行编译构建。
+  如果你不确定选哪个，选 Docker。
+准备好了？继续阅读 [5 分钟快速体验](./quick-start)，在本地先跑起来看看。
+
+================================================================================
+## 5 分钟快速体验
+Path: /docs/getting-started/quick-start
+================================================================================
+
+本指南的目标是在 **5 分钟** 内让你在本地运行起一个完整的 Mix Space，**无需配置域名，无需填写环境变量**（全部使用默认值）。
+
+    确保你的机器已安装 Docker 和 Docker Compose。如果没有，可以执行以下命令一键安装：
+    ```bash
+    curl -fsSL https://get.docker.com | bash
+    ```
+    安装完成后，运行 `docker --version` 和 `docker compose version` 确认安装成功。
+
+    执行以下命令克隆后端仓库并启动服务：
+    ```bash
+    git clone https://github.com/mx-space/core.git --depth=1
+    cd core
+    docker compose up -d
+    ```
+    首次启动会拉取镜像并初始化 PostgreSQL 和 Redis，可能需要几分钟时间。
+
+    等待约 30 秒，让数据库和服务完成初始化。可以用以下命令检查状态：
+    ```bash
+    docker compose ps
+    ```
+    所有服务状态为 `healthy` 后，打开浏览器访问：
+    ```
+    http://localhost:2333/proxy/qaqdmin
+    ```
+
+    第一次访问后台时，系统会引导你完成初始化设置：
+    - 设置管理员账号和密码
+    - 填写站点基本信息
+    初始化完成后，即可使用刚才设置的账号登录后台管理系统。
+
+    确认以下事项均正常：
+    - [ ] 后端 API 响应正常（访问 `http://localhost:2333/api/v2` 能返回 JSON）
+    - [ ] 后台管理页面能正常加载和登录
+    - [ ] 可以在后台发布一篇文章并保存成功
+
+  这只是本地体验。要对外公开访问，你需要继续阅读[部署指南](/docs/deploy)，配置域名和反向代理。
+## 服务架构
+本地启动后，以下服务在后台运行：
+| 服务 | 端口 | 说明 |
+|------|------|------|
+| **Mix Space 后端** | 2333 | NestJS API 服务 + 后台管理界面 |
+| **PostgreSQL** | 5432 | 数据库（仅容器内可访问） |
+| **Redis** | 6379 | 缓存（仅容器内可访问） |
+## 下一步
+本地体验完成后，你可以：
+1. [部署到服务器](/docs/deploy) — 配置域名和 HTTPS
+2. [部署前端主题](/docs/themes) — 为你的站点选择一个漂亮的前端
+3. [配置 AI 功能](/docs/use/ai-features) — 开启 AI 摘要、翻译等功能
+
+================================================================================
+## 选择部署方式
+Path: /docs/deploy/index
+================================================================================
+
+Mix Space 提供三种部署方式，从简单到复杂依次为 Docker、一键脚本、源码编译。
+## 部署方式对比
+| 方式 | 难度 | 维护成本 | 适合谁 |
+|------|------|----------|--------|
+| Docker | ⭐ | 低 | 大多数用户，推荐 |
+| 一键脚本 | ⭐ | 中 | 想自动化部署的用户 |
+| 源码编译 | ⭐⭐⭐ | 高 | 开发者，需要二次开发 |
+## 如何选择
+- **如果你第一次部署** → 选择 [Docker 部署](./docker)，稳定、可维护、社区支持最好。
+- **如果你想在服务器上一键搞定** → 选择 [一键脚本部署](./one-script)，自动安装依赖并配置。
+- **如果你想改后端代码，或需要深度定制** → 选择 [源码部署](./source)，完全可控但维护成本更高。
+## 快速开始
+  }>
+    推荐大多数用户使用，简单稳定
+
+  }>
+    自动化安装，适合懒人
+
+  }>
+    面向开发者，完全可控
+
+部署完成后，请继续配置 [反向代理](./reverse-proxy) 和 [SSL 证书](./ssl)。
+
+================================================================================
+## Docker 部署
+Path: /docs/deploy/docker
+================================================================================
+
+### 安装 Docker
+如果你的服务器在国内，建议使用阿里云的安装脚本：
+```bash
+curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+```
+在国外，可以直接使用官方脚本：
+```bash
+curl -fsSL https://get.docker.com | bash -s docker
+```
+验证安装：
+```bash
+docker -v
+docker compose version
+```
+### 拉取配置文件
+```bash
+cd && mkdir -p mx-space/core && cd $_
+# 拉取 docker-compose.yml 文件
+wget https://fastly.jsdelivr.net/gh/mx-space/core@master/docker-compose.yml
+```
+### 配置环境变量
+在下方的表格中填入配置，点击复制后粘贴到 `docker-compose.yml` 的 `environment` 字段中。
+  format="yaml"
+  variableNames={[
+    {
+      key: 'JWT_SECRET',
+      name: '[JWT 密钥] 长度 16-32 个字符',
+    },
+    {
+      key: 'ALLOWED_ORIGINS',
+      name: '[被允许的域名] 多个域名用英文逗号分隔',
+    },
+    {
+      key: 'ENCRYPT_ENABLE',
+      name: '[是否开启加密] true 或 false',
+    },
+    {
+      key: 'ENCRYPT_KEY',
+      name: '[加密密钥] 开启加密时必填',
+    },
+  ]}
+/>
+- **`JWT 密钥`**：长度 16-32 个字符，用于加密用户 JWT，务必保存好不要泄露。
+- **`被允许的域名`**：通常是前端的域名，多个用英文逗号分隔。
+- **`是否开启加密`**：如需开启，将 `false` 改为 `true`。
+- **`加密密钥`**：开启加密后必填，长度必须为 64 位且只有小写字母和数字。可用 `openssl rand -hex 32` 生成。**此操作不可逆，请谨慎。**
+### 启动服务
+如果服务器在国内，拉取镜像速度过慢，可在 `docker-compose.yml` 的 image 前添加镜像域名，例如 `docker.1panel.top/innei/mx-server:latest`。
+```bash
+docker compose up -d
+```
+### 验证
+启动后，请按以下清单确认服务正常：
+- [ ] `docker compose ps` 显示所有服务状态为 healthy
+- [ ] `curl http://localhost:2333/api/v2/ping` 返回 `pong`
+- [ ] 浏览器能打开后台初始化页面 `http://你的域名/proxy/qaqdmin`
+## 下一步
+  }>
+    将域名指向你的服务，并配置 HTTPS
+
+  }>
+    部署前端主题完成整套系统
+
+================================================================================
+## 一键脚本部署
+Path: /docs/deploy/one-script
+================================================================================
+
+此脚本由社区维护，官方文档仅作引用。如遇问题请前往对应的 GitHub 仓库提出 Issue。
+本脚本由社区用户“[Mikuの鬆](https://github.com/PaloMiku)”维护。
+## 介绍
+这是一种在服务器自动安装 Docker 和进行 Mix Space 后端部署的 Bash 脚本，它可以帮助你交互式快速部署 Mix Space 后端。
+注意脚本会自动根据是否为中国大陆网络环境按需修改服务器 Docker 安装源和镜像源。
+脚本支持交互式安装方式和预配置文件的自动安装方式。
+## 使用
+在服务器终端运行以下指令，即可自动进入交互式安装。
+### 海外服务器
+```bash
+curl -sSL https://raw.githubusercontent.com/PaloMiku/MxShell/refs/heads/main/install/core.sh -o core.sh && bash core.sh
+```
+### 国内服务器
+使用 Moeyy 的 GitHub 加速源。
+```bash
+curl -sSL https://github.moeyy.xyz/https://raw.githubusercontent.com/PaloMiku/MxShell/refs/heads/main/install/core.sh -o core.sh && bash core.sh
+```
+## 预配置文件
+参考下方示例修改并粘贴到 `mxshell.env` 文件，并将其与脚本置于同一目录后运行脚本，脚本会根据配置文件内容自动完成前后端部署。
+### 配置文件示例
+```yaml
+# 需要填写长度不小于 16 个字符，不大于 32 个字符的字符串，用于加密用户的 JWT，务必保存好自己的密钥，不要泄露给他人。
+JWT_SECRET=
+# 需要填写被允许访问前端的域名，如果允许多个域名访问，用英文逗号，分隔。
+ALLOWED_ORIGINS=
+# Mix Space 容器文件存储目录
+TARGET_DIR="/opt/mxspace"
+```
+- **`JWT 密钥`**：需要填写长度不小于 16 个字符，不大于 32 个字符的字符串，用于加密用户的 JWT，务必保存好自己的密钥，不要泄露给他人。
+- **`被允许的域名`**：需要填写被允许访问容器的域名，通常是前端的域名，如果允许多个域名访问，用英文逗号，分隔。
+- **`Mix Space 容器文件存储目录`**：指定文件存储路径，通常是 `/opt/mxspace`。
+
+================================================================================
+## 源码部署
+Path: /docs/deploy/source
+================================================================================
+
+如果你**不是开发者**，或者**不想折腾**，请不要选择源码部署。由于自身技术原因导致的问题，我们将**不会提供任何技术支持**。
+## 要求
+- [Node.js](https://nodejs.org/zh-cn/) 22+
+- [PostgreSQL](https://www.postgresql.org/download/) 16+
+- [Redis](https://redis.io/download)
+- [Git](https://git-scm.com/downloads)、[PNPM](https://pnpm.io/installation)、[PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)
+### 克隆并安装
+```bash
+git clone https://github.com/mx-space/core.git --depth=1
+cd core
+pnpm i
+```
+### 构建 & Bundle
+```bash
+pnpm build
+pnpm bundle
+```
+### 配置 ecosystem.config.js
+在 `./apps/core` 目录下创建 `ecosystem.config.js`：
+```js
+const { cpus } = require('os')
+const { execSync } = require('child_process')
+const nodePath = execSync(`npm root --quiet -g`, { encoding: 'utf-8' }).split(
+  '\n',
+)[0]
+const cpuLen = cpus().length
+module.exports = {
+  apps: [
+    {
+      name: 'mx-server',
+      script: './out/index.js',
+      autorestart: true,
+      exec_mode: 'cluster',
+      watch: false,
+      instances: cpuLen,
+      max_memory_restart: '520M',
+      args: '',
+      env: {
+        NODE_ENV: 'production',
+        NODE_PATH: nodePath,
+        // 必填：允许跨域的域名，多个用逗号分隔
+        ALLOWED_ORIGINS: 'your-domain.com',
+        // 必填：JWT 密钥，16-32 个字符
+        JWT_SECRET: 'your-jwt-secret',
+        // 可选：加密密钥，开启加密时填写
+        MX_ENCRYPT_KEY: '',
+      },
+    },
+  ],
+}
+```
+### 启动
+```bash
+pm2 start ecosystem.config.js
+```
+查看运行状态：
+```bash
+pm2 logs mx-server
+```
+## 环境变量
+更多环境变量配置请参考 [环境变量说明](/docs/configure/environment)。
+## 下一步
+部署完成后，请配置 [反向代理](./reverse-proxy) 和 [SSL 证书](./ssl)。
+
+================================================================================
+## 反向代理
+Path: /docs/deploy/reverse-proxy
+================================================================================
+
+## 为什么需要反向代理
+Mix Space 默认运行在本地端口（后端 `2333`，前端 `2323`），反向代理可以将域名请求转发到对应端口，并提供 HTTPS、WebSocket 支持。
+## 图形化面板
+现代服务器面板（如 1Panel、宝塔面板）自带的反向代理已足以满足 Mix Space 的需求（包括 WebSocket），非高级用户建议使用图形化界面操作。
+### 宝塔面板
+进入 `网站`，在 `反向代理` 栏目下点击 `添加反代`。
+- `域名` 填入你将要使用的域名
+- `目标` 填写 `URL 地址` + `http://127.0.0.1:2333`
+### 1Panel
+进入 `网站 > 网站`，创建一个新网站，选择 `反向代理`。
+- `主域名` 填入你将要使用的域名，并勾选 `监听 IPV6`
+- 代理类型选择 `http`，地址填入 `127.0.0.1:2333`
+## Vane
+Vane 是一个较新的反向代理项目，请做好出现异常问题的准备。目前已测试过 mx-server + Shiro，如遇问题请携带日志反馈。
+[Vane](https://github.com/canmi21/vane) 是一个使用 Rust 编写的现代反向代理，内存占用约 1.5-3MB，Docker 镜像约 5MB。
+### 获取证书
+Vane 目前不包含 SSL 证书管理，可通过以下方式获取：
+- 使用 1Panel / 宝塔面板自带的 acme.sh 生成证书，导入到 Vane
+- 使用 [lazy-acme](https://github.com/canmi21/lazy-acme)（Vane 配套工具，支持 Cloudflare DNS 验证）
+### 部署配置
+推荐使用 [docker-compose.yml](https://github.com/canmi21/vane?tab=readme-ov-file#installation-and-usage) 部署。
+编写主配置文件 `~/vane/config.toml`：
+```toml
+[domains]
+"example.com" = "example.com.toml"
+"api.example.com" = "api.example.com.toml"
+```
+前端域名配置 `example.com.toml`：
+```toml
+https = true
+http3 = true
+hsts = true
+http_options = "reject"
+[tls]
+cert = "~/vane/cert/example.com.pem"
+key = "~/vane/cert/example.com.key"
+[methods]
+allow = "GET, POST, OPTIONS, HEAD"
+[rate_limit.default]
+period = "1s"
+requests = 20
+[[routes]]
+path = "/"
+websocket = true
+targets = ["http://127.0.0.1:2323"]
+```
+后端域名配置 `api.example.com.toml`：
+```toml
+https = true
+http_options = "reject"
+hsts = true
+http3 = false
+[tls]
+cert = "~/vane/cert/api.example.com.pem"
+key = "~/vane/cert/api.example.com.key"
+[methods]
+allow = "GET, POST, OPTIONS, HEAD"
+[rate_limit.default]
+period = "1s"
+requests = 20
+[[routes]]
+path = "/*"
+websocket = true
+targets = ["http://localhost:2333"]
+```
+注意根据实际部署情况修改端口和域名。
+## Cloudflare Tunnel
+除非你在非完整服务器环境（如 Sealos 或 Huggingface Space）部署，否则不推荐在容器内使用 Cloudflare Tunnel，而应在宿主机配置以避免管理不便。
+启动该功能需要两个环境变量：
+- `ENABLE_CLOUDFLARED` = `true`
+- `CF_ZERO_TRUST_TOKEN` = Tunnel 给的令牌（删掉 `cloudflared.exe service install`，只保留令牌部分）
+### 详细步骤
+1. 申请 Cloudflare Zero Trust
+2. 添加一条隧道，连接方式选择 Cloudflared，名称任意
+3. 添加一个 Public Hostname，回源选择 HTTP，端口选择 `2333`
+启动成功后，日志中应看到：
+```
+============================================
+Starting Cloudflared Tunnel
+============================================
+```
+## Nginx 手写配置
+手写配置文件需要较高的技术功底，请量力而行。
+### 双域名配置
+假定前端域名为 `www.example.com`，后端为 `server.example.com`。
+后端配置：
+```nginx
+server {
+    location /socket.io {
+      proxy_pass http://127.0.0.1:2333/socket.io;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header REMOTE-HOST $remote_addr;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_buffering off;
+      proxy_http_version 1.1;
+      add_header Cache-Control no-cache;
+    }
+    location / {
+      proxy_pass http://127.0.0.1:2333;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header REMOTE-HOST $remote_addr;
+      add_header X-Cache $upstream_cache_status;
+    }
+}
+```
+前端配置：
+```nginx
+server {
+    location ~* \.(gif|png|jpg|css|js|woff|woff2)$ {
+      proxy_pass http://127.0.0.1:2323;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header REMOTE-HOST $remote_addr;
+      expires 30d;
+    }
+    location / {
+      proxy_pass http://127.0.0.1:2323;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header REMOTE-HOST $remote_addr;
+      add_header X-Cache $upstream_cache_status;
+      add_header Cache-Control no-cache;
+      proxy_intercept_errors on;
+    }
+}
+```
+使用双域名配置时：
+- API 地址为 `https://server.example.com/api/v2`
+- 前端地址为 `https://www.example.com`
+- Gateway 为 `https://server.example.com`
+- 后台为 `https://server.example.com/proxy/qaqdmin`
+### 单域名配置
+```nginx
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name www.example.com;
+    index index.html;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host $server_name;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    location /socket.io {
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://127.0.0.1:2333/socket.io;
+    }
+    location /api/v2 {
+        proxy_pass http://127.0.0.1:2333/api/v2;
+    }
+    location /render {
+        proxy_pass http://127.0.0.1:2333/render;
+    }
+    location / {
+        proxy_pass http://127.0.0.1:2323;
+    }
+    location /qaqdmin {
+        proxy_pass http://127.0.0.1:2333/proxy/qaqdmin;
+    }
+    location /proxy {
+        proxy_pass http://127.0.0.1:2333/proxy;
+    }
+    ssl_certificate /path/to/fullchain.pem;
+    ssl_certificate_key /path/to/privkey.pem;
+    ssl_protocols TLSv1.3 TLSv1.2;
+    error_page 497 https://$host$request_uri;
+}
+```
+使用单域名配置时：
+- API 地址为 `https://www.example.com/api/v2`
+- 前端地址为 `https://www.example.com`
+- Gateway 为 `https://www.example.com`
+- 后台为 `https://www.example.com/proxy/qaqdmin`
+
+================================================================================
+## HTTPS / SSL 证书
+Path: /docs/deploy/ssl
+================================================================================
+
+Mix Space 的后台管理、OAuth 登录等功能要求使用 HTTPS。现代浏览器也会标记 HTTP 站点为不安全，影响访问体验。本页介绍几种常见的 SSL 证书获取和配置方式。
+## 获取证书
+### 自动证书（Let's Encrypt + Certbot）
+Let's Encrypt 提供免费、自动化的 SSL 证书，有效期 90 天，支持自动续期。
+**使用服务器面板（推荐）：**
+大部分服务器面板（1Panel、宝塔）都内置了自动证书申请功能，推荐在面板中一键申请并开启自动续期。
+**使用 Certbot 命令行：**
+```bash
+# 安装 Certbot
+apt install certbot python3-certbot-nginx  # Debian/Ubuntu
+yum install certbot python3-certbot-nginx  # CentOS
+# 申请证书（Nginx 插件自动配置）
+certbot --nginx -d example.com -d www.example.com
+# 测试自动续期
+certbot renew --dry-run
+```
+Certbot 会自动修改 Nginx 配置并设置定时任务续期。
+### Cloudflare Origin Certificates
+如果你使用 Cloudflare CDN，可以申请 Cloudflare Origin Certificates：
+- 有效期最长 15 年
+- 仅用于 Cloudflare 回源到服务器的加密
+- 访客看到的是 Cloudflare 的 Edge 证书
+操作步骤：
+1. 登录 Cloudflare 后台，进入 `SSL/TLS → 源服务器`
+2. 点击「创建证书」，选择 RSA，有效期 15 年
+3. 下载 PEM（证书）和 Key（私钥）文件
+4. 在 Nginx 中配置这两个文件
+使用 Cloudflare Origin Certificates 时，Cloudflare 的 SSL/TLS 加密模式应设为「完全（严格）」，以确保端到端加密。
+### 手动上传证书
+如果你已从其他 CA（如 DigiCert、Sectigo）购买或申请了证书，将证书文件和私钥上传到服务器，然后在 Nginx 中指定路径即可。
+## Nginx SSL 配置
+### 基础配置
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name example.com;
+    ssl_certificate /etc/ssl/certs/fullchain.pem;
+    ssl_certificate_key /etc/ssl/private/privkey.pem;
+}
+```
+### 推荐的安全配置
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name example.com;
+    # 证书路径
+    ssl_certificate /etc/ssl/certs/fullchain.pem;
+    ssl_certificate_key /etc/ssl/private/privkey.pem;
+    # 仅使用 TLS 1.2 和 1.3
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers 'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384';
+    ssl_prefer_server_ciphers on;
+    # 会话缓存
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+    # HSTS（可选，启用后浏览器强制 HTTPS）
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    # HTTP 自动跳转
+    error_page 497 https://$host$request_uri;
+}
+# HTTP 跳转 HTTPS
+server {
+    listen 80;
+    server_name example.com;
+    return 301 https://$host$request_uri;
+}
+```
+### 安全响应头（可选）
+```nginx
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+```
+## 常见问题
+### 证书续期后未生效
+Certbot 续期证书后需要重载 Nginx：
+```bash
+nginx -s reload
+```
+Certbot 的 `deploy-hook` 可以自动执行此操作。
+### 浏览器提示证书不匹配
+- 确认证书覆盖了所有访问域名（包括 `www` 子域名）
+- 检查证书是否过期
+- 如果使用 Cloudflare，确认 SSL 模式不是「灵活」（灵活模式会导致重定向循环）
+### 混合内容警告
+确保前端页面中所有资源（图片、脚本、样式表）都使用 HTTPS 地址。检查 HTML 中是否有硬编码的 `http://` 链接。
+
+================================================================================
+## 使用外部数据库
+Path: /docs/deploy/external-services
+================================================================================
+
+如果你需要使用来自远端或非容器内的 Redis / PostgreSQL 服务，可以通过环境变量或启动参数传入配置。
+## 外部 Redis
+支持传入的参数：
+| 参数 | 说明 |
+|------|------|
+| `redis_host` | Redis 服务地址，域名或 IP |
+| `redis_port` | Redis 服务端口 |
+| `redis_password` | Redis 服务密码 |
+| `disable_cache` | 是否禁用缓存，默认不启用 |
+### Docker 部署
+在 `docker-compose.yml` 的 `services.app.environment` 中添加：
+```yaml
+services:
+  app:
+    container_name: mx-server
+    image: innei/mx-server:latest
+    environment:
+      - TZ=Asia/Shanghai
+      - NODE_ENV=production
+      - REDIS_HOST=远端地址
+      - REDIS_PASSWORD=redis?passwd
+      - ALLOWED_ORIGINS=localhost
+      - JWT_SECRET=YOUR_SUPER_SECURED_JWT_SECRET_STRING
+    volumes:
+      - ./data/mx-space:/root/.mx-space
+```
+修改完成后执行 `docker compose up -d` 重启服务。
+### 源码部署
+修改 `ecosystem.config.js`，在 `script` 项中添加参数：
+```diff
+      script: 'out/index.js',
++     script: 'out/index.js --redis_host=远端地址 --redis_password=redis?passwd',
+```
+然后重启服务：
+```bash
+pnpm prod:pm2
+```
+## 外部 PostgreSQL
+支持传入的参数：（Docker 中为对应大写环境变量）
+| 参数 | 说明 |
+|------|------|
+| `pg_host` | PostgreSQL 服务地址 |
+| `pg_port` | PostgreSQL 服务端口 |
+| `pg_user` | PostgreSQL 用户名 |
+| `pg_password` | PostgreSQL 密码 |
+| `pg_database` | PostgreSQL 数据库名 |
+| `pg_connection_string` | 连接地址（`postgresql://` 或 `postgres://` 开头），优先级高于以上五项 |
+| `pg_ssl` | 是否启用 SSL 连接，`true` 为启用 |
+| `pg_max_pool_size` | 连接池大小，默认 `20` |
+如果使用密码登录，必须同时传入 `user` 和 `password`，建议对数据库划分好用户权限。
+### Docker 部署
+在 `docker-compose.yml` 的 `services.app.environment` 中添加：
+```yaml
+services:
+  app:
+    container_name: mx-server
+    image: innei/mx-server:latest
+    environment:
+      - TZ=Asia/Shanghai
+      - NODE_ENV=production
+      - PG_HOST=远端地址
+      - PG_USER=postgres-test
+      - PG_PASSWORD=db?passwd
+      - PG_DATABASE=mx_core
+      - REDIS_HOST=redis
+      - ALLOWED_ORIGINS=localhost
+      - JWT_SECRET=YOUR_SUPER_SECURED_JWT_SECRET_STRING
+    volumes:
+      - ./data/mx-space:/root/.mx-space
+```
+修改完成后执行 `docker compose up -d` 重启服务。
+### 源码部署
+修改 `ecosystem.config.js`，在 `script` 项中添加参数：
+```diff
+      script: 'out/index.js',
++     script: 'out/index.js --pg_host=远端地址 --pg_user=postgres-test --pg_password=db?passwd --pg_database=mx_core',
+```
+然后重启服务：
+```bash
+pnpm prod:pm2
+```
+
+================================================================================
+## 社区部署方案
+Path: /docs/deploy/community
+================================================================================
+
+  你可以参考他们的部署方式，但我们不保证它们的可用性。如果你也有教程想要与大家分享的话，欢迎您向文档提交
+  [Pull Request](https://github.com/mx-space/docs/pulls) 以分享您的部署方式。
+} target="_blank">BiliBili 前后端部署视频教程 | By 喵二 | 平台：Selfhost
+<Card
+  title="Mix-space kami 主题部署 Serverless 拯救垃圾主机"
+  href="https://www.miaoer.net/posts/blog/mx-kami-serverless"
+  icon={}
+  target="_blank"
+>
+  {" "}
+  Kami 前端部署博文教程 | By 喵二 | 平台：Serverless
+<Card
+  title="mx-space + Shiro：如纸一般纯净的新博客"
+  href="https://arthals.ink/posts/web/shiro"
+  icon={}
+  target="_blank"
+>
+  {" "}
+  前后端部署博文教程 | By Arthals | 平台：Selfhost
+<Card
+  title="使用 Mix Space × Zeabur 搭建自己的个人空间"
+  href="https://lab.gb0.dev/post/mxspace-on-zeabur/"
+  icon={}
+  target="_blank"
+>
+  前后端部署博文教程 | By 草方块 | 平台：Serverless
+<Card
+  title="使用 Termux 搭建 Mix-Space"
+  href="https://www.rinne.in/posts/default/deploy-mxspace-with-termux"
+  icon={}
+  target="_blank"
+>
+  前后端部署博文教程 | By Rinne | 平台：Android
+<Card
+  title="从 WordPress 迁移数据到 Mix Space"
+  href="https://blog.fosky.top/2024/10/09/wordpress-to-mix-space.html"
+  icon={}
+  target="_blank"
+>
+  后端迁移系统数据博文教程 | By Fosky
+<Card
+  title="Shiro 部署如此简单？！"
+  href="https://blog.yoruzzz.cn/posts/%E5%BB%BA%E7%AB%99/shiro"
+  icon={}
+  target="_blank"
+>
+  前后端部署博文教程 | By 南栀 | 平台：Selfhost{" "}
+<Card
+  title="Mx Space + Shiro + Nginx Proxy Manager反向代理部署"
+  href="https://zinzin.cc/posts/default/mxspace-shiro"
+  icon={}
+  target="_blank"
+>
+  {" "}
+  前后端部署博文教程 | By 光合作用の少女 | 平台：Selfhost
+<Card
+  title="使用 1Panel 部署 Mix-Space 和前端 Shiro 主题"
+  href="https://blog.lolita.best/posts/blog/MxspaceDeployShiro"
+  icon={}
+  target="_blank"
+>
+  {" "}
+  前后端部署博文教程 | By 星野纯夏 | 平台：Selfhost
+<Card
+  title="使用Claw Cloud Run低成本拥有自己的Shiro"
+  href="https://mahiru.tech/posts/default/02"
+  icon={}
+  target="_blank"
+>
+  {" "}
+  前后端部署博文教程 | By 白熊sama | 平台：Serverless
+<Card
+  title="使用NorthFlank低成本部署MixSpace"
+  href="https://space.hanze.icu/posts/project/mx"
+  icon={}
+  target="_blank"
+>
+  {" "}
+  前后端部署博文教程 | By C_Hanze | 平台：Serverless
+<Card
+  title="2026年通过GitHub aciton部署Mix-Space博客和Yohaku主题"
+  href="https://yuuki.diy/posts/tech/blogbuild"
+  icon={}
+  target="_blank"
+>
+  {" "}
+  前后端部署博文教程 | By Yuuki | 平台：Selfhost
+<Card
+  title="从零开始：使用 1Panel 部署 Mix Space 后端"
+  href="https://jiye.funcun.top/posts/blog-setup/deploy-mix-space-backend-with-1panel"
+  icon={}
+  target="_blank"
+>
+  {" "}
+  Mix Space 后端部署博文教程 | By 极夜System | 平台：Selfhost
+
+================================================================================
+## 功能配置概览
+Path: /docs/configure/index
+================================================================================
+
+## 我想实现的功能
+| 我想实现... | 查看文档 |
+| --- | --- |
+| 设置第三方登录（GitHub/Google）| [OAuth 2.0](./oauth) |
+| 配置 SEO 和搜索引擎推送 | [SEO 与站点优化](./seo) |
+| 管理 API Token 和 Passkey | [账号与安全](./account-security) |
+| 配置 S3 图床和 CDN | [图床与存储](./image-storage) |
+| 添加站内搜索 | [Algolia Search](./algolia) |
+| 加密敏感配置 | [Key 加密](./encryption) |
+| 了解所有环境变量 | [环境变量参考](./environment) |
+## 快速导航
+
+    查看所有支持的环境变量及其说明
+
+    SEO 元数据、Sitemap、RSS、百度/Bing 推送
+
+    所有者信息、API Token、Passkey、OAuth 绑定
+
+    S3 对象存储配置、CDN 加速、自定义存储路径
+
+    配置 GitHub、Google 等第三方登录
+
+    为站点添加 Algolia 站内搜索
+
+    加密数据库中的敏感配置项
+
+================================================================================
+## 环境变量参考
+Path: /docs/configure/environment
+================================================================================
+
+  如果你不确定某个变量的作用，保持默认值即可。
+以下环境变量适用于 Mix Space Core 后端服务。Docker 用户在 `docker-compose.yml` 的 `environment` 中设置；源码用户在 `.env` 或 `ecosystem.config.js` 中设置。
+## 核心必填
+| 变量名 | 说明 | 默认值 | 示例 |
+| --- | --- | --- | --- |
+| `JWT_SECRET` | JWT 签名密钥 | - | `my-secret-key` |
+| `ALLOWED_ORIGINS` | 允许的跨域域名 | - | `example.com,www.example.com` |
+| `SNOWFLAKE_WORKER_ID` | 工作节点 ID（单实例填 1）| - | `1` |
+## PostgreSQL 数据库
+| 变量名 | 说明 | 默认值 | 示例 |
+| --- | --- | --- | --- |
+| `PG_URL` | 完整连接字符串（推荐）| - | `postgresql://mx:mx@localhost:5432/mx_core` |
+| `PG_HOST` | 数据库地址 | `127.0.0.1` | `localhost` |
+| `PG_PORT` | 端口 | `5432` | `5432` |
+| `PG_USER` | 用户名 | `mx` | `mx` |
+| `PG_PASSWORD` | 密码 | `mx` | `secret` |
+| `PG_DATABASE` | 数据库名 | `mx_core` | `mx_core` |
+| `PG_MAX_POOL_SIZE` | 连接池大小 | `20` | `20` |
+| `PG_SSL` | 启用 SSL | `false` | `true` |
+## Redis
+| 变量名 | 说明 | 默认值 | 示例 |
+| --- | --- | --- | --- |
+| `REDIS_HOST` | 地址 | `localhost` | `redis` |
+| `REDIS_PORT` | 端口 | `6379` | `6379` |
+| `REDIS_PASSWORD` | 密码 | - | `secret` |
+## 安全
+| 变量名 | 说明 | 默认值 | 示例 |
+| --- | --- | --- | --- |
+| `ENCRYPT_ENABLE` | 启用加密 | `false` | `true` |
+| `ENCRYPT_KEY` | 加密密钥（64 位 hex）| 自动获取 machine-id | `abc...` |
+## 其他
+| 变量名 | 说明 | 默认值 | 示例 |
+| --- | --- | --- | --- |
+| `PORT` | 服务端口 | `2333` | `3000` |
+| `TZ` | 时区 | `Asia/Shanghai` | `UTC` |
+| `DISABLE_CACHE` | 禁用 Redis 缓存 | `false` | `false` |
+| `THROTTLE_TTL` | 限流窗口（秒）| `10` | `10` |
+| `THROTTLE_LIMIT` | 限流次数 | `100` | `100` |
+
+================================================================================
+## SEO 与站点优化
+Path: /docs/configure/seo
+================================================================================
+
+Mix Space 内置了 SEO 基础功能，包括自定义站点元数据、自动生成 Sitemap 和 RSS Feed，以及百度/Bing 搜索引擎推送。
+## SEO 基础设置
+进入后台「设定 → SEO 优化」，配置以下信息：
+| 配置项 | 说明 |
+|--------|------|
+| **网站标题** | 站点名称，显示在浏览器标签和搜索结果中 |
+| **网站描述** | 一段简短的站点描述，用于搜索引擎结果摘要 |
+| **浅色图标 URL** | 浅色模式下的站点图标 |
+| **深色图标 URL** | 深色模式下的站点图标 |
+| **关键字** | 站点关键词列表，用于搜索引擎识别站点主题 |
+这些信息会自动应用到前端页面的 `<meta>` 标签中。
+## 网站地址
+进入后台「设定 → 网站设置」，正确填写站点地址：
+| 配置项 | 说明 |
+|--------|------|
+| **前端地址** | 你的前端主题地址（如 `https://example.com`） |
+| **管理后台地址** | 后台管理地址（如 `https://example.com/proxy/qaqdmin`） |
+| **API 地址** | 后端 API 地址 |
+| **Gateway 地址** | WebSocket 网关地址 |
+「前端地址」非常重要，Sitemap 和 RSS 中的链接都基于此地址生成。请确保填写正确的完整 URL（包含 `https://`）。
+## Sitemap
+Mix Space 自动生成 Sitemap 文件，无需额外配置。
+访问 `https://你的API地址/sitemap` 即可获取标准的 XML Sitemap，其中包含所有已发布内容的 URL 和更新时间。
+Sitemap 缓存 1 小时，内容更新后会自动刷新。
+## RSS Feed
+Mix Space 自动生成 RSS Feed，无需额外配置。
+访问以下地址即可获取 RSS 订阅源：
+- `https://你的API地址/feed`
+- `https://你的API地址/atom.xml`
+RSS Feed 包含最新的文章内容，支持全文输出（Markdown 文章）和链接跳转（富文本文章）。
+## 搜索引擎推送
+### 百度推送
+进入后台「设定 → 百度推送设定」：
+| 配置项 | 说明 |
+|--------|------|
+| **开启推送** | 启用百度搜索引擎推送 |
+| **Token** | 百度站长平台提供的推送 Token |
+在 [百度搜索资源平台](https://ziyuan.baidu.com/) 注册并验证你的站点后，可以在「链接提交」中获取 Token。
+### Bing 推送
+进入后台「设定 → Bing 推送设定」：
+| 配置项 | 说明 |
+|--------|------|
+| **开启推送** | 启用 Bing 搜索引擎推送 |
+| **Bing API 密钥** | Bing Webmaster Tools 的 API 密钥 |
+在 [Bing Webmaster Tools](https://www.bing.com/webmasters) 中注册并验证站点后，可以在 API 设置中获取密钥。
+搜索引擎推送会在内容创建和更新时自动触发，无需手动操作。
+
+================================================================================
+## OAuth 2.0 登录
+Path: /docs/configure/oauth
+================================================================================
+
+Mix Space 支持通过第三方 OAuth 账号登录后台，免去记忆密码的麻烦。目前支持 GitHub 和 Google 两种 OAuth 服务商。
+OAuth 登录基于 better-auth 实现，不走 Clerk 等第三方认证服务，所有数据存储在你自己的数据库中。
+## 前置条件
+在配置 OAuth 之前，请确保：
+- 后端服务已正常运行
+- 前端和后端都已配置好 HTTPS（OAuth 回调要求 HTTPS）
+- 你有 GitHub 或 Google 的开发者账号
+## 配置 GitHub 登录
+### 创建 GitHub OAuth 应用
+1. 前往 [GitHub Developer Settings](https://github.com/settings/developers)
+2. 点击「New OAuth App」
+3. 填写以下信息：
+| 字段 | 填写内容 |
+|------|----------|
+| Application name | 你的站点名称 |
+| Homepage URL | 前端地址（如 `https://example.com`） |
+| Authorization callback URL | 后台提示的回调地址 |
+4. 创建完成后，记下 **Client ID**
+5. 点击「Generate a new client secret」，记下 **Client Secret**
+### 在后台配置
+登录后台，进入「设定 → 登录方式」，在 GitHub 部分填入 Client ID 和 Client Secret，保存。
+### 测试并绑定
+在前端登录页面点击 GitHub 登录按钮，完成授权后会提示是否将此账号设为站长。确认后即可通过 GitHub 登录后台。
+## 配置 Google 登录
+### 创建 Google OAuth 客户端
+1. 前往 [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. 创建一个项目或选择已有项目
+3. 配置「OAuth 权限请求页面」：
+   - 已获授权的网域填写你的根域名
+   - API 范围选择非敏感范围的三项（email、profile、openid）
+4. 创建「OAuth 客户端 ID」，选择「Web 应用」：
+| 字段 | 填写内容 |
+|------|----------|
+| 已获授权的 JavaScript 来源 | 前端地址 |
+| 已获授权的重定向 URI | 后台提示的回调地址 |
+5. 记下 **Client ID** 和 **Client Secret**
+### 在后台配置
+登录后台，进入「设定 → 登录方式」，在 Google 部分填入 Client ID 和 Client Secret，保存。
+### 测试并绑定
+在前端登录页面点击 Google 登录按钮，完成授权后绑定站长身份。
+## 获取回调地址
+在后台「设定 → 登录方式」页面的 OAuth 部分，每个服务商旁边会显示对应的回调地址（Callback URL）。创建 OAuth 应用时需要将此地址填入。
+回调地址与你的前端地址和后端地址相关。如果更换了域名，需要同步更新 OAuth 应用的回调地址配置。
+## 绑定站长身份
+首次通过 OAuth 登录时，系统会提示你是否将此 OAuth 账号设为站长（Owner）。确认后，该 OAuth 账号就拥有了完整的管理权限。
+如果你后续需要更换绑定的 OAuth 账号，可以在后台「设定 → 账号与安全」中操作。
+## 同时使用多种登录方式
+你可以同时启用 GitHub 和 Google 登录。登录页面会显示所有已启用的登录方式，用户可以选择任意一种登录。
+如果同时配置了密码登录和 OAuth 登录，建议在「设定 → 认证安全设置」中考虑是否禁用密码登录以提高安全性。详见 [账号与安全](/docs/configure/account-security)。
+## 常见问题
+### 回调后提示错误
+- 确认回调地址完全一致（包括末尾的斜杠）
+- 确认 `ALLOWED_ORIGINS` 环境变量中包含前端域名
+- 确认 OAuth 应用的 Client ID 和 Secret 正确
+### GitHub 提示「Application suspended」
+- 检查 GitHub OAuth 应用的状态，可能因为长时间未使用被暂停
+- 确认 Client Secret 未过期（GitHub Secret 有过期时间设置）
+### Google 提示「未验证应用」
+- 在 Google Cloud Console 中将应用发布为「正式版」
+- 或者添加测试用户账号
+
+================================================================================
+## 账号与安全
+Path: /docs/configure/account-security
+================================================================================
+
+Mix Space 的账号系统围绕「所有者」概念设计。每个 Mix Space 实例只有一个所有者（Owner），所有者拥有完整的管理权限。
+## 所有者信息
+登录后台，进入「设定 → 个人信息」页面。你可以设置以下信息：
+| 字段 | 说明 |
+|------|------|
+| **昵称** | 显示名称 |
+| **头像** | 头像图片 URL |
+| **邮箱** | 联系邮箱 |
+| **个人介绍** | 一段简短的个人介绍 |
+| **社交链接** | GitHub、Twitter、Bilibili 等社交账号链接 |
+这些信息会被前端主题读取并展示在首页的博主信息区域。
+## API Token
+API Token 是访问 Mix Space API 的凭证。第三方工具（如 Obsidian 插件、API 客户端）需要 Token 才能调用需要认证的 API。
+### 管理 Token
+进入「设定 → 账号与安全 → API Token」：
+| 操作 | 说明 |
+|------|------|
+| **创建 Token** | 设置名称和过期时间，生成新的 Token |
+| **查看 Token** | 创建时显示完整的 Token 值，请妥善保存 |
+| **删除 Token** | 吊销指定 Token，所有使用该 Token 的请求将被拒绝 |
+Token 仅在创建时显示一次完整值。如果忘记 Token，需要删除后重新创建。请勿将 Token 提交到公开的代码仓库。
+### Token 的用途
+- **Obsidian 插件**：配置 API Token 以同步内容
+- **API 客户端**：`@mx-space/api-client` SDK 使用 Token 认证
+- **自动化脚本**：CI/CD 或自定义脚本调用 API
+## Passkey（通行密钥）
+Mix Space 支持使用 Passkey（WebAuthn）进行无密码登录，更加安全便捷。
+### 添加 Passkey
+### 进入账号设置
+前往「设定 → 账号与安全 → Passkey」。
+### 注册新密钥
+点击「添加 Passkey」，浏览器会弹出安全密钥注册窗口。根据设备不同，可能需要：
+- 使用指纹识别（Touch ID / Windows Hello）
+- 使用面部识别
+- 插入硬件安全密钥（如 YubiKey）
+### 命名密钥
+为 Passkey 设置一个便于识别的名称（如「MacBook Touch ID」），方便管理。
+Passkey 与设备和浏览器绑定。如果你更换设备，需要在旧设备上仍然可以登录时添加新的 Passkey。
+## OAuth 第三方登录
+Mix Space 支持通过 GitHub、Google 等第三方账号登录后台。
+### 配置 OAuth
+前往「设定 → OAuth」页面。详细配置步骤请参考 [OAuth 2.0 登录](/docs/configure/oauth)。
+### 将 OAuth 账号设为所有者
+首次通过 OAuth 登录后，需要在「设定 → 账号与安全」中点击「设为所有者」，将该 OAuth 账号与站点所有者身份绑定。
+## 安全设置
+### 禁用密码登录
+如果你已经配置了 Passkey 或 OAuth 登录，可以在「认证安全设置」中禁用密码登录，提高安全性。
+禁用密码登录前，请确保你至少有一种可用的替代登录方式（Passkey 或 OAuth）。否则你将无法登录后台。
+## 登录会话
+在账号与安全页面，你可以查看当前所有活跃的登录会话：
+- 设备和浏览器信息
+- 登录 IP 地址
+- 登录时间
+- 当前会话标记
+你可以手动结束其他设备的会话。
+
+================================================================================
+## 图床与存储
+Path: /docs/configure/image-storage
+================================================================================
+
+Mix Space 支持将图片和文件存储到 S3 兼容的对象存储服务（如 Cloudflare R2、AWS S3、阿里 OSS、腾讯 COS 等），替代默认的本地存储。
+## 配置 S3 图床
+### 进入图床设置
+登录后台，前往「设定 → 图床设置」。
+### 开启 S3 图床
+打开「开启 S3 图床」开关。
+### 填写 S3 配置
+| 字段 | 说明 |
+|------|------|
+| **S3 服务端点** | S3 兼容服务的 Endpoint（如 `https://<account>.r2.cloudflarestorage.com`） |
+| **Access Key ID** | 访问密钥 ID |
+| **Secret Access Key** | 访问密钥（加密存储） |
+| **Bucket** | 存储桶名称 |
+| **Region** | 地域（Cloudflare R2 填 `auto`） |
+### 配置自定义域名（推荐）
+填写「自定义域名 (CDN)」字段，用于替换默认的 S3 URL。例如你的 CDN 域名是 `cdn.example.com`，则上传后的文件 URL 为 `https://cdn.example.com/{路径}/{文件名}`。
+### 设置文件路径前缀（可选）
+填写「文件路径前缀」来组织上传的文件。支持占位符：
+| 占位符 | 说明 |
+|--------|------|
+| `{Y}` | 年份（4 位） |
+| `{m}` | 月份 |
+| `{d}` | 日期 |
+| `{type}` | 文件类型 |
+| `{md5}` | 随机 MD5 |
+示例：`blog/{Y}/{m}/{d}` → 文件上传到 `blog/2024/01/15/` 路径下。
+开启 S3 图床后，新上传的文件会存储到 S3。之前上传到本地的文件不会自动迁移，但仍然可以正常访问。
+## 常用 S3 服务配置参考
+### Cloudflare R2
+| 字段 | 值 |
+|------|-----|
+| S3 服务端点 | `https://<account-id>.r2.cloudflarestorage.com` |
+| Region | `auto` |
+| 自定义域名 | R2 绑定的自定义域名或 `r2.dev` 公开访问地址 |
+### AWS S3
+| 字段 | 值 |
+|------|-----|
+| S3 服务端点 | 留空（使用默认）或区域端点 |
+| Region | 如 `us-east-1`、`ap-southeast-1` |
+| 自定义域名 | CloudFront 分发域名 |
+### 阿里 OSS / 腾讯 COS
+按照对应服务的 S3 兼容接口文档填写 Endpoint 和 Region 即可。
+## 评论图片专用前缀
+在「评论图片路径前缀」字段中，可以为读者评论上传的图片设置独立的存储路径前缀。该字段额外支持 `{readerId}` 占位符，按读者 ID 组织目录。
+留空则使用默认路径：`comments/{readerId}/{Y}/{m}/{md5}.{ext}`
+## 备份到 S3
+在「设定 → 备份」中也可以配置 S3 信息，将数据库备份文件同时上传到 S3 存储，实现异地备份。详见 [备份与恢复](/docs/use/backup-restore)。
+
+================================================================================
+## Algolia 站内搜索
+Path: /docs/configure/algolia
+================================================================================
+
+## 介绍
+Algolia 是一个数据库实时搜索服务，能够提供毫秒级的数据库搜索服务，并且其服务能以 API 的形式方便地布局到网页、客户端、APP 等多种场景。
+像 VuePress 官方文档就是使用的 Algolia 搜索，使用 Algolia 搜索最大的好处就是方便，它会自动爬取网站的页面内容并构建索引，你只用申请一个 Algolia 服务，在网站上添加一些代码，就可以实现一个全文搜索功能。
+## 使用
+在这之前，你需要先在 Algolia 官网注册一个账号，或者直接用第三方登录。
+### 新建应用
+登录 Algolia 账号，进入控制台，在左上角点击 Applications 下列表，点击 `New Application`，填写应用名称，选择 `BUILD` 订阅（免费），选择好数据中心，点击 `Create Application`，即可创建一个应用。
+一些额外说明的地方都在图片上标注了，可参考下面的图片。
+
+### 创建索引（Index）
+在新建应用之后，你会直接跳转到如下图所示的界面，只需要在输入框中输入一个索引名称，点击 `Create Index`，即可创建一个索引。
+请记住你所创建的索引名称（Index Name），后面的步骤会用到。
+
+### 获取相关变量
+接下来，在左下角找到齿轮图标，进入设置，在右侧找到 `API Keys`，进入，这里有两个变量需要复制下来备用，分别是 `Application ID` 和 `Admin API Key`，请复制下这两个变量的值，后面的步骤会用到。
+
+### 后台配置
+进入后台，设定->系统->Algolia Search，将"开启 Algolia Search"开关打开，将前面准备的 `IndexName`、`Application ID（AppID）` 和 `Admin API Key（ApiKey）` 填入对应的框中，右上角保存即可。
+
+至此，Algolia 搜索的配置就完成了。稍等一会，就可以尝试在主页用 `Ctrl + K` 调用 Algolia 进行站内搜索了。
+
+================================================================================
+## 数据加密
+Path: /docs/configure/encryption
+================================================================================
+
+在 v3.41.0 后续版本，加入了敏感 Key 加密功能。默认为关。
+为什么需要 Key 加密。
+假设黑客通过某种手段数据库被脱库。如果开启了 Key 加密，即便是拿到了全部数据也不能解密某些关键数据，例如配置项中的各类 API Key。
+但是，也需要谨慎开启此功能，开启后你需要记住加密秘钥。否则，你也将会永远丢失这些数据。
+## 如何开启
+你可以附加 `--encrypt_enable` 来启动服务。如：
+```bash
+node index.js --encrypt_enable
+```
+可以通过附加 `--encrypt_key <key>` 来指定加密密钥，长度必须为 64 位，且只有小写字母和数字。请牢记此密钥。或者通过环境变量 `MX_ENCRYPT_KEY` 也可以指定密钥。
+  若开启加密，则需注意密钥长度**必须为 64 位且只有小写字母和数字**，不然会在初始化时报错。注意这是**不可逆**的，务必保存自己的秘钥。
+  API Key.
+密钥可以通过 `openssl rand -hex 32` 命令生成。请务必牢记。
+  `MX_ENCRYPT_KEY` `--encrypt_key` 不是必须的，默认取机器的
+  [machine-id](https://www.npmjs.com/package/node-machine-id)。
+此操作是不可逆的，操作前请备份数据库。
+## 自动化加密配置（进阶指令）（非必要）
+此操作是不可逆的，操作前请备份数据库。
+```bash
+cd core
+tsx src/migration/helper/encrypt-configs.ts
+```
+## 疑难解答
+如果出现 `Invalid key length`，请你确定是否开启了此功能，并且 key 的长度是否为 64 位长度，且只有小写字母和数字。
+
+================================================================================
+## 余白 / Yohaku
+Path: /docs/themes/yohaku/index
+================================================================================
+
+## 概述
+**Yohaku**（余白）取自日文，意为**留白**。它是 [Shiro](/docs/themes/shiro/deploy) 的设计继承者，基于 Shiro 深度重构而来，延续了「纸的纯净与雪的清新」的设计语言，并在此基础上进一步打磨视觉体验与交互细节。
+
+## 开源说明
+  [Innei/Yohaku](https://github.com/Innei/Yohaku) 仓库为**设计语言的公开存档**，记录视觉规范与设计决策，不包含可运行的完整代码。
+  完整的可部署代码以闭源方式维护于私有仓库，**需要赞助后才可获得访问权限**。
+### 如何获取完整实现
+1. 前往 [github.com/sponsors/Innei](https://github.com/sponsors/Innei) 赞助
+2. 赞助后通过 [Issues](https://github.com/Innei/Yohaku/issues) 或邮件告知你的 GitHub 用户名
+3. 作者会手动添加私有仓库的访问权限
+[![Sponsor](https://img.shields.io/badge/Sponsor-Innei-ea4aaa?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/Innei)
+## 设计哲学
+整站以**个人书写**为隐喻。页面像一封徐徐展开的信纸，文字与空白共同构成节奏，内容如手帐般自然散落。
+- **颜色是克制的** — 浅色模式接近真实纸张的米白，深色模式沉入暖灰
+- **动画是呼吸式的** — 元素随滚动自然浮现，而非弹出
+- **字体是有质感的** — 标题用衬线字体，注释以斜体呈现
+- **交互是低调的** — 悬停时仅颜色微微加深，如纸面被指尖轻触
+## 设计规范
+| 维度 | 浅色 | 深色 |
+|------|------|------|
+| 强调色 | 浅葱 `#33A6B8` | 桃 `#F596AA` |
+| 背景底色 | `#fefefb`（纸张本白） | `rgb(28,28,30)`（暖灰夜色） |
+| 动效缓动 | `cubic-bezier(0.22, 1, 0.36, 1)` | 同左 |
+| 基础字号 | 14px | 同左 |
+## 与 Shiro 的关系
+Yohaku 是 Shiro 的下一代演进。如果你正在使用 Shiro，可以继续使用——Shiro 仍然是一个完整的开源主题。Yohaku 在 Shiro 的基础上提供了更精致的视觉设计和更多闭源独有功能。
+## 相关链接
+- [Innei/Yohaku](https://github.com/Innei/Yohaku) — 开源设计存档
+- [Innei/Shiro](https://github.com/Innei/Shiro) — 开源前身
+- [在线演示](https://innei.in) — 作者的个人博客，使用 Yohaku 驱动
+
+================================================================================
+## 配置
+Path: /docs/themes/yohaku/config
+================================================================================
+
+# 配置项
+Yohaku 的配置沿用 Shiro 的配置体系，在 Mix Space 后台「配置与云函数」页面中，创建一条 `theme` 引用、名称为 `shiro` 的配置项（数据类型 JSON 或 YAML）。配置参考详见 [Shiro 的部署页面](https://mx-space.js.org/docs/themes/shiro/deploy#设置主题配置)。
+  Yohaku 复用了 `shiro` 这个配置键名，如果你从 Shiro 迁移到 Yohaku，无需更改配置名称。
+## 页脚信息 (`footer`)
+此部分定义页脚的部分信息，主要包括备案、建站年份和页脚导航三部分。
+### 备案信息 (`otherInfo.icp`)
+**如何使用**: 根据示例，修改位于 `text` 的备案号以及备案号所指向的链接 `link`。
+### 建站年份 (`otherInfo.date`)
+**如何使用**: `{{now}}` 指向当前年份，其他略。
+### 页脚导航 (`linkSections`)
+分类包括 `name` 和 `links` 两个字段，对应分类名字及其下链接，其下链接又分为 `name`、`href`、`external` 三个字段，对应链接名字，指向链接和是否外链三个属性。
+**如何使用**: 根据自己需要增删或修改特定链接及分类，需要注意如果指向外链的话需要加一行 `"external": true`。
+## 站点信息 (`config.site`)
+此部分包含了网站的基础信息设置，例如 favicon（网站图标）的配置。
+### Favicon
+- **`favicon`**: 设置网站在浅色模式下使用的图标。
+- **`faviconDark`**: 设置网站在深色模式下使用的图标。
+## Hero 部分 (`config.hero`)
+`hero` 部分定义了网站首页的主要欢迎信息或介绍部分，这是访问者首次进入网站时看到的部分。
+### Title 模板 (`title.template`)
+包括多个元素（如 `span`, `code`, `h1` 等），每个元素都可以自定义文本内容和样式。
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `type` | `string` | 渲染标签，如 `span`、`code`、`br`。`br` 表示显式换行。 |
+| `text` | `string` | 文本内容。 |
+| `class` | `string` | Tailwind CSS 类名。 |
+| `style` | `object` | **推荐**。内联样式对象，可直接写 CSS 属性（如 `fontWeight`、`color`、`animation` 等），不依赖 Tailwind JIT 扫描，且能跟随 CSS 变量自动适配暗色主题。 |
+**如何使用**: 修改 `text` 和 `style` 字段来自定义标题的文本内容和样式。你可以通过添加或删除元素来调整标题的结构。
+### 描述 (`description`)
+提供了对主页 `hero` 部分的简短描述。
+**如何使用**: 直接修改 `description` 的值以更改介绍文本。
+### 一言 (`hitokoto`)
+提供自定义首页一言的功能。
+接受一个对象，包含 `random` 和 `custom` 两个可选字段。
+- 当存在 `random` 字段且值为 `true` 时，将会随机获取一言，优先级高于 `custom` 字段。
+- 当存在 `custom` 字段时，将会使用自定义的一言。
+- 如果两个字段都不存在，将会使用默认的一言。
+```ts
+interface Hitokoto {
+  random?: boolean
+  custom?: string
+}
+```
+## 自定义脚本 (`config.custom`)
+可以配置自定义的 CSS, Script。
+### Scripts (`scripts`)
+接受一个 [Script](https://nextjs.org/docs/app/api-reference/components/script#props) Props 参数数组。
+### Styles (`styles`)
+自定义 CSS。接受一个字符串数组。
+### JavaScript tag (`js`)
+自定义 JS 脚本。接受一个字符串数组。
+### CSS href link (`css`)
+加载外部 CSS，接受一个 CSS 外部样式表链接数组。
+## 模块 (`config.module`)
+此部分配置了网站的一些特定功能模块，比如活动跟踪、捐赠支持、社交媒体链接等。
+### 实时活动 (`activity`) 模块
+- **`enable`**: 控制模块是否启用。
+- **`endpoint`**: 指定活动更新的服务器端点。
+**如何使用**: 若需开启活动跟踪功能，将 `enable` 设为 `true` 并设置 `endpoint` 为处理活动数据的服务器地址。
+### 捐赠 (`donate`) 模块
+- **`enable`**: 控制捐赠模块是否启用。
+- **`link`**: 提供捐赠页面的链接。
+- **`qrcode`**: 提供一或多个捐赠二维码图片的链接。
+**如何使用**: 启用捐赠功能，并提供捐赠链接或捐赠二维码，以便支持者可以直接进行捐赠。
+### 社交媒体 (`bilibili`) 模块
+- **`liveId`**: b 站直播间 ID
+### OpenPanel 模块
+[OpenPanel](https://openpanel.dev) 是一个开源的网站分析工具。
+- **`enable`**: 控制 OpenPanel 功能是否启用。
+- **`id`**: OpenPanel 的 ID。
+- **`url`**: OpenPanel 的访问地址。
+**如何使用**: 如果你使用 OpenPanel 进行网站分析，通过这些配置连接并启用面板。
+### 文章列表设定 (`posts`)
+- **`mode`**: 文章列表的预览模式。可选值：`"loose"`（默认）、`"compact"`
+两个模式，紧凑模式和松散模式。
+### RSS 配置 (`rss`)
+- **`noRSS`**: 设为 `true` 可禁用 RSS 输出。
+- **`custom_elements`**: 自定义 RSS 元素数组。
+### 签名动画 (`signature`) 模块
+- **`svg`**: 签名的 SVG 代码。
+- **`animated`**: 是否启用动画效果，默认为 `true`。
+**如何使用**: SVG 代码可通过 [此网站](https://danmarshall.github.io/google-font-to-svg-path/) 生成。
+  受限于 JSON 语法规则，SVG 代码需替换所有的 `"` 为 `\"`，否则会报错。
+### OG 图片 (`og`)
+- **`avatar`**: 自定义 Open Graph 图片中的头像 URL。
+### 订阅 (`subscription`)
+- **`tg`**: Telegram 频道链接，用于展示订阅入口。
+## 配置示例
+```json
+{
+  "footer": {
+    "otherInfo": {
+      "date": "2020-{{now}}",
+      "icp": {
+        "text": "萌 ICP 备 20236136 号",
+        "link": "https://icp.gov.moe/?keyword=20236136"
+      }
+    },
+    "linkSections": [
+      {
+        "name": "关于",
+        "links": [
+          { "name": "关于本站", "href": "/about-site" },
+          { "name": "关于我", "href": "/about" },
+          {
+            "name": "关于此项目",
+            "href": "https://github.com/Innei/Yohaku",
+            "external": true
+          }
+        ]
+      },
+      {
+        "name": "更多",
+        "links": [
+          { "name": "时间线", "href": "/timeline" },
+          { "name": "友链", "href": "/friends" }
+        ]
+      },
+      {
+        "name": "联系",
+        "links": [
+          { "name": "写留言", "href": "/message" },
+          { "name": "GitHub", "href": "https://github.com/innei", "external": true }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "color": {
+      "light": ["#33A6B8", "#FF6666", "#26A69A", "#fb7287", "#69a6cc"],
+      "dark": ["#F596AA", "#A0A7D4", "#ff7b7b", "#99D8CF", "#838BC6"]
+    },
+    "site": ,
+    "hero": {
+      "title": {
+        "template": [
+          {
+            "type": "span",
+            "text": "Hi, I'm ",
+            "style": { "fontWeight": 300, "opacity": 0.85 }
+          },
+          {
+            "type": "span",
+            "text": "Innei",
+            "style": {
+              "fontWeight": 500,
+              "color": "var(--color-accent)",
+              "letterSpacing": "-0.02em"
+            }
+          },
+          {
+            "type": "span",
+            "text": " 👋",
+            "style": {
+              "fontWeight": 300,
+              "display": "inline-block",
+              "transform": "rotate(-8deg)"
+            }
+          },
+          { "type": "br" },
+          {
+            "type": "span",
+            "text": "A NodeJS Full Stack ",
+            "style": { "fontWeight": 300, "opacity": 0.8 }
+          },
+          {
+            "type": "code",
+            "text": "<Developer />",
+            "style": {
+              "display": "inline-block",
+              "fontFamily": "var(--font-mono)",
+              "fontSize": "0.72em",
+              "fontWeight": 500,
+              "padding": "0.25em 0.55em",
+              "borderRadius": "0.35em",
+              "backgroundColor": "color-mix(in srgb, var(--color-accent) 10%, transparent)",
+              "color": "var(--color-accent)",
+              "border": "1px solid color-mix(in srgb, var(--color-accent) 22%, transparent)"
+            }
+          },
+          {
+            "type": "span",
+            "style": {
+              "display": "inline-block",
+              "width": "2px",
+              "height": "0.9em",
+              "backgroundColor": "var(--color-accent)",
+              "marginLeft": "2px",
+              "animation": "blink 1.2s linear infinite"
+            }
+          }
+        ]
+      },
+      "description": "An independent developer coding with love."
+    },
+    "module": {
+      "activity": {
+
+================================================================================
+## 部署
+Path: /docs/themes/shiro/deploy
+================================================================================
+
+  Shiro 的下一代演进版本 **[余白 / Yohaku](/docs/themes/yohaku)** 已经发布。Yohaku 基于 Shiro 深度重构，提供更精致的视觉设计与更多功能。如果你正在寻找最新的体验，请前往 [Yohaku 文档](/docs/themes/yohaku) 了解更多。
+## 前提要求
+- 你已安装 Mix Space 后端并且已启动
+- （选择 Vercel 部署）已注册 [Vercel](https://vercel.com/) 和 [GitHub](https://github.com/) 账号
+  自 Core v7 起，已抛弃 Clerk，取而代之的是 GitHub 和 Google 的 OAuth 2.0，
+  配置步骤请参考 [OAuth 2.0](/docs/configure/oauth)
+  ~~请注意，Shiro 主题的部署教程与初版有所不同，如果你已经部署过 Shiro
+  主题，请重新阅读本文档（尤其是填入配置文件环节，配置有所变化），并阅读
+  [「移除 Edge Config」](#移除-edge-config) 部分。~~
+## 准备步骤
+export function FAQBox({ title, children }) {
+  return (
+    <details
+      className="last-of-type:mb-0 rounded-lg bg-neutral-50 dark:bg-neutral-800 p-2 mt-4"
+    >
+      <summary>
+        <strong className="text-lg">{title}</strong>
+      </summary>
+      <div className="nx-p-2">{children}</div>
+    </details>
+  )
+}
+### 设置主题配置
+进入 Mix Space 后台，进入「配置与云函数」页面，点击右上角的新增按钮，在编辑页面中，填入以下设置：
+- 名称：`shiro`
+- 引用：`theme`
+- 数据类型：`JSON`
+- 数据：（点击下方的按钮复制）
+  请注意，这份配置你需要自行修改成符合你的需求的配置。直接使用下面的配置可能会导致你的博客无法按照你的预期运行。
+  下面的配置可能不全，更多配置项的信息请移步 [配置项](./config) 了解。
+  此外，配置也可写成 yaml 格式，此时数据类型应选择 `YAML`。
+```json showLineNumbers
+{
+  "footer": {
+    "otherInfo": {
+      "date": "2020-{{now}}",
+      "icp": {
+        "text": "萌 ICP 备 20236136 号",
+        "link": "https://icp.gov.moe/?keyword=20236136"
+      }
+    },
+    "linkSections": [
+      {
+        "name": "关于",
+        "links": [
+          {
+            "name": "关于本站",
+            "href": "/about-site"
+          },
+          {
+            "name": "关于我",
+            "href": "/about"
+          },
+          {
+            "name": "关于此项目",
+            "href": "https://github.com/innei/Shiro",
+            "external": true
+          }
+        ]
+      },
+      {
+        "name": "更多",
+        "links": [
+          {
+            "name": "时间线",
+            "href": "/timeline"
+          },
+          {
+            "name": "友链",
+            "href": "/friends"
+          },
+          {
+            "name": "监控",
+            "href": "https://status.innei.in/status/main",
+            "external": true
+          }
+        ]
+      },
+      {
+        "name": "联系",
+        "links": [
+          {
+            "name": "写留言",
+            "href": "/message"
+          },
+          {
+            "name": "发邮件",
+            "href": "mailto:i@innei.ren",
+            "external": true
+          },
+          {
+            "name": "GitHub",
+            "href": "https://github.com/innei",
+            "external": true
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "color": {
+      "light": [
+        "#33A6B8",
+        "#FF6666",
+        "#26A69A",
+        "#fb7287",
+        "#69a6cc",
+        "#F11A7B",
+        "#78C1F3",
+        "#FF6666",
+        "#7ACDF6"
+      ],
+      "dark": [
+        "#F596AA",
+        "#A0A7D4",
+        "#ff7b7b",
+        "#99D8CF",
+        "#838BC6",
+        "#FFE5AD",
+        "#9BE8D8",
+        "#A1CCD1",
+        "#EAAEBA"
+      ]
+    },
+    "bg": [
+      "/static/images/F0q8mwwaIAEtird.jpeg",
+      "/static/images/IMG_2111.jpeg.webp.jpg"
+    ],
+    "custom": {
+      "css": [],
+      "styles": [],
+      "js": [],
+      "scripts": []
+    },
+    "site": ,
+    "hero": {
+      "title": {
+        "template": [
+          {
+            "type": "h1",
+            "text": "Hi, I'm ",
+            "class": "font-light text-4xl"
+          },
+          {
+            "type": "h1",
+            "text": "Innei",
+            "class": "font-medium mx-2 text-4xl"
+          },
+          {
+            "type": "h1",
+            "text": "👋。",
+            "class": "font-light text-4xl"
+          },
+          {
+            "type": "br"
+          },
+          {
+            "type": "h1",
+            "text": "A NodeJS Full Stack ",
+            "class": "font-light text-4xl"
+          },
+          {
+            "type": "code",
+            "text": "<Developer />",
+            "class": "font-medium mx-2 text-3xl rounded p-1 bg-gray-200 dark:bg-gray-800/0 hover:dark:bg-gray-800/100 bg-opacity-0 hover:bg-opacity-100 transition-background duration-200"
+          },
+          {
+            "type": "span",
+            "class": "inline-block w-[1px] h-8 -bottom-2 relative bg-gray-800/80 dark:bg-gray-200/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200 group-hover:animation-blink"
+          }
+        ]
+      },
+      "description": "An independent developer coding with love."
+    },
+    "module": {
+      "activity": {
+        "enable": true,
+        "endpoint": "/fn/ps/update"
+      },
+      "donate": {
+        "enable": true,
+        "link": "https://afdian.net/@Innei",
+        "qrcode": [
+          "/static/images/20191211132347.png",
+          "/static/images/0424213144.png"
+        ]
+      },
+      "bilibili": {
+        "liveId": 1434499
+      },
+      "rss": {
+        "noRSS": true
+      }
+    }
+  }
+}
+```
+
+================================================================================
+## 配置
+Path: /docs/themes/shiro/config
+================================================================================
+
+# 配置项
+## 页脚信息 (`footer`)
+此部分定义页脚的部分信息，主要包括备案、建站年份和页脚导航三部分。
+### 备案信息 (`otherInfo.icp`)
+**如何使用**: 根据示例，修改位于 `text` 的备案号以及备案号所指向的链接 `link`。
+### 建站年份 (`otherInfo.date`)
+**如何使用**: `{{now}}` 指向当前年份，其他略。
+### 页脚导航 (`linkSections`)
+分类包括 `name` 和 `links` 两个字段，对应分类名字及其下链接，其下链接又分为 `name`、`href`、`external` 三个字段，对应链接名字，指向链接和是否外链三个属性。
+**如何使用**: 根据自己需要增删或修改特定链接及分类，需要注意如果指向外链的话需要加一行 `"external": true`。
+## 站点信息 (`config.site`)
+此部分包含了网站的基础信息设置，例如 favicon（网站图标）的配置。
+### Favicon
+- **`favicon`**: 设置网站在浅色模式下使用的图标。
+- **`faviconDark`**: 设置网站在深色模式下使用的图标。
+## Hero 部分 (`config.hero`)
+`hero` 部分定义了网站首页的主要欢迎信息或介绍部分，这是访问者首次进入网站时看到的部分。
+### Title 模板 (`title.template`)
+包括多个元素（如 `h1`, `code`, `span`），每个元素都可以自定义文本内容和样式（通过 CSS 类）。
+**如何使用**: 修改 `text` 和 `class` 字段来自定义标题的文本内容和样式。你可以通过添加或删除元素来调整标题的结构。
+### 描述 (`description`)
+提供了对主页 `hero` 部分的简短描述。
+**如何使用**: 直接修改 `description` 的值以更改介绍文本。
+## 自定义脚本 (`config.custom`)
+可以配置自定义的 CSS, Script。
+### Scripts (`scripts`)
+接受一个 [Script](https://nextjs.org/docs/app/api-reference/components/script#props) Props 参数数组。
+### Styles (`styles`)
+自定义 CSS。接受一个字符串数组。
+### JavaScript tag (`js`)
+自定义 JS 脚本。接受一个字符串数组。
+### CSS href link (`css`)
+加载外部 CSS，接受一个 CSS 外部样式表链接数组。
+## 模块 (`config.module`)
+此部分配置了网站的一些特定功能模块，比如活动跟踪、捐赠支持、社交媒体链接等。
+### 实时活动 (`activity`) 模块
+- **`enable`**: 控制模块是否启用。
+- **`endpoint`**: 指定活动更新的服务器端点。
+**如何使用**: 若需开启活动跟踪功能，将 `enable` 设为 `true` 并设置 `endpoint` 为处理活动数据的服务器地址。
+### 捐赠 (`donate`) 模块
+- **`enable`**: 控制捐赠模块是否启用。
+- **`link`**: 提供捐赠页面的链接。
+- **`qrcode`**: 提供一或多个捐赠二维码图片的链接。
+**如何使用**: 启用捐赠功能，并提供捐赠链接或捐赠二维码，以便支持者可以直接进行捐赠。
+### 社交媒体 (`bilibili`) 模块
+- **`liveId`**: b 站直播间 ID
+
+================================================================================
+## 额外功能
+Path: /docs/themes/shiro/extra
+================================================================================
+
+# 额外功能
+## 扩展的 Markdown 语法
+参考 https://shiro.innei.in/#/markdown
+**对于 LinkCard 的解析，某些需要你填写 API Key，以下的键值都是填写在 .env 环境变量中**
+- GitHub，默认直接用浏览器访问，可能受到 rate limit，可以填写 `GH_TOKEN` 以保证 API 可达性。
+- TMDB，必须填写 `TMDB_API_KEY` 才可以正确解析 tmdb 的链接。参考 https://post.smzdm.com/p/a5op4w33/ 这里获取 TOKEN
+## 我的动态
+Shiro 主题中，有一个可以在顶部显示博主当前正在做的事情的功能，这个功能是通过云函数和 ProcessReporter 软件实现的。
+  非常感谢 Innei, timochan, TNXG 的贡献，目前 ProcessReporter 已支持全平台！
+### 配置云函数
+进入后台，点击左侧菜单栏的「其他 -> 配置与云函数」，然后点击新建按钮，在选项卡中填入以下信息：
+- 名称：`update`
+- 引用：`ps`
+- 数据类型：`Function`
+- 请求方式：`POST`
+这个地方还需要设置一个密钥，在 Secret 中填入 `key`，在 Value 中填入你自己的密钥。
+这个密钥将用于验证你的软件是否有权限更新博主的动态，所以请务必设置一个复杂的密钥。
+**密钥在后面的步骤中还需要用到，所以请务必记住。**
+上方没有提到的选项都不需要填写，然后在右侧的代码编辑器中填入下面链接中的代码：
+点击保存按钮，云函数就配置完成了。
+  请关注此代码的更新，它可能会随时变化，你需要及时更新它们
+### 配置主题配置
+继续在「配置与云函数」页面，找到「theme -> shiro」配置，点击编辑，进入编辑页面，在代码中找到 `module`，加入 activity 配置，如下：（高亮部分）
+```json {14,15,16,17}
+{
+  "module": {
+    "donate": {
+      "enable": false,
+      "link": "https://afdian.net/@Innei",
+      "qrcode": [
+        "https://cdn.jsdelivr.net/gh/Innei/img-bed@master/20191211132347.png",
+        "https://cdn.innei.ren/bed/2023/0424213144.png"
+      ]
+    },
+    "bilibili": {
+      "liveId": 1434499
+    },
+    "activity": {
+      "enable": true,
+      "endpoint": "fn/ps/update"
+    }
+  }
+}
+```
+### 配置软件
+前往对应着你的电脑系统的软件的 GitHub 仓库，下载并打开 ProcessReporter。
+由于不同平台有不同的使用方法，不同的软件我们会在下方具体讲述。
+### ProcessReporter `Mac`
+打开软件后，你会发现你的系统菜单栏中多了一个图标，点击图标，然后点击「设置」，在弹出的窗口中填入你的信息：
+- Endpoint：`{你的API地址}/fn/ps/update` （请将 `{你的API地址}` 替换为你的 API 地址，如：`https://api.example.com/api/v2`）
+- API Key：填入你刚刚在云函数中设置的密钥
+如果你希望软件在开机时自动启动，可以勾选「Launch at login」选项。
+接着关闭窗口，再次点击菜单栏中的图标，点击「Enable」即可。如果一切正常，刷新一下你的博客就可以在博客顶部看到你的动态了。
+### ProcessReporter `Windows`
+Windows 版本的使用问题，请前往 [TNXG/ProcessReporterWinpy](https://github.com/TNXG/ProcessReporterWinpy#readme) 查看。
+#### 使用 GUI 版本
+在 [Releases](https://github.com/TNXG/ProcessReporterWinpy/releases) 页面下载 `ProcessReporterWinpy_Launcher.exe`
+，配置好 `config.yml` 文件，然后运行 `ProcessReporterWinpy_Launcher.exe` 即可。
+`config.yml` 配置具体配置项以及说明请参考 [TNXG/ProcessReporterWinpy](https://github.com/TNXG/ProcessReporterWinpy#readme)。
+#### 使用预编译的二进制文件
+在 [Releases](https://github.com/TNXG/ProcessReporterWinpy/releases) 页面下载 `ProcessReporterWinpy.exe`，配置好 `config.yml` 文件后，在终端运行即可，示例如下
+```powershell
+processforwinpy.exe --path "运行目录的路径"
+```
+`config.yml` 配置具体配置项以及说明请参考 [TNXG/ProcessReporterWinpy](https://github.com/TNXG/ProcessReporterWinpy#readme)。
+#### 使用源代码
+下载代码后，修改 `config.yml` 文件，填入你的信息：
+- api_url：`{你的API地址}/fn/ps/update` （请将 `{你的API地址}` 替换为你的 API 地址，如：`https://api.example.com/api/v2`）
+- api_key：填入你刚刚在云函数中设置的密钥
+- report_time: 上报间隔（单位：秒）
+接着运行程序即可。如果一切正常，刷新一下你的博客你就可以在博客顶部看到你的动态了。
+### ProcessReporter `Linux`
+在仓库的 [Releases](https://github.com/ttimochan/processforlinux/releases) 页面下载对应的二进制包，解压运行即可，具体请参照项目的 README 进行配置运行。
+安装完成后，新建 `.env.process` 文件，填入你的信息：
+```env
+# 你的 key
+API_KEY=your_key
+# 你的云函数地址
+API_URL={你的API地址}/fn/ps/update
+# 上报时间间隔，单位为秒
+REPORT_TIME=30
+# 是否开启媒体状态上报
+MEDIA_ENABLE=true
+# 是否打印日志
+LOG_ENABLE=true
+```
+然后执行程序即可。如果一切正常，刷新一下你的博客你就可以在博客顶部看到你的动态了。
+如果有什么疑问，可以去阅读该项目的 [README](https://github.com/ttimochan/processforlinux#readme)
+<script>
+  {`
+  document.addEventListener('DOMContentLoaded', () => {
+    const style = document.createElement('style');
+    style.textContent = \`
+      .nextra-cards img {
+        border-radius: 50%;
+      }
+      .nextra-content pre {
+        max-height: 50vh;
+      }
+    \`;
+    document.head.appendChild(style);
+  });
+`}
+</script>
+## 个人状态展示
+![](/assets/images/themes/shiro/status.png)
+设置当前的状态。
+### 配置云函数
+进入后台，点击左侧菜单栏的「其他 -> 配置与云函数」，然后点击新建按钮，在选项卡中填入以下信息：
+- 名称：`status`
+- 引用：`shiro`
+- 数据类型：`Function`
+- 请求方式：`ALL`
+这个地方还需要设置一个密钥，在 Secret 中填入 `key`，在 Value 中填入你自己的密钥。
+这个密钥将用于验证你的软件是否有权限更新当前状态，所以请务必设置一个复杂的密钥。
+**密钥在后面的步骤中还需要用到，所以请务必记住。**
+上方没有提到的选项都不需要填写，然后在右侧的代码编辑器中填入下面链接中的代码：
+点击保存按钮，云函数就配置完成了。
+  请关注此代码的更新，它可能会随时变化，你需要及时更新它们
+### 设置状态
+在主页登录之后，你可以点击此头像的右下方设置状态。
+
+================================================================================
+## 闭源功能
+Path: /docs/themes/shiro/pro
+================================================================================
+
+# 闭源功能
+本文档介绍 Shiro 主题闭源版本的特有功能。
+## 配置项
+### 一言 (`hitokoto`)
+提供自定义首页一言的功能。
+接受一个对象，包含 `random` 和 `custom` 两个可选字段。
+当存在 `random` 字段时，将会随机获取一言。优先级高于 `custom` 字段。
+当存在 `custom` 字段时，将会使用自定义的一言。
+如果两个字段都不存在，将会使用默认的一言。
+```ts
+interface Hitokoto {
+  random?: boolean
+  custom?: string
+}
+```
+### OpenPanel 模块
+[OpenPanel](https://openpanel.dev) 是一个交互式面板工具。
+- **`enable`**: 控制 OpenPanel 功能是否启用。
+- **`id`**: OpenPanel 的 ID。
+- **`url`**: OpenPanel 的访问地址。
+**如何使用**: 如果你使用 OpenPanel 提供交互式面板或其他功能，通过这些配置连接并显示面板。
+### 签名动画 (`signature`) 模块
+- **`svg`**: 签名的 svg 代码。
+**如何使用**: 请参考[签名动画](#签名动画)部分。
+### 文章列表设定 (`posts`)
+- **`mode`**: 文章列表的预览模式。可选的值：`"loose"`(默认值) `"compact"`
+两个模式，紧凑模式和松散模式。
+## 功能特性
+### AI 参与声明
+Shiro 主题支持在文章的 Meta 数据中声明 AI 的参与程度，实现创作过程的透明化。编辑时可在 `meta.aiGen` 字段选择声明类型，前端会自动展示对应的 AI 参与徽章。
+  <strong>多选说明：</strong>
+  <ul>
+    <li><strong>手作</strong> 和 <strong>完全</strong> 为单选类型，选择后会清除其他选项</li>
+    <li>其他类型支持多选，可以组合声明多种 AI 参与方式</li>
+  </ul>
+支持的声明类型：
+| 类型     | 说明                                               |
+| -------- | -------------------------------------------------- |
+| 手作     | 本文内容完全由作者独立创作，未使用任何 AI 辅助     |
+| 辅助写作 | AI 辅助构思/结构/表达，作者审阅并修改后发布        |
+| 润色     | AI 用于语言润色/语法调整，不改变核心观点           |
+| 完全     | 内容主要由 AI 生成，作者进行了选择与编辑后发布     |
+| 故事整理 | 作者口述内容，AI 进行整理与润色后发布              |
+| 标题生成 | 标题由 AI 生成或优化                              |
+| 校对     | AI 协助校对文本，检查拼写、语法和逻辑问题          |
+| 灵感提供 | AI 提供创意灵感或写作思路                          |
+| 改写     | AI 将内容改写成不同风格或语气                      |
+| AI 作图  | 文章中的图片、表格或流程图由 AI 生成或辅助绘制     |
+### 动态背景系统
+Shiro 主题内置基于 WebGL 的高性能粒子物理背景系统，支持多种效果自动切换：
+#### 粒子物理背景
+基于牛顿力学的粒子物理系统，响应页面滚动产生惯性运动效果。
+**技术特点：**
+- 滚动驱动力：与滚动速度成正比
+- 阻力模拟：每帧保留 85% 速度，模拟能量耗散
+- 恢复力系统：停止滚动后逐渐回归原始轨道
+- 智能分布：80% 粒子避开内容区域，避免干扰阅读
+#### 雪花背景
+程序化生成的六重对称雪花，支持完整的物理效果。
+**可配置参数：**
+- 风力系统：风速、风向控制
+- 重力模拟：可调节下落速度
+- 湍流效果：随机扰动的自然飘落
+- 深度模糊：基于距离的景深效果
+- 雪花密度：可调整粒子数量
+#### 萤火虫背景
+互动式萤火虫动画，营造梦幻氛围。
+**交互特性：**
+- 鼠标点击惊吓：萤火虫会逃离点击区域
+- 多种颜色：黄绿色、绿色、淡蓝色
+- 脉动闪烁：自然的亮度变化效果
+- 智能避让：自动避开内容阅读区域
+#### 季节自动切换
+系统会根据当前日期和主题自动选择合适的背景效果：
+| 条件                          | 背景效果                  |
+| ----------------------------- | ------------------------- |
+| 冬季（12 月 -2 月）+ 深色模式 | 雪花背景                  |
+| 其他情况                      | 粒子物理背景 / 萤火虫背景 |
+文章详情页默认不显示背景动画，以保持阅读体验。
+### 签名动画
+![](/assets/images/themes/shiro/sign.gif)
+在「配置与云函数」页面，找到「theme -> shiro」配置，进入编辑页面，在代码中找到 `module`，加入 `signature` 配置，如下（高亮部分）：
+其中 svg 后填生成的 svg 代码，可通过 [此网站](https://danmarshall.github.io/google-font-to-svg-path/) 进行生成。
+  受限于 Json 语法规则，此处 svg 代码需替换所有的 `"` 为 `\"`，否则会报错。
+```json {18,19,20}
+{
+  "module": {
+    "donate": {
+      "enable": false,
+      "link": "https://afdian.net/@Innei",
+      "qrcode": [
+        "https://cdn.jsdelivr.net/gh/Innei/img-bed@master/20191211132347.png",
+        "https://cdn.innei.ren/bed/2023/0424213144.png"
+      ]
+    },
+    "bilibili": {
+      "liveId": 1434499
+    },
+    "activity": {
+      "enable": true,
+      "endpoint": "/fn/ps/update"
+    },
+    "signature": {
+      "svg": "<svg width=\"177.006\" height=\"84.901\" viewBox=\"0 0 177.006 84.901\" xmlns=\"http://www.w3.org/2000/svg\"><g id=\"svgGroup\" stroke-linecap=\"round\" fill-rule=\"evenodd\" font-size=\"9pt\" stroke=\"#000\" stroke-width=\"0.25mm\" fill=\"#000\" style=\"stroke:#000;stroke-width:0.25mm;fill:#000\"><path d=\"M 65.906 67.201 L 66.906 66.501 A 5.892 5.892 0 0 1 67.229 66.328 Q 67.536 66.177 67.756 66.126 A 0.897 0.897 0 0 1 67.956 66.101 A 0.505 0.505 0 0 1 68.206 66.174 Q 68.446 66.31 68.706 66.701 Q 69.106 67.301 69.106 68.001 A 0.901 0.901 0 0 1 68.938 68.504 Q 68.638 68.952 67.806 69.401 A 25.273 25.273 0 0 1 63.748 72.455 Q 59.243 75.254 51.998 77.916 A 132.862 132.862 0 0 1 46.156 79.901 A 120.782 120.782 0 0 1 33.098 83.274 Q 26.377 84.592 20.307 84.842 A 68.148 68.148 0 0 1 17.506 84.901 A 44.877 44.877 0 0 1 11.558 84.542 Q 0.006 82.988 0.006 74.701 A 2.27 2.27 0 0 1 0.217 73.812 Q 0.746 72.588 2.595 70.792 A 28.322 28.322 0 0 1 3.006 70.401 A 89.197 89.197 0 0 1 4.573 69 Q 7.479 66.47 8.426 66.227 A 0.73 0.73 0 0 1 8.606 66.201 Q 9.578 66.201 13.484 68.566 A 85.654 85.654 0 0 1 13.706 68.701 Q 17.806 71.201 24.006 73.701 A 34.364 34.364 0 0 0 32.1 75.905 A 30.279 30.279 0 0 0 36.306 76.201 A 15.624 15.624 0 0 0 40.123 75.762 A 10.427 10.427 0 0 0 45.656 72.401 A 15.647 15.647 0 0 0 47.604 69.583 Q 48.906 67.132 48.906 64.601 A 9.083 9.083 0 0 0 46.918 58.951 A 13.021 13.021 0 0 0 45.506 57.401 A 32.004 32.004 0 0 0 40.723 53.715 A 40.462 40.462 0 0 0 37.256 51.751 Q 32.406 49.301 27.506 46.701 A 32.315 32.315 0 0 1 21.72 42.814 A 28.085 28.085 0 0 1 19.206 40.401 A 13.9 13.9 0 0 1 16.973 37.217 A 10.864 10.864 0 0 1 15.806 32.301 A 14.878 14.878 0 0 1 17.264 26.07 Q 19.2 21.849 23.706 17.401 Q 31.606 9.601 41.806 4.801 Q 52.006 0.001 59.206 0.001 Q 68.206 0.001 68.206 6.001 A 8.195 8.195 0 0 1 66.88 10.415 Q 66.177 11.538 65.101 12.608 A 15.61 15.61 0 0 1 64.956 12.751 A 20.953 20.953 0 0 1 63.443 14.092 Q 61.173 15.901 59.506 15.901 Q 58.806 15.901 58.356 15.451 Q 57.906 15.001 57.906 14.501 Q 57.906 14.001 58.406 13.101 A 4.523 4.523 0 0 0 58.725 12.399 Q 58.87 11.983 58.899 11.59 A 2.623 2.623 0 0 0 58.906 11.401 Q 58.906 9.519 57.333 8.474 A 5.332 5.332 0 0 0 56.556 8.051 Q 54.206 7.001 51.706 7.001 Q 44.793 7.001 37.314 11.363 A 44.499 44.499 0 0 0 36.256 12.001 Q 28.206 17.001 26.806 24.001 Q 27.306 28.201 30.956 31.851 A 37.249 37.249 0 0 0 38.81 37.815 A 41.639 41.639 0 0 0 39.406 38.151 Q 44.206 40.801 48.906 43.501 A 31.929 31.929 0 0 1 54.421 47.468 A 27.584 27.584 0 0 1 56.806 49.901 A 15.405 15.405 0 0 1 58.692 52.579 Q 59.749 54.514 59.956 56.489 A 9.24 9.24 0 0 1 60.006 57.451 A 11.14 11.14 0 0 1 58.742 62.534 A 15.439 15.439 0 0 1 57.206 64.951 A 55.116 55.116 0 0 1 54.505 68.217 Q 53.096 69.787 51.7 71.06 A 33.797 33.797 0 0 1 51.656 71.101 A 205.983 205.983 0 0 0 51.011 71.689 Q 48.906 73.619 48.906 73.751 Q 48.906 73.884 49.142 73.899 A 1.01 1.01 0 0 0 49.206 73.901 Q 54.217 73.901 62.264 69.379 A 82.093 82.093 0 0 0 65.906 67.201 Z M 69.506 72.301 A 0.987 0.987 0 0 0 70.014 72.069 Q 71.149 71.248 73.954 67.529 A 132.541 132.541 0 0 0 75.306 65.701 Q 79.713 59.64 81.17 59.103 A 0.775 0.775 0 0 1 81.406 59.051 Q 82.706 59.001 84.006 61.201 A 54.753 54.753 0 0 1 85.611 64.126 A 67.176 67.176 0 0 1 86.556 66.051 A 12.326 12.326 0 0 0 88.452 68.905 A 16.993 16.993 0 0 0 90.606 70.951 A 11.991 11.991 0 0 0 92.618 72.277 Q 94.412 73.201 96.206 73.201 A 31.123 31.123 0 0 0 97.178 73.187 Q 98.66 73.14 99.295 72.939 A 1.243 1.243 0 0 0 99.606 72.801 Q 100.076 72.487 100.393 72.419 A 0.781 0.781 0 0 1 100.556 72.401 Q 100.906 72.401 100.906 73.201 A 3.658 3.658 0 0 1 100.55 74.534 Q 99.837 76.091 97.706 78.051 A 10.531 10.531 0 0 1 92.637 80.594 A 15.195 15.195 0 0 1 89.506 80.901 Q 81.279 80.901 77.811 71.841 A 25.688 25.688 0 0 1 77.506 71.001 Q 77.206 70.401 76.956 70.401 A 0.479 0.479 0 0 0 76.805 70.429 Q 76.573 70.507 76.206 70.801 A 3.392 3.392 0 0 0 75.979 71.003 Q 75.451 71.513 74.307 72.863 A 91.945 91.945 0 0 0 74.106 73.101 Q 72.506 75.001 70.856 77.001 A 197.786 197.786 0 0 1 70.281 77.694 Q 69.222 78.966 68.862 79.343 A 3.57 3.57 0 0 1 68.806 79.401 Q 68.406 79.801 67.306 79.801 Q 66.206 79.801 66.106 78.601 A 183.587 183.587 0 0 1 65.262 64.622 A 208.746 208.746 0 0 1 65.206 59.751 Q 65.206 49.901 65.456 44.501 Q 65.679 39.67 66.343 32.359 A 534.64 534.64 0 0 1 66.506 30.601 A 78.338 78.338 0 0 1 67.242 24.892 Q 68.042 20.16 69.356 16.701 A 17.553 17.553 0 0 1 70.294 14.613 Q 72.078 11.301 74.506 11.301 A 6.455 6.455 0 0 1 77.639 12.015 Q 81.006 13.851 81.006 20.401 A 37.83 37.83 0 0 1 80.509 26.242 Q 79.562 32.274 76.806 40.051 A 191.929 191.929 0 0 1 74.21 46.973 Q 71.387 54.057 68.706 58.801 Q 69.106 72.301 69.506 72.301 Z M 122.306 64.101 L 119.606 64.301 Q 117.806 64.301 117.806 63.401 A 2.1 2.1 0 0 1 117.988 62.635 Q 118.61 61.106 121.356 58.051 Q 124.215 54.87 126.587 54.25 A 4.42 4.42 0 0 1 127.706 54.101 Q 128.906 54.101 129.856 54.801 A 3.012 3.012 0 0 1 130.429 55.342 A 2.169 2.169 0 0 1 130.906 56.501 L 131.406 61.001 Q 131.677 61.362 131.948 61.397 A 0.453 0.453 0 0 0 132.006 61.401 Q 132.274 61.401 133.343 60.12 A 31.495 31.495 0 0 0 133.606 59.801 A 25.896 25.896 0 0 1 135.587 57.715 Q 138.605 54.901 141.106 54.901 Q 142.032 54.901 142.705 55.104 A 3.165 3.165 0 0 1 143.206 55.301 A 3.828 3.828 0 0 1 143.73 55.624 Q 144.334 56.06 145.056 56.851 Q 146.106 58.001 146.206 58.101 A 3.678 3.678 0 0 1 147.168 57.83 A 3.292 3.292 0 0 1 147.606 57.801 A 1.265 1.265 0 0 1 148.087 57.885 Q 148.636 58.109 148.698 58.931 A 2.915 2.915 0 0 1 148.706 59.151 A 1.769 1.769 0 0 1 148.505 59.88 Q 147.987 60.979 146.124 62.87 A 45.46 45.46 0 0 1 144.806 64.151 A 34.145 34.145 0 0 1 143.202 65.567 Q 140.799 67.547 139.359 67.772 A 2.293 2.293 0 0 1 139.006 67.801 A 3.754 3.754 0 0 1 136.205 66.568 A 5.495 5.495 0 0 1 135.806 66.101 Q 134.765 64.739 134.173 64.468 A 0.65 0.65 0 0 0 133.906 64.401 Q 132.071 64.401 131.7 65.927 A 3.704 3.704 0 0 0 131.606 66.801 Q 131.606 68.601 133.256 72.901 A 115.615 115.615 0 0 1 133.816 74.39 Q 134.79 77.035 134.893 77.836 A 1.309 1.309 0 0 1 134.906 78.001 A 3.258 3.258 0 0 1 133.654 80.607 A 5.263 5.263 0 0 1 132.856 81.151 Q 130.806 82.301 128.356 82.301 A 12.266 12.266 0 0 1 126.784 82.206 Q 125.39 82.026 124.406 81.501 A 3.622 3.622 0 0 1 123.664 80.988 A 2.199 2.199 0 0 1 122.906 79.301 L 125.706 67.201 Q 125.706 64.101 122.306 64.101 Z M 157.506 57.301 L 157.506 56.901 A 5.233 5.233 0 0 1 157.763 55.224 A 4.355 4.355 0 0 1 159.006 53.351 A 5.222 5.222 0 0 1 162.233 52.017 A 6.816 6.816 0 0 1 162.706 52.001 A 8.59 8.59 0 0 1 167.909 53.587 Q 170.619 55.563 172.006 60.001 Q 172.306 60.901 172.756 60.901 Q 173.173 60.901 174.149 60.428 A 13.954 13.954 0 0 0 174.306 60.351 A 6.925 6.925 0 0 1 174.964 60.061 Q 175.31 59.931 175.62 59.866 A 2.863 2.863 0 0 1 176.206 59.801 Q 176.927 59.801 176.998 60.614 A 2.155 2.155 0 0 1 177.006 60.801 Q 177.006 61.674 175.367 63.537 A 24.981 24.981 0 0 1 174.856 64.101 A 14.156 14.156 0 0 1 173.884 65.052 Q 172.872 65.944 172.027 66.246 A 2.442 2.442 0 0 1 171.206 66.401 Q 169.106 72.101 164.256 76.951 Q 159.406 81.801 154.306 81.801 A 9.063 9.063 0 0 1 151.194 81.284 A 7.986 7.986 0 0 1 148.306 79.451 Q 146.187 77.376 145.939 73.588 A 15.85 15.85 0 0 1 145.906 72.551 Q 145.906 68.96 148.272 64.872 A 28.479 28.479 0 0 1 149.706 62.651 Q 153.227 57.692 156.921 57.329 A 5.974 5.974 0 0 1 157.506 57.301 Z M 121.652 67.514 A 5.27 5.27 0 0 0 121.106 67.901 A 18.636 18.636 0 0 1 120.715 68.209 Q 119.348 69.258 117.975 69.898 A 10.143 10.143 0 0 1 113.656 70.901 Q 109.906 70.901 107.556 68.351 A 14.958 14.958 0 0 1 105.971 66.32 A 11.08 11.08 0 0 1 104.506 63.001 A 29.113 29.113 0 0 1 104.484 62.913 Q 103.806 60.164 103.806 57.851 A 11.86 11.86 0 0 0 103.797 57.39 Q 103.751 56.198 103.451 55.718 A 0.614 0.614 0 0 0 103.006 55.401 A 1.377 1.377 0 0 0 102.362 55.569 Q 100.984 56.291 99.606 60.101 Q 97.906 64.801 97.906 69.851 A 20.344 20.344 0 0 0 97.906 69.912 Q 97.912 71.851 98.288 73.516 A 11.422 11.422 0 0 0 100.406 78.101 A 7.936 7.936 0 0 0 104.319 80.853 A 10.114 10.114 0 0 0 107.406 81.301 A 8.75 8.75 0 0 0 108.409 81.241 Q 111.302 80.908 114.842 78.688 A 35.475 35.475 0 0 0 118.106 76.351 A 54.78 54.78 0 0 0 119.623 75.096 Q 124.306 71.073 124.306 68.901 A 3.896 3.896 0 0 0 124.288 68.515 Q 124.188 67.512 123.534 67.22 A 1.531 1.531 0 0 0 122.906 67.101 A 1.609 1.609 0 0 0 122.88 67.101 Q 122.316 67.11 121.652 67.514 Z M 68.506 47.601 L 68.506 53.601 A 137.704 137.704 0 0 0 71.32 45.733 A 174.522 174.522 0 0 0 73.356 39.001 Q 74.82 33.794 75.331 29.752 A 32.048 32.048 0 0 0 75.606 25.751 Q 75.606 22.408 74.39 21.194 A 2.417 2.417 0 0 0 72.606 20.501 Q 69.057 20.501 68.58 40.807 A 290.473 290.473 0 0 0 68.506 47.601 Z M 160.706 64.301 A 8.395 8.395 0 0 0 161.834 65.145 Q 164.321 66.701 168.106 66.701 A 2.65 2.65 0 0 1 167.869 67.768 Q 167.519 68.567 166.656 69.401 A 4.357 4.357 0 0 1 165.717 70.088 Q 165.001 70.481 164.084 70.657 A 8.638 8.638 0 0 1 162.456 70.801 A 5.254 5.254 0 0 1 159.302 69.795 A 6.856 6.856 0 0 1 157.856 68.351 A 9.02 9.02 0 0 1 156.658 66.228 A 9.633 9.633 0 0 1 156.006 62.651 A 12.991 12.991 0 0 1 156.006 62.54 Q 156.021 60.787 156.512 59.643 A 3.461 3.461 0 0 1 157.606 58.201 Q 158.006 61.901 160.706 64.301 Z M 100.356 46.101 Q 98.806 44.401 98.806 41.901 A 6.661 6.661 0 0 1 99.146 39.733 A 5.751 5.751 0 0 1 100.356 37.701 A 4.979 4.979 0 0 1 103.974 36.005 A 6.074 6.074 0 0 1 104.206 36.001 A 4.979 4.979 0 0 1 107.896 37.532 A 6.078 6.078 0 0 1 108.056 37.701 Q 109.606 39.401 109.606 41.901 A 6.661 6.661 0 0 1 109.265 44.069 A 5.751 5.751 0 0 1 108.056 46.101 A 4.979 4.979 0 0 1 104.437 47.796 A 6.074 6.074 0 0 1 104.206 47.801 A 4.979 4.979 0 0 1 100.515 46.269 A 6.078 6.078 0 0 1 100.356 46.101 Z\" vector-effect=\"non-scaling-stroke\"/></g></svg>"
+    }
+  }
+}
+```
+
+================================================================================
+## Kami 主题
+Path: /docs/themes/kami
+================================================================================
+
+> 下一个代替项目将会是 Shiro，当它完成之时，我便不再投入任何精力到 Kami 中。迎接未来总需要舍弃一些东西，非常感谢大家三年来使用 Kami，不管你是谁，都需要对你说声谢谢。**—— Innei**
+## 现状
+Kami 目前由 `wibus-wee` 维护，处于最小程度更新的兼容状态。更新仅针对与 Core 接口不兼容的问题，以确保 Kami 能继续正常运行。
+由于 Kami 主题已进入存档状态，本文档仅保持最小程度更新。请注意：使用 Kami 需要 Linux 内核版本 ≥ 4.19。
+如发现 Kami 与 Core 的不兼容问题，请在 Kami 仓库提交 issue 并详细描述问题。
+## 安装步骤
+### 检查内核版本
+```bash
+uname -r
+```
+如果你的内核版本小于 4.19，请升级内核。或者使用最新的 Ubuntu / Debian。
+### 克隆项目
+```bash
+git clone https://github.com/mx-space/kami.git --depth=1
+cd kami && git fetch --tags && git checkout $(git rev-list --tags --max-count=1)
+```
+
+### 安装依赖
+```bash
+git lfs fetch --all
+git lfs pull
+pnpm i
+```
+### 配置 ENV
+1. 复制 .env.example 为 .env
+2. 编辑 .env 文件，它看起来应该是这个样子的
+```env
+# API 地址
+NEXT_PUBLIC_API_URL=https://server.test.cn/api/v2
+# GATEWAY 地址
+NEXT_PUBLIC_GATEWAY_URL=https://server.test.cn
+#前端使用的配置项名字
+NEXT_PUBLIC_SNIPPET_NAME=kami
+# 如果使用 CDN, 修改产物前缀；一般留空
+ASSETPREFIX=
+```
+
+### 开始构建
+```bash
+pnpm build
+```
+### 启动前端
+```bash
+pnpm prod:pm2
+```
+## 更新指南
+根据是否对 Kami 进行过修改，可以选择以下两种更新方式：
+### 标准更新
+适用于未修改源代码的用户。
+```bash
+cd ~/mx-space/kami
+git pull origin master
+pnpm i && pnpm build
+pm2 start
+```
+即使未进行源码修改，也可能遇到代码合并冲突。此时建议参考下方的手动更新方法。
+### 手动更新
+适用于修改过源码的用户。
+将 `kami` 文件夹改为任意名字，例如修改为 `kami.d`，然后拉取 kami 前端仓库，更新到稳定版本：
+```bash
+cd ~/mx-space
+git clone https://github.com/mx-space/kami.git --depth=1
+cd kami && git fetch --tags && git checkout $(git rev-list --tags --max-count=1)
+```
+然后将更新前之前配置时修改过的文件，如在 `kami.d` 中的 `.env` 和 `public` 文件夹复制到 `kami`，将你的修改的部分依次修改替换完成。
+安装依赖、构建、启动前端：
+```bash
+pnpm i
+pnpm build
+pm2 start
+```
+
+================================================================================
+## Yun 主题
+Path: /docs/themes/yun
+================================================================================
+
+由于 Yun 主题将不再维护，此文档将不再更新，但是你仍然可以使用它。
+## 安装步骤
+### 克隆项目
+```bash
+git clone https://github.com/mx-space/mx-web-yun.git --depth=1
+```
+
+### 安装依赖
+```bash
+pnpm i
+```
+### 配置服务
+如果你部署 Mix Space 后端与部署 Yun 前端在同一台服务器，并且后端监听的端口为 2333，那么你可以跳过这一步。
+1. 前往 `./server/constant.ts`
+```ts {3,4,5} filename="./server/constant.ts"
+export const isProduction = process.env.NODE_ENV === 'production'
+export const isDev = !isProduction
+export const apiBase = isDev
+  ? 'https://api.innei.ren/v2/'
+  : 'http://localhost:2333/api/v2/'
+```
+修改为你的后端 API 地址。
+### 开始构建
+```bash
+pnpm build
+```
+### 启动前端
+```bash
+pnpm pm2
+```
+
+================================================================================
+## 社区分享
+Path: /docs/themes/community
+================================================================================
+
+你可以参考他们的部署方式，但我们不保证它们的可用性。如果你也有教程想要与大家分享的话，欢迎您向文档提交 [Pull Request](https://github.com/mx-space/docs/pulls) 以分享您的部署方式。
+<Card
+  title="GitHub Action 构建 Shiroi Docker 镜像"
+  href="https://blog.sotkg.com/2024/10/shiroi-docker-deployment"
+  icon={}
+  target="_blank"
+>前端部署方式拓展博文教程 | By Mikuの鬆 
+<Card
+  title="GitHub Actions 构建 Yohaku 的 Docker 镜像"
+  href="https://zwh.moe/posts/technology/yohaku-docker-deployment"
+  icon={}
+  target="_blank"
+>前端部署方式拓展博文教程 | By wuhang2003 
+
+================================================================================
+## 使用指南
+Path: /docs/use/index
+================================================================================
+
+部署完成后，这篇指南帮助你日常使用 Mix Space。
+温馨提示：此指南需要一定的基础知识 & 理解能力，请准备好哦～
+  <Card
+    icon={<Pencil />}
+    href={'/docs/use/writing'}
+    title="写作工作流"
+  >
+    后台编辑器、Obsidian 插件、Markdown 导入导出
+
+  <Card
+    icon={<BookOpen />}
+    href={'/docs/use/content'}
+    title="内容管理"
+  >
+    文章、日记、页面的发布与管理，分类与专题
+
+  <Card
+    icon={<MessageSquare />}
+    href={'/docs/use/comments'}
+    title="评论管理"
+  >
+    评论审核、反垃圾、AI 审核、评论图片上传
+
+  <Card
+    icon={<Users />}
+    href={'/docs/use/friends'}
+    title="友链管理"
+  >
+    友链添加与审核、申请规则、头像转内链、健康检查
+
+  <Card
+    icon={<Megaphone />}
+    href={'/docs/use/says'}
+    title="说说"
+  >
+    发布短内容、碎片化想法与一句话动态
+
+  <Card
+    icon={<Rocket />}
+    href={'/docs/use/projects'}
+    title="项目展示"
+  >
+    管理和展示个人项目与作品集
+
+  <Card
+    icon={}
+    href={'/docs/use/files'}
+    title="文件管理"
+  >
+    图片、图标、头像和文件的上传管理与自定义命名
+
+  <Card
+    icon={<Sparkles />}
+    href={'/docs/use/ai-features'}
+    title="AI 功能"
+  >
+    摘要、精读、多语言翻译、写作助手、评论审核、AI Agent
+
+  <Card
+    icon={<Webhook />}
+    href={'/docs/use/webhook'}
+    title="Webhook 与事件通知"
+  >
+    配置 Webhook 推送事件到外部服务
+
+  <Card
+    icon={<Mail />}
+    href={'/docs/use/mail-subscribe'}
+    title="邮件与订阅"
+  >
+    邮件服务配置、读者订阅推送、Bark 通知
+
+  <Card
+    icon={<Cloud />}
+    href={'/docs/use/serverless'}
+    title="云函数扩展"
+  >
+    扩展 Mix Space 能力的云函数 Snippets
+
+  <Card
+    icon={<BarChart3 />}
+    href={'/docs/use/analytics'}
+    title="站点统计"
+  >
+    访问量、流量来源、设备分布和热门路径
+
+  <Card
+    icon={<Clock />}
+    href={'/docs/use/cron-tasks'}
+    title="定时任务"
+  >
+    系统定时清理、搜索引擎推送、索引重建
+
+  <Card
+    icon={<Database />}
+    href={'/docs/use/backup-restore'}
+    title="备份与恢复"
+  >
+    手动备份、自动备份、数据回滚与命令行备份
+
+  <Card
+    icon={<ArrowUp />}
+    href={'/docs/use/update'}
+    title="版本更新"
+  >
+    Docker 与源码部署的更新方式、大版本升级指引
+
+  <Card
+    icon={<HelpCircle />}
+    href={'/docs/use/faq'}
+    title="常见问题"
+  >
+    日常使用中的常见疑问与解答
+
+================================================================================
+## 写作工作流
+Path: /docs/use/writing
+================================================================================
+
+Mix Space 提供了多种写作方式，无论你习惯在浏览器中编辑，还是偏爱本地 Markdown 编辑器，都能找到适合你的工作流。
+## 后台编辑器
+登录后台后，进入「文章」或「日记」页面，点击新建即可开始写作。
+### 编辑器功能简介
+- **Markdown 支持**：直接输入 Markdown 语法，实时预览渲染效果
+- **Lexical 富文本**：提供可视化的富文本编辑体验，支持拖拽排版
+- **定时发布**：设定未来的发布时间，到点自动上线
+- **密码保护**：为单篇文章设置访问密码，适合私密内容
+后台地址通常为 `你的域名/proxy/qaqdmin`，部署时可在配置中修改。
+## Obsidian 插件
+[Obsidian Mix Space Plugin](https://github.com/mx-space/obsidian-mixspace-plugin) 是一个 Obsidian 插件，可以将你的 Obsidian 笔记库直接同步到 Mix Space。
+### 功能特性
+- 发布/更新内容到 Mix Space（支持 Note 和 Post）
+- 自动识别内容类型
+- 反向链接转换（`[[Obsidian 链接]]` → Mix Space URL）
+- Frontmatter 自动补全
+- 多环境配置（Profile）
+- AI 生成标题和 slug
+### 安装步骤
+### 下载插件
+前往 [GitHub Releases](https://github.com/mx-space/obsidian-mixspace-plugin/releases) 下载最新版本的 `obsidian-mixspace-plugin.zip`。
+### 安装到 Obsidian
+在 Obsidian 中打开「设置 → 第三方插件」，关闭安全模式后点击「浏览」旁的「加载已解压的插件」，选择解压后的插件文件夹。
+### 配置 API
+在插件设置中填入：
+- **API Endpoint**：你的 Mix Space 地址，如 `https://example.com/api/v2`
+- **Token**：在 Mix Space 后台「设定 → 安全 → API Token」中生成
+### 发布内容
+在 Obsidian 中打开一篇笔记，按 `Ctrl/Cmd + P` 打开命令面板，搜索「Mix Space」即可看到发布/更新命令。
+## Markdown 导入导出
+Mix Space 后台支持 Markdown 文件的批量导入与导出，方便你在不同平台之间迁移内容。
+### 导入 Markdown
+登录后台，进入「文章」页面。
+点击右上角「导入」按钮，选择本地 Markdown 文件。
+系统会自动解析 Frontmatter（标题、标签、分类等），确认后完成导入。
+### 导出 Markdown
+在后台文章列表中，选择需要导出的文章，点击「导出」即可下载包含完整 Frontmatter 的 Markdown 文件。
+导入时如果文章已存在相同 slug，系统会提示是否覆盖，请谨慎操作。
+## 写作建议
+为了让你的内容更容易被检索和阅读，建议养成以下习惯：
+- **使用标签**：为每篇文章添加 2–5 个标签，便于分类和关联推荐
+- **设置分类**：合理划分文章分类，让读者快速定位感兴趣的主题
+- **撰写摘要**：在 Frontmatter 或摘要栏中填写内容概要，有利于 SEO 和列表展示
+- **规范 slug**：使用英文小写和连字符作为文章链接，避免中文 URL
+
+================================================================================
+## 内容管理
+Path: /docs/use/content
+================================================================================
+
+Mix Space 支持三种主要的内容类型：**文章**（Post）、**日记**（Note）和**页面**（Page）。每种类型有不同的用途和字段。
+## 内容类型对比
+| 类型 | 用途 | URL 格式 | 特殊字段 |
+|------|------|----------|----------|
+| **文章** | 长篇博客文章 | `/{分类 slug}/{文章 slug}` | 分类、标签、置顶、相关文章、版权声明 |
+| **日记** | 短篇手记、随想 | `/notes/{nid}` 或 `/notes/{年}/{月}/{日}/{slug}` | 心情、天气、密码保护、专题、位置 |
+| **页面** | 独立页面（关于、友链等） | `/{页面 slug}` | 副标题、排序 |
+所有内容类型共有的字段：
+| 字段 | 说明 |
+|------|------|
+| **标题** | 内容标题 |
+| **正文** | 支持 Markdown 和 Lexical 富文本两种格式 |
+| **摘要** | 文章概要，留空可由 AI 自动生成 |
+| **发布状态** | 已发布 / 草稿 |
+| **创建时间 / 修改时间** | 自动记录 |
+| **评论开关** | 是否允许评论 |
+| **自定义元数据** | JSON 格式的扩展字段 |
+## 文章管理
+登录后台，进入「文章」页面。
+### 创建文章
+1. 点击右上角「新建」
+2. 在编辑器中撰写内容
+3. 在右侧面板中设置：
+| 设置项 | 说明 |
+|--------|------|
+| **分类** | 必选，将文章归入一个分类 |
+| **Slug** | URL 路径片段，建议英文小写加连字符（如 `my-first-post`） |
+| **标签** | 自由标签，输入后回车添加 |
+| **摘要** | 文章摘要，留空可由 AI 生成 |
+| **版权声明** | 是否在文末显示版权信息 |
+| **置顶** | 置顶该文章并设置置顶顺序 |
+| **发布状态** | 设为草稿或直接发布 |
+### 文章列表
+文章列表支持以下操作：
+- **按分类筛选**：选择分类快速过滤
+- **按年份筛选**：查看特定年份的文章
+- **搜索**：按标题搜索
+- **批量管理**：发布、撤回、删除
+文章的 URL 格式为 `/{分类 slug}/{文章 slug}`，例如 `/coding/my-first-post`。分类 slug 和文章 slug 共同决定了文章的唯一地址。
+### 置顶
+文章可以置顶，置顶的文章会排在列表最前面。置顶支持设置顺序（数字越大越靠前），多篇文章同时置顶时按顺序排列。
+### 相关文章
+在文章编辑面板中可以设置「相关文章」，为读者推荐关联内容。
+## 日记管理
+登录后台，进入「日记」页面。
+### 日记特有字段
+| 字段 | 说明 |
+|------|------|
+| **心情** | 记录写日记时的心情（如「开心」「思考」） |
+| **天气** | 记录天气情况 |
+| **专题** | 将日记归入一个专题 |
+| **密码保护** | 为单篇日记设置访问密码 |
+| **位置** | 记录写作地点（仅后台可见） |
+| **书签** | 标记为收藏日记 |
+### 日记 URL
+日记支持两种 URL 格式：
+- **NID 格式**：`/notes/{nid}`（自动递增的数字 ID）
+- **日期 + Slug 格式**：`/notes/2024/01/15/my-thoughts`（需要手动设置 slug）
+日记的 slug 不是必须的。如果你想使用 SEO 友好的 URL（日期 + slug 格式），需要在编辑时手动填写 slug。未设置 slug 的日记只能通过 NID 访问。AI Slug 回填功能可以为缺少 slug 的日记批量生成。
+### 专题
+日记可以归入「专题」。专题是一组相关日记的集合，类似于一个迷你系列。
+在后台「专题」页面中可以管理专题：
+- 创建专题（名称、Slug、介绍、图标）
+- 编辑和删除专题
+- 在日记编辑时选择归属专题
+### 密码保护
+为日记设置密码后，访客需要输入密码才能查看内容。后台管理视图中可以直接查看，不受密码限制。
+## 页面管理
+登录后台，进入「页面」页面。
+页面是独立的内容单元，通常用于「关于」「友链」「项目」等不归属于分类的固定页面。
+### 页面字段
+| 字段 | 说明 |
+|------|------|
+| **标题** | 页面标题 |
+| **副标题** | 页面副标题 |
+| **Slug** | URL 路径（如 `about` → `/about`） |
+| **排序** | 数字越大排序越靠前 |
+| **正文** | 页面内容 |
+## 分类管理
+在后台「分类」页面中管理文章分类。
+每个分类包含：
+| 字段 | 说明 |
+|------|------|
+| **名称** | 分类名称 |
+| **Slug** | URL 路径片段 |
+| **类型** | 分类（Category）或标签（Tag） |
+删除分类不会删除该分类下的文章，但文章将失去分类归属。建议在删除前先迁移文章到其他分类。
+## 内容格式
+Mix Space 支持两种内容编辑格式：
+| 格式 | 说明 |
+|------|------|
+| **Markdown** | 标准 Markdown 语法，适合习惯纯文本写作的用户 |
+| **Lexical 富文本** | 可视化富文本编辑器，支持拖拽排版、嵌入等高级功能 |
+你可以在后台设置中配置默认使用哪种格式，也可以在编辑时切换。
+## 草稿功能
+编辑器会自动保存草稿，防止意外丢失内容。草稿功能包括：
+- **自动保存**：编辑过程中定时保存
+- **草稿恢复**：打开文章编辑时，如果有未提交的草稿会提示恢复
+- **草稿列表**：在编辑器中查看所有草稿
+## 定时发布
+文章和日记都支持定时发布：在编辑面板中设置 `publicAt` 字段为未来的某个时间，内容将在指定时间自动发布。
+在此之前，内容保持草稿状态，前台不可见。
+
+================================================================================
+## 评论管理
+Path: /docs/use/comments
+================================================================================
+
+Mix Space 提供了完整的评论系统，支持访客留言、登录读者评论、站长回复，以及多层嵌套讨论。你可以在后台对评论进行审核、置顶、标记垃圾等操作，也可以借助 AI 自动审核来减轻管理负担。
+## 评论管理界面
+登录后台，进入「评论」页面。页面分为三个标签：
+| 标签 | 说明 |
+|------|------|
+| **待审** | 未读状态的新评论，需要你审阅 |
+| **已读** | 正常的已读评论 |
+| **垃圾** | 被标记为垃圾的评论 |
+### 常用操作
+| 操作 | 说明 |
+|------|------|
+| **标记已读 / 未读** | 切换评论的阅读状态 |
+| **标记垃圾** | 将评论标记为垃圾内容，前台不再展示 |
+| **置顶** | 将评论固定在该页面的最顶部（同页面仅一条置顶） |
+| **删除** | 软删除评论，内容替换为「该评论已删除」 |
+| **批量操作** | 勾选多条评论后批量修改状态或批量删除 |
+评论被标记为垃圾时，如果该评论附带图片，系统会自动删除这些图片文件（可在「评论图片上传」设置中关闭此行为）。
+## 评论配置
+进入后台「设定 → 评论设置」，可以配置以下选项：
+### 基本设置
+| 配置项 | 说明 |
+|--------|------|
+| **全站禁止评论** | 关闭全站评论功能，敏感时期专用 |
+| **允许未登录评论** | 开启后访客可以以游客身份评论；关闭后仅已登录读者和站长可以评论 |
+| **只展示已读评论** | 开启后，前台只展示已标记为已读的评论，未读和垃圾评论均不展示 |
+| **禁止非中文评论** | 过滤非中文字符的评论内容 |
+| **评论公开归属地** | 在评论旁显示评论者的 IP 归属地 |
+| **自定义屏蔽关键词** | 添加需要过滤的关键词列表 |
+| **自定义屏蔽 IP** | 添加需要屏蔽的 IP 地址列表 |
+### 反垃圾评论
+打开「反垃圾评论」开关后，系统会自动检测并过滤垃圾评论。
+### AI 评论审核
+如果你已在「AI 设定」中配置了 LLM 服务商，可以开启 AI 评论审核：
+| 配置项 | 说明 |
+|--------|------|
+| **开启 AI 审核** | 启用后，评论提交时会自动进行 AI 内容安全检查 |
+| **AI 审核方式** | 「是非」模式（AI 直接判断是否为垃圾）或「评分」模式（AI 给出 1-10 风险评分） |
+| **AI 审核阈值** | 评分模式下，超过此阈值的评论被标记为垃圾（默认 5，范围 1-10） |
+| **测试 AI 审核** | 输入测试文本，验证 AI 审核功能是否正常 |
+AI 评论审核可以识别垃圾广告、人身攻击、仇恨言论、政治敏感、色情暴力、阴阳怪气等多种违规内容。
+## 评论图片上传
+读者在评论中上传图片的功能，需要在「设定 → 评论图片上传」中单独配置：
+| 配置项 | 说明 |
+|--------|------|
+| **启用读者评论图片上传** | 总开关，关闭后前端隐藏上传入口 |
+| **单图最大大小（MB）** | 默认 5 MB |
+| **单评论图片张数上限** | 默认 4 张 |
+| **单读者每小时上传上限** | 默认 10 次 |
+| **单读者活跃图总容量上限（MB）** | 默认 50 MB |
+| **读者账号最小年龄（小时）** | 准入门槛，0 表示不限 |
+| **读者最小已发评论数** | 准入门槛，0 表示不限 |
+| **评论标记 spam 时同步删图** | 默认开启，关闭则仅删评论保留图片 |
+| **MIME 白名单** | 默认 image/jpeg、image/png、image/webp、image/gif |
+评论图片有自动清理机制：上传后未被评论引用的图片会在设定时间后自动清除（默认 120 分钟），评论编辑后被移除的图片也会在设定时间后清除（默认 30 分钟）。
+## 评论排序
+前台评论支持三种排序方式：
+| 排序 | 说明 |
+|------|------|
+| **置顶优先** | 置顶评论在最前，其余按时间倒序（默认） |
+| **最新** | 按时间倒序 |
+| **最早** | 按时间正序 |
+## 悄悄话
+评论支持「悄悄话」模式，标记为悄悄话的评论仅站长可见，前台不展示给其他访客。
+
+================================================================================
+## 友链管理
+Path: /docs/use/friends
+================================================================================
+
+友情链接（友链）是博客之间互相推荐的方式。Mix Space 支持完整的友链管理流程：添加、审核、健康检查、自动头像转内链。
+## 管理友链
+登录后台，进入「友链」页面。你可以：
+| 操作 | 说明 |
+|------|------|
+| **新增友链** | 点击右上角「+」，填写友链信息后保存 |
+| **编辑友链** | 点击友链条目进入编辑 |
+| **删除友链** | 删除不再需要的友链 |
+| **审核友链申请** | 在「审核中」标签页查看并审批申请 |
+### 友链状态
+| 状态 | 说明 |
+|------|------|
+| 已通过 | 正常展示在友链列表中 |
+| 审核中 | 等待站长审批的友链申请 |
+| 已过期 | 友链已过期 |
+| 已屏蔽 | 被手动屏蔽的友链 |
+| 已拒绝 | 审核未通过的友链 |
+### 友链类型
+| 类型 | 说明 |
+|------|------|
+| **友链（Friend）** | 普通友情链接 |
+| **收藏（Collection）** | 收藏的站点链接 |
+## 友链申请
+如果开启了友链申请功能，访客可以通过前端页面提交友链申请。
+### 开启友链申请
+进入后台「设定 → 友链设定」，打开「允许申请友链」开关。
+### 申请流程
+### 访客提交申请
+访客在前端友链页面填写站点名称、URL、头像、描述和邮箱（可选），提交申请。
+### 站长收到通知
+系统会通过邮件（如已配置）通知站长有新的友链申请。
+### 站长审批
+在后台「友链」页面的「审核中」标签查看申请：
+- 点击「通过」审批友链
+- 点击「拒绝」可填写拒绝理由，系统会通过邮件发送给申请者
+审核通过后，系统会自动通过邮件通知申请者（前提是申请者填写了邮箱且邮件服务已配置）。
+## 友链配置项
+进入后台「设定 → 友链设定」：
+| 配置项 | 说明 |
+|--------|------|
+| **允许申请友链** | 开启后前端展示友链申请入口 |
+| **允许子路径友链** | 允许申请子路径形式的友链（如 `example.com/blog`） |
+| **友链头像转内链** | 审核通过后自动下载友链头像到本地，避免外部头像加载失败 |
+### 头像转内链
+打开「友链头像转内链」后，当友链审核通过时，系统会自动下载该友链的头像文件并存储到本地。这样即使原始头像链接失效，你的友链页面仍然可以正常显示头像。
+头像转内链仅支持常见图片格式（JPEG、PNG、WebP、GIF 等），其他格式的头像不会被转换。
+## 友链健康检查
+在后台友链页面，点击「健康检查」按钮，系统会批量检测所有已通过友链的可达性。不可达的友链会被标记，方便你及时清理失效链接。
+## 头像批量迁移
+如果你在后期才开启头像转内链功能，已有友链的头像仍然是外部链接。在友链页面点击「迁移头像」按钮，可以批量将所有已通过友链的外部头像下载到本地。
+
+================================================================================
+## 说说管理
+Path: /docs/use/says
+================================================================================
+
+「说说」是 Mix Space 中一种轻量级的内容类型，适合发布碎片化的想法、一句话感悟、状态更新等短内容。类似微博或 Twitter 的一条推文。
+## 管理说说
+登录后台，进入「说说」页面。
+### 发布说说
+1. 点击右上角「+」新建
+2. 填写以下字段：
+| 字段 | 说明 |
+|------|------|
+| **内容** | 说说正文（必填） |
+| **来源** | 发布来源（如「网页」「iPhone」） |
+| **作者** | 引用他人的话时填写原作者 |
+3. 点击保存即可发布
+### 编辑和删除
+在说说列表中，点击条目可以编辑内容，点击删除按钮可以移除说说。
+说说内容会实时推送到前端主题。如果你的主题支持说说模块，说说会以时间线的形式展示。
+## 随机说说 API
+系统提供了一条随机说说的 API 接口，前端主题可以使用这个接口在页面中随机展示一条说说，增加页面的趣味性。
+## 与其他功能的联动
+- **订阅推送**：如果开启了读者订阅，新说说发布时可以通知订阅者
+- **Webhook**：说说创建、更新、删除都会触发对应的 Webhook 事件
+- **实时推送**：说说发布后通过 WebSocket 实时推送到在线用户
+
+================================================================================
+## 项目展示
+Path: /docs/use/projects
+================================================================================
+
+Mix Space 内置了项目展示功能，你可以在后台管理自己的项目信息，前端主题会将这些项目以卡片等形式展示出来。
+## 管理项目
+登录后台，进入「项目管理」页面。
+### 添加项目
+点击右上角「+」，填写项目信息：
+| 字段 | 说明 |
+|------|------|
+| **名称** | 项目名称（必填，唯一） |
+| **描述** | 项目简介（必填） |
+| **详情** | 项目的详细介绍（支持 Markdown） |
+| **预览地址** | 项目在线预览 URL |
+| **文档地址** | 项目文档 URL |
+| **项目地址** | 项目源码仓库 URL |
+| **头像** | 项目图标或 Logo URL |
+| **截图** | 项目截图 URL 列表 |
+### 编辑和删除
+在项目列表中可以编辑已有项目或删除不再需要项目。
+所有 URL 字段都需要填写完整的 HTTP/HTTPS 地址。
+## 前端展示
+项目数据通过 API 提供给前端主题。不同主题的展示方式可能不同，常见的展示形式包括：
+- 项目卡片网格
+- 带截图的项目详情页
+- 按时间排列的项目列表
+具体展示效果取决于你使用的前端主题。
+
+================================================================================
+## 文件管理
+Path: /docs/use/files
+================================================================================
+
+Mix Space 后台提供了文件管理功能，支持图片、图标、头像和普通文件的上传、浏览与管理。
+## 文件管理界面
+登录后台，进入「文件」页面。页面分为以下标签：
+| 标签 | 说明 |
+|------|------|
+| **图标** | 站点使用的图标文件 |
+| **头像** | 用户头像文件 |
+| **图片** | 文章和内容中使用的一般图片 |
+| **文件** | 其他普通文件 |
+### 文件操作
+| 操作 | 说明 |
+|------|------|
+| **上传** | 拖拽或点击上传文件，支持批量上传 |
+| **复制链接** | 复制文件的 URL 地址 |
+| **在新标签页打开** | 预览文件 |
+| **删除** | 删除不需要的文件 |
+在编辑器中粘贴或拖拽图片时，文件会自动上传到「图片」分类中。
+## 评论图片管理
+在文件管理页面的「评论图片」标签中，可以查看和管理读者在评论中上传的图片：
+- 按评论归属查看图片
+- 删除不当图片
+- 查看孤立图片（未被引用的图片）
+孤立图片会在设定时间后被系统自动清理。
+## 文件上传配置
+进入后台「设定 → 文件上传设定」，可以自定义文件命名和存储规则：
+| 配置项 | 说明 |
+|--------|------|
+| **启用自定义文件命名** | 开启后使用下方定义的命名模板 |
+| **文件名模板** | 定义上传文件的命名规则 |
+| **文件路径模板** | 定义文件的存储路径规则 |
+### 占位符
+文件名和路径模板支持以下占位符：
+| 占位符 | 说明 |
+|--------|------|
+| `{Y}` | 年份（4 位） |
+| `{y}` | 年份（2 位） |
+| `{m}` | 月份 |
+| `{d}` | 日期 |
+| `{h}` | 小时 |
+| `{i}` | 分钟 |
+| `{s}` | 秒 |
+| `{ms}` | 毫秒 |
+| `{timestamp}` | Unix 时间戳 |
+| `{md5}` | 随机 MD5（32 位） |
+| `{md5-16}` | 随机 MD5（16 位） |
+| `{uuid}` | UUID |
+| `{str-N}` | N 位随机字符串 |
+| `{filename}` | 原文件名（含扩展名） |
+| `{name}` | 原文件名（不含扩展名） |
+| `{ext}` | 扩展名 |
+路径模板额外支持 `{type}`（文件类型）和 `{localFolder:N}`（原文件所在文件夹层级）。
+### 示例
+- 文件名模板：`{Y}/{m}/{md5}.{ext}` → 上传后路径为 `2024/01/abc123def456.jpg`
+- 路径模板：`images/{type}/{Y}{m}{d}/{md5-16}.{ext}` → 按类型和日期分目录存储
+修改文件命名模板后，仅对新上传的文件生效。已上传的文件不会自动重命名。
+
+================================================================================
+## 站点统计与分析
+Path: /docs/use/analytics
+================================================================================
+
+Mix Space 内置了站点统计功能，你可以在后台查看访问量、独立访客、流量来源、热门路径等数据，无需集成第三方统计服务。
+## 统计概览
+登录后台，首页（仪表盘）即展示关键数据概览：
+| 指标 | 说明 |
+|------|------|
+| **文章数** | 已发布的文章总数 |
+| **日记数** | 已发布的日记总数 |
+| **评论数** | 评论总数 |
+| **友链数** | 已通过的友链总数 |
+| **在线人数** | 当前 WebSocket 在线连接数 |
+| **总阅读量** | 所有内容的阅读计数 |
+| **总点赞数** | 所有内容的点赞计数 |
+## 详细分析
+进入后台「分析」页面，可以查看更详细的统计数据。
+### 访问趋势
+| 视图 | 说明 |
+|------|------|
+| **今日** | 按小时展示今天的 IP 和 PV 数据 |
+| **本周** | 按周几展示近 7 天的 IP 和 PV |
+| **本月** | 按日期展示近 30 天的 IP 和 PV |
+### 热门路径
+展示访问量最高的页面路径列表，帮助你了解哪些内容最受欢迎。
+### 流量来源
+展示访客的来源渠道分布（搜索引擎、直接访问、外部链接等）。
+### 设备分布
+展示访客使用的设备类型和浏览器分布。
+## 评论活动
+分析页面还展示评论活动趋势图，可以看到评论数量的时间变化。
+## 数据管理
+在分析页面中，你可以：
+- **按时间范围查询**：选择起止日期查看特定时间段的数据
+- **查看今日/本周数据**：快速切换到常用时间范围
+- **清除历史数据**：按时间范围清除分析数据
+分析数据存储在 Redis 中，具有缓存机制。聚合数据缓存约 1 分钟，流量来源和设备分布数据缓存约 5 分钟。
+
+================================================================================
+## AI 功能
+Path: /docs/use/ai-features
+================================================================================
+
+Mix Space 内置了一套完整的 AI 功能体系，覆盖内容创作、管理、分发全流程。你只需配置一个 LLM 服务商即可启用。
+AI 功能需要后台「设定 → AI 设定」中配置至少一个 Provider 并启用对应功能开关。详见下方 [配置 AI Provider](#配置-ai-provider)。
+## 功能总览
+| 功能 | 说明 | 触发方式 |
+|------|------|----------|
+| **AI 摘要** | 自动生成文章摘要，支持多语言 | 手动 / 自动（发布/更新时） |
+| **AI 精读** | 生成深度阅读伴侣（TL;DR、结构图、Mermaid 图、引用锚点） | 手动 / 自动（发布/更新时） |
+| **AI 翻译** | 将文章翻译为多语言版本，保持 Markdown/Lexical 格式完整 | 手动 / 自动（发布/更新时） |
+| **写作助手** | 自动生成标题和 SEO slug，批量回填历史文章 slug | 编辑器内手动 |
+| **评论审核** | AI 自动识别垃圾评论和有害内容 | 自动（评论提交时） |
+| **AI Agent** | 在编辑器中与 AI 对话，辅助写作和修改 | 编辑器内手动 |
+| **任务队列** | 统一管理所有 AI 后台任务的创建、进度和重试 | 后台 AI 页面 |
+## 配置 AI Provider
+### 进入设置页面
+登录后台，前往「设定 → AI 设定」。
+### 添加 Provider
+点击「添加 Provider」，填写以下信息：
+| 字段 | 说明 | 示例 |
+|------|------|------|
+| Provider ID | 唯一标识符 | `openai-main`、`deepseek` |
+| 显示名称 | 便于识别的名称 | `OpenAI`、`DeepSeek` |
+| Provider 类型 | 服务商类型 | OpenAI / OpenAI-Compatible / Anthropic / OpenRouter |
+| API Key | 你的 API 密钥 | `sk-...` |
+| 自定义 Endpoint | OpenAI-Compatible 类型必填 | `https://api.deepseek.com` |
+| 默认模型 | 该 Provider 默认使用的模型 | `gpt-4o`、`deepseek-chat` |
+### 为各功能分配模型（可选）
+在 Provider 列表下方，可以为摘要、写作、翻译、精读等功能分别指定使用哪个 Provider 和模型。留空则使用第一个启用的 Provider 及其默认模型。
+### 测试连接
+配置完成后，点击 Provider 旁的「测试」按钮，验证 API Key 和 Endpoint 是否正确。
+你可以同时配置多个 Provider，并将不同的 AI 功能分配给不同的 Provider。例如用 DeepSeek 做翻译（成本低），用 OpenAI 做精读（效果好）。
+## AI 摘要
+AI 摘要可以为你的文章自动生成简短的内容概要，支持多语言输出。
+### 开启摘要
+在「设定 → AI 设定」中：
+1. 打开「可调用 AI 摘要」开关
+2. 设置「AI 摘要目标语言列表」（使用 [ISO 639-1 语言代码](https://www.w3schools.com/tags/ref_language_codes.asp)，如 `zh`、`en`、`ja`）
+3. 可选：打开「文章创建时自动生成摘要」和「文章更新时重新生成摘要」
+4. 可选：设置「摘要自动生成最小文本长度」（低于此字符数的文章跳过自动生成）
+### 手动生成摘要
+进入后台「AI → 摘要」页面，选择文章后点击生成。也可以在文章编辑器中通过侧边栏触发。
+### 摘要管理
+在「AI → 摘要」页面中，你可以：
+- 按文章分组查看所有摘要
+- 编辑已生成的摘要文本
+- 删除不需要的摘要
+- 查看摘要对应的原文信息
+## AI 精读（Insights）
+AI 精读是比摘要更深入的内容分析功能。它会生成一篇「深度阅读伴侣」，包含 TL;DR、结构化大纲、Mermaid 图表、引用锚点回原文、开放性问题等内容，帮助读者更好地理解文章。
+### 开启精读
+在「设定 → AI 设定」中：
+1. 打开「可调用 AI Insights」开关
+2. 可选：打开「文章创建时自动生成 Insights」和「文章更新时重新生成 Insights」
+3. 可选：设置「Insights 目标语言列表」用于精读内容的多语言翻译
+4. 可选：打开「Insights 生成后自动翻译」
+5. 可选：设置「Insights 自动生成最小文本长度」
+### 精读内容包含什么
+精读根据文章类型自动选择 3-7 个组件进行生成，可能包含：
+| 组件 | 说明 |
+|------|------|
+| TL;DR | 1-3 句话概括核心观点 |
+| 结构图 / 时间线 | 文章的逻辑结构或事件时序 |
+| Mermaid 图表 | 架构图、流程图、因果链等可视化 |
+| 关键概念 | 术语表或背景知识卡片 |
+| 引用锚点 | 精读中的关键论点锚定回原文位置 |
+| 反论与盲点 | 指出作者未涉及的视角 |
+| 开放性问题 | 值得读者进一步思考的问题 |
+### 精读翻译
+精读内容也支持多语言翻译。设置「Insights 目标语言列表」后，可以在精读页面手动触发翻译，或开启自动翻译。
+## AI 翻译
+AI 翻译可以将你的文章完整翻译为多语言版本，保持 Markdown 格式、代码块、链接等技术元素不变，同时保持翻译一致性。
+### 开启翻译
+在「设定 → AI 设定」中：
+1. 打开「可调用 AI 翻译」开关
+2. 设置「AI 翻译目标语言列表」（如 `en`、`ja`、`ko`）
+3. 可选：打开「开启 AI 翻译自动生成」（文章发布后自动翻译）
+### 翻译特性
+- **双策略支持**：Markdown 文章和 Lexical 富文本文章分别使用对应的翻译策略，确保格式完整保留
+- **翻译词表**：系统自动维护分类名称、话题名称、心情、天气等短文本的翻译一致性
+- **多语言批量翻译**：可以一次为多篇文章生成多语言翻译
+- **全量翻译**：支持一键为所有已有文章生成翻译
+### 手动翻译操作
+进入后台「AI → 翻译」页面：
+- 选择文章，点击「翻译」
+- 选择目标语言后开始生成
+- 生成完成后可查看、编辑、删除翻译
+### 翻译词表
+进入「AI → 翻译词表」页面，可以查看和管理系统自动维护的翻译词表。词表用于确保分类、话题、心情、天气等短文本在不同文章间翻译一致。
+支持的管理操作：
+- 按类型（分类名、话题名、心情、天气）筛选查看
+- 手动编辑翻译结果
+- 批量重新生成
+## 写作助手
+写作助手在编辑器中为你提供 AI 辅助。
+### 标题和 Slug 生成
+在编辑器中撰写完内容后，可以使用 AI 自动生成：
+- **标题**：根据文章内容生成一个合适的标题
+- **Slug**：生成 SEO 友好的英文 URL 路径
+确保在 AI 设定中配置了写作助手模型（Writer Model），或在编辑器的 AI 面板中选择了可用的 Provider。
+### Slug 批量回填
+如果你有历史文章缺少 slug，可以使用「AI → Slug 回填」功能：
+1. 进入后台「AI → Slug 回填」页面
+2. 查看缺少 slug 的日记条目数量
+3. 点击「开始回填」，系统会为所有缺少 slug 的日记自动生成 SEO slug
+## 评论审核
+AI 评论审核功能会在读者提交评论时自动进行内容安全检查。
+### 配置评论审核
+在后台「设定 → 评论设置」中：
+1. 打开「开启 AI 审核」开关
+2. 选择审核方式：
+   - **是非模式（Binary）**：AI 判断评论是否为垃圾内容
+   - **评分模式（Score）**：AI 给出风险评分（1-10），超过阈值则判定为垃圾
+3. 如果使用评分模式，设置阈值（默认 5，范围 1-10）
+4. 点击「测试 AI 审核」验证功能
+### 检测能力
+AI 评论审核可以识别以下类型的违规内容：
+- 垃圾评论、广告、诈骗
+- 人身攻击、网络霸凌
+- 仇恨言论和歧视
+- 政治敏感、色情、暴力内容
+- 阴阳怪气和隐性攻击
+- 无意义测试内容
+## AI Agent（编辑器内对话）
+AI Agent 允许你在编辑器中直接与 AI 对话，辅助写作和内容修改。
+### 使用方式
+在文章编辑器中，打开右侧的 AI Agent 面板：
+1. 选择一个已配置的 Provider 和模型
+2. 在对话框中输入指令，如「帮我润色这段文字」「把这段改成更口语化的风格」
+3. AI 的回复可以应用到编辑器中
+AI Agent 对话历史会自动保存，你可以在同一篇文章中随时继续之前的对话。
+## 任务队列
+所有 AI 后台任务通过统一的任务队列管理，你可以在「AI → 任务」页面查看和管理。
+### 任务类型
+| 任务类型 | 说明 |
+|----------|------|
+| 摘要生成 | 为单篇文章生成摘要 |
+| 翻译生成 | 为单篇文章生成翻译 |
+| 批量翻译 | 为多篇文章批量生成翻译 |
+| 全量翻译 | 为所有文章生成翻译 |
+| 精读生成 | 为单篇文章生成精读 |
+| 精读翻译 | 翻译已生成的精读内容 |
+| Slug 回填 | 为历史日记批量生成 slug |
+### 任务状态
+| 状态 | 说明 |
+|------|------|
+| Pending | 等待执行 |
+| Running | 正在执行 |
+| Completed | 执行完成 |
+| Partial Failed | 部分子任务失败 |
+| Failed | 执行失败 |
+| Cancelled | 已取消 |
+### 任务管理
+在任务页面中，你可以：
+- 按状态和类型筛选任务
+- 查看任务详情（进度、日志、耗时）
+- 重试失败的任务
+- 取消正在运行的任务
+- 批量清理历史任务
+批量翻译任务会自动分组，你可以在任务列表中展开查看每个子任务的状态。
+
+================================================================================
+## Webhook 与事件通知
+Path: /docs/use/webhook
+================================================================================
+
+Webhook 可以将 Mix Space 中发生的事件（如发布文章、收到评论等）实时推送到你指定的外部服务。常见的用途包括：通知到 Telegram/微信、触发 CI/CD 构建、同步到第三方平台等。
+## 创建 Webhook
+### 进入 Webhook 管理页面
+登录后台，进入「其他 → Webhook」。
+### 点击新建
+填写以下信息：
+| 字段 | 说明 |
+|------|------|
+| **Payload URL** | 接收推送的 URL 地址 |
+| **Secret** | 签名密钥，用于验证推送来源 |
+| **事件** | 勾选你关注的事件类型 |
+| **启用** | 是否启用此 Webhook |
+| **作用域** | 选择接收推送的范围（访客/管理员/系统） |
+### 保存并测试
+保存后，当勾选的事件发生时，系统会向 Payload URL 发送 HTTP POST 请求。
+## 支持的事件
+| 事件 | 说明 |
+|------|------|
+| `POST_CREATE` | 文章创建 |
+| `POST_UPDATE` | 文章更新 |
+| `POST_DELETE` | 文章删除 |
+| `NOTE_CREATE` | 日记创建 |
+| `NOTE_UPDATE` | 日记更新 |
+| `NOTE_DELETE` | 日记删除 |
+| `PAGE_CREATE` | 页面创建 |
+| `PAGE_UPDATE` | 页面更新 |
+| `PAGE_DELETE` | 页面删除 |
+| `COMMENT_CREATE` | 评论创建 |
+| `COMMENT_DELETE` | 评论删除 |
+| `COMMENT_UPDATE` | 评论更新 |
+| `SAY_CREATE` | 说说创建 |
+| `SAY_UPDATE` | 说说更新 |
+| `SAY_DELETE` | 说说删除 |
+| `CATEGORY_CREATE` | 分类创建 |
+| `CATEGORY_UPDATE` | 分类更新 |
+| `CATEGORY_DELETE` | 分类删除 |
+| `TOPIC_CREATE` | 专题创建 |
+| `TOPIC_UPDATE` | 专题更新 |
+| `TOPIC_DELETE` | 专题删除 |
+| `LINK_APPLY` | 友链申请 |
+| `RECENTLY_CREATE` | 速记创建 |
+| `RECENTLY_UPDATE` | 速记更新 |
+| `RECENTLY_DELETE` | 速记删除 |
+| `TRANSLATION_CREATE` | AI 翻译创建 |
+| `TRANSLATION_UPDATE` | AI 翻译更新 |
+| `INSIGHTS_CREATE` | AI 精读创建 |
+| `INSIGHTS_UPDATE` | AI 精读更新 |
+## 作用域说明
+Webhook 可以选择不同的推送作用域：
+| 作用域 | 说明 |
+|--------|------|
+| **访客** | 仅推送面向访客的事件 |
+| **管理员** | 仅推送面向管理员的事件 |
+| **系统** | 仅推送系统级别的事件 |
+| **全选** | 推送所有事件 |
+合理选择作用域可以减少不必要的推送请求。例如，如果你想将评论通知推送到 Telegram，选择「访客」作用域即可。
+## 管理推送记录
+在 Webhook 列表中点击某个 Webhook，可以查看该 Webhook 的推送记录：
+- **推送状态**：成功或失败
+- **HTTP 状态码**：目标服务返回的状态码
+- **请求头和请求体**：完整的推送内容
+- **响应内容**：目标服务的返回数据
+### 重试推送
+对于推送失败的记录，可以点击「重新推送」按钮手动重试。
+### 清除记录
+点击「清除记录」可以删除该 Webhook 的所有历史推送记录。
+
+================================================================================
+## 邮件与订阅
+Path: /docs/use/mail-subscribe
+================================================================================
+
+Mix Space 支持邮件通知和读者订阅功能。配置邮件服务后，系统可以在友链申请、评论通知等场景发送邮件，读者也可以订阅你的内容更新。
+## 邮件服务配置
+### 前置条件
+你需要一个邮件发送服务。Mix Space 支持两种邮件服务：
+| 服务 | 说明 |
+|------|------|
+| **SMTP** | 传统 SMTP 邮件发送，适用于大多数邮件服务商（Gmail、QQ 邮箱、阿里企业邮等） |
+| **Resend** | 现代邮件 API 服务，配置简单，适合开发者 |
+### 配置步骤
+### 进入邮件设置
+登录后台，前往「设定 → 邮件通知设置」。
+### 开启邮件提醒
+打开「开启邮箱提醒」开关。
+### 选择邮件服务
+在「邮件服务」下拉框中选择 SMTP 或 Resend。
+### 填写配置
+**SMTP 方式：**
+| 字段 | 说明 |
+|------|------|
+| SMTP 用户名 | 邮箱账号 |
+| SMTP 密码 | 邮箱密码或应用专用密码 |
+| SMTP 主机 | SMTP 服务器地址（如 `smtp.gmail.com`） |
+| SMTP 端口 | 端口号（如 `465`） |
+| 使用 SSL/TLS | 是否启用加密连接 |
+| 发件邮箱地址 | 发件人邮箱，不填则使用 SMTP 用户名 |
+**Resend 方式：**
+| 字段 | 说明 |
+|------|------|
+| Resend API Key | 在 [resend.com](https://resend.com) 获取的 API 密钥 |
+| 发件邮箱地址 | Resend 中验证的发件域名邮箱（必填） |
+### 高级设置（可选）
+| 配置项 | 说明 |
+|--------|------|
+| **发送速率限制** | 每秒最大发送次数，默认 10 |
+| **发送失败重试次数** | 最大重试次数，默认 3 |
+使用 SMTP 时，部分邮件服务商（如 Gmail）需要开启「应用专用密码」或「不太安全的应用访问」才能正常发送。建议使用 Resend 等专业邮件 API 服务。
+## 读者订阅
+开启订阅功能后，读者可以通过邮箱订阅你的内容更新。当发布新文章或日记时，系统会自动向订阅者发送邮件通知。
+### 开启订阅
+进入后台「设定 → 特征开关设定」，打开「开启邮件推送订阅」开关。
+订阅功能依赖邮件服务。请先完成邮件服务配置，否则订阅邮件无法发送。
+### 订阅类型
+读者可以选择订阅以下内容类型：
+| 类型 | 说明 |
+|------|------|
+| **博文** | 新文章发布时通知 |
+| **手记** | 新日记发布时通知 |
+| **速记** | 新速记发布时通知 |
+| **说说** | 新说说发布时通知 |
+### 管理订阅者
+登录后台，进入「其他 → 订阅」页面，可以查看所有订阅者：
+- 查看订阅者的邮箱、订阅类型和订阅时间
+- 按类型筛选订阅者
+- 手动取消订阅者的订阅
+- 批量取消订阅
+### 取消订阅
+读者可以在收到的邮件中点击取消订阅链接，你也可以在后台管理页面手动为读者取消订阅。
+## 其他通知方式
+除了邮件，Mix Space 还支持 **Bark 推送通知**（iOS）。在「设定 → Bark 通知设定」中配置：
+| 配置项 | 说明 |
+|--------|------|
+| **开启 Bark 通知** | 启用 Bark 推送 |
+| **设备 Key** | Bark App 中的设备推送 Key |
+| **服务器 URL** | 自定义 Bark 服务器地址，不填则使用默认 `https://day.app` |
+| **开启评论通知** | 收到新评论时推送 |
+| **开启请求被限流时通知** | 可以在一定程度上预警被攻击 |
+
+================================================================================
+## 云函数与 Snippet
+Path: /docs/use/serverless
+================================================================================
+
+Snippet 是 Mix Space 的扩展机制。每个 Snippet 是一段可配置的代码片段，可以为你的站点添加自定义数据接口、动态路由、前端脚本注入等能力。
+## 功能总览
+| 类型 | 说明 | 典型用途 |
+|------|------|----------|
+| **JSON / JSON5** | 结构化数据片段 | 配置数据、映射表 |
+| **Text** | 纯文本片段 | 公告、自定义 HTML |
+| **YAML** | YAML 数据片段 | 结构化配置 |
+| **Function** | 可执行函数 | 云函数 API、自定义路由 |
+Function 类型的 Snippet 就是你常听到的「云函数」。它是 Snippet 系统的一个子集，拥有最强大的扩展能力。
+## 管理云函数 / Snippet
+登录后台，进入「其他 → 云函数」页面。
+### 导入社区云函数
+### 点击「下载拓展包」
+在页面右上方点击「下载拓展包」按钮，弹出社区云函数列表。
+### 选择并导入
+在弹窗中找到对应主题的云函数代码，点击「导入」。
+### 确认启用
+导入后在管理页面确认 Snippet 已启用。Function 类型的 Snippet 需要手动开启「启用」开关。
+社区收录的云函数 Snippets 可以在 GitHub 查看：
+### 手动创建 Snippet
+1. 点击右上角「+」新建
+2. 填写以下信息：
+| 字段 | 说明 |
+|------|------|
+| **名称** | Snippet 名称（英文、数字、下划线，不超过 30 字符） |
+| **类型** | JSON / JSON5 / Text / YAML / Function |
+| **分组** | 用于组织 Snippet（Reference 字段） |
+| **内容** | Snippet 的实际代码 |
+| **备注** | 可选，备注说明 |
+| **私有** | 勾选后仅管理员可访问 |
+Function 类型额外支持：
+| 字段 | 说明 |
+|------|------|
+| **自定义路径** | 绑定一个 URL 路径，如 `my-api` → `/s/my-api` |
+| **HTTP 方法** | GET / POST / PUT / DELETE / PATCH / ALL |
+| **启用** | 是否启用此函数 |
+| **密钥** | 加密的配置项（如 API Key），存储时自动加密 |
+### 分组管理
+Snippet 按分组（Reference）组织。管理页面左侧显示分组列表，点击分组展开查看其中的 Snippet。你可以：
+- 展开折叠分组
+- 按 Reference 筛选
+- 查看每个分组的 Snippet 数量
+## Function 类型（云函数）
+Function 类型是最强大的 Snippet，它是一段可以在服务器端执行的 JavaScript 函数。
+### 自定义路由
+设置「自定义路径」后，你可以通过 `/s/{自定义路径}` 访问此函数的执行结果。例如：
+- 自定义路径 `bili-followings` → 访问 `/s/bili-followings` 获取哔哩哔哩关注列表
+- 自定义路径 `bangumi` → 访问 `/s/bangumi` 获取追番数据
+函数支持指定 HTTP 方法（GET、POST 等），也可以选择 ALL 匹配所有方法。
+Function 类型 Snippet 有请求限流（每 5 秒 100 次），高频调用场景请注意缓存。
+### 函数日志
+Function 类型 Snippet 的执行日志可以在管理页面查看。点击「日志」按钮可以查看函数的运行输出，方便调试。
+### 安装依赖
+Function 类型支持安装 npm 依赖包。在管理页面中：
+- 点击「安装依赖」按钮添加需要的 npm 包
+- 点击「更新依赖」更新已安装的包
+### 密钥管理
+函数中可能需要用到 API Key 等敏感信息。使用「密钥」字段存储，系统会自动加密。在函数代码中可以通过注入的上下文访问。
+## 数据类型 Snippet 的访问方式
+非 Function 类型的 Snippet 可以通过以下方式访问：
+| 访问方式 | URL 格式 |
+|----------|----------|
+| 按名称和分组 | `/api/v2/snippets/{reference}/{name}` |
+| 按自定义路径 | `/s/{customPath}`（需要设置自定义路径） |
+- **公开（Public）** Snippet 所有人可访问
+- **私有（Private）** Snippet 仅管理员登录后可访问
+## 前端主题集成
+许多前端主题依赖 Snippet 提供数据。常见用法：
+- Shiro 主题使用云函数提供哔哩哔哩追番、最近听歌等模块
+- 自定义 CSS/JS 注入到前端页面
+- 提供导航栏配置、社交链接等结构化数据
+具体需要导入哪些 Snippet，请参考你使用的前端主题文档。
+## 开发者文档
+如需编写自定义 Function 类型 Snippet，请参考完整的开发者文档：
+
+================================================================================
+## 定时任务
+Path: /docs/use/cron-tasks
+================================================================================
+
+Mix Space 内置了一组定时任务，用于自动清理过期数据、推送搜索引擎、维护系统健康。你可以在后台查看这些任务的执行状态，也可以手动触发。
+## 管理入口
+登录后台，进入「维护 → 定时任务」页面。
+## 内置任务列表
+| 任务 | 说明 | 默认执行频率 |
+|------|------|-------------|
+| **清理访问记录** | 清理过期的访问分析记录 | 每月 1 日凌晨 |
+| **清理 IP 访问记录** | 重置 IP 访问计数 | 每日凌晨 |
+| **清理喜欢数** | 重置文章的点赞和阅读计数缓存 | 每日凌晨 |
+| **清理临时文件** | 删除临时目录中的过期文件 | 每日凌晨 3 点 |
+| **推送百度搜索** | 将新内容推送到百度搜索引擎 | 每日凌晨 1 点 |
+| **推送 Bing 搜索** | 将新内容推送到 Bing 搜索引擎 | 每日凌晨 1 点 |
+| **删除过期 JWT** | 清理数据库中过期的 JWT 令牌 | 每日凌晨 1 点 |
+| **重建搜索索引** | 重建 Algolia 等搜索服务的索引 | 每日凌晨 4 点 |
+| **清理评论图片上传** | 清理未被引用和过期的评论图片 | 每 15 分钟 |
+搜索引擎推送任务（百度、Bing）需要先在「设定」中配置对应的 Token / API 密钥并开启推送，否则任务不会实际推送数据。
+## 任务状态
+| 状态 | 说明 |
+|------|------|
+| 等待中 | 任务已创建，等待执行 |
+| 执行中 | 任务正在运行 |
+| 已完成 | 任务执行成功 |
+| 部分失败 | 多步骤任务中有部分步骤失败 |
+| 失败 | 任务执行失败 |
+| 已取消 | 任务被手动取消 |
+## 手动触发
+在定时任务页面中，点击任务旁的「执行」按钮可以手动触发该任务。适用于：
+- 首次配置搜索引擎推送后，立即推送已有内容
+- 清理了大量垃圾评论后，手动清理评论图片
+- 搜索索引异常时，手动重建
+## 任务日志
+每个任务执行后会保留日志记录，包含：
+- 任务类型和执行时间
+- 执行结果（成功/失败）
+- 详细的执行输出
+- 失败时的错误信息
+对于失败的任务，可以点击「重试」按钮重新执行。
+## 清理历史任务
+在任务列表中，可以批量清理已完成的历史任务记录，保持列表整洁。
+
+================================================================================
+## 备份与恢复
+Path: /docs/use/backup-restore
+================================================================================
+
+## 手动备份
+在后台「其他 → 备份」中点击「立即备份」，系统会将数据打包为 zip 文件，保存到服务器的绝对目录：
+```
+~/mx-space/core/data/mx-space/backup/20xx-xx-xx_xx:xx:xx/backup-20xx-xx-xx_xx:xx:xx.zip
+```
+建议定期手动下载备份包到本地，以防服务器故障导致数据丢失。
+## 自动备份
+目前该功能仅支持备份到支持 S3 协议的云服务，暂不支持其他类型的云服务。当然，你也可以通过设置计划任务等方法达到和此功能一样的效果。
+设置入口：后台「设定 → 系统 → 备份」，填入云服务所提供的对应参数即可。
+## 恢复
+该操作涉及修改数据库，请多备份几个工作日的 backup，数据无价请谨慎操作！
+一般情况下回滚只会导致 analyze 数据页丢失 IP & PV 的数据。
+Linux 和 macOS 可直接上传备份包，并且无需修改包名一致即可回滚，以下操作仅针对使用 Windows 用户访问后端回滚的情况。
+在后台「其他 → 备份」中点击「立即备份」，将之前在电脑里的 `backup.zip` 上传到刚刚生成的备份目录里进行重命名替换。
+例：假如刚刚生成的备份是 `backup-2022-09-01_23:33:33.zip`，将想进行回滚的备份包 `backup-2022-01-14_05:14:19.zip` 修改为刚刚生成的备份一样的名字：
+```bash
+mv ~/mx-space/core/data/mx-space/backup/2022-01-14_05:14:19/backup-2022-01-14_05:14:19.zip backup-2022-09-01_23:33:33.zip
+```
+不要在 Windows 下重命名，Windows 不支持将英文冒号作为文件名的一部分。
+替换完成后会提示「数据库有变动，将在 x 秒后重载页面」，重载后请先检查文章、评论等有没有丢失。
+## 命令行备份（v12+）
+自 v12 起，Mix Space 使用 PostgreSQL 作为数据库。你可以直接使用 `pg_dump` 进行命令行备份：
+```bash
+pg_dump postgresql://mx:mx@localhost:5432/mx_core > backup.sql
+```
+恢复时执行：
+```bash
+psql postgresql://mx:mx@localhost:5432/mx_core < backup.sql
+```
+请根据实际情况修改连接字符串中的用户名、密码、主机和数据库名。
+
+================================================================================
+## 版本更新
+Path: /docs/use/update
+================================================================================
+
+Mix Space 分为前端和后端两个部分，因此更新的时候二者也需要分开更新。
+## 小版本更新（常规）
+根据部署方式的不同，更新方式也有所不同。
+### Docker 部署
+进入 core 所在文件夹，执行：
+```bash
+docker compose pull && docker compose up -d
+```
+### 源码部署
+进入克隆 core 的文件夹，执行 `git pull origin master` 拉取新版本源码，随后正常进行构建：
+```bash
+pnpm i
+pnpm build
+pnpm bundle
+```
+随后进入 `./apps/core`，执行以下命令启动服务：
+```bash
+pm2 start ecosystem.config.js
+```
+## 大版本更新
+v12 是一次重大升级，数据库从 MongoDB 迁移到 PostgreSQL。不能简单 `docker compose pull` 升级，请务必阅读专用升级指南。
+  <Card
+    title="v12 升级完整指南"
+    href="/docs/migrate/v11-to-v12"
+    icon={<AlertTriangle />}
+  />
+## 前端更新
+请根据自己所部署的主题跳转到对应的更新部分完成更新。
+  <Card
+    title="Shiro 更新"
+    href="/docs/themes/shiro/deploy/#更新主题"
+    icon={}
+    target="_blank"
+  />
+  <Card
+    title="Kami 更新"
+    href="/docs/themes/kami#更新指南"
+    icon={}
+    target="_blank"
+  />
+
+================================================================================
+## 常见问题
+Path: /docs/use/faq
+================================================================================
+
+## 部署相关
+### 忘记后台密码怎么办？
+如果你配置了 OAuth 登录（GitHub / Google），可以先通过第三方账号登录后台，再在「设定 → 个人信息」中修改密码。
+如果没有配置 OAuth，可以通过数据库直接修改密码字段来重置。
+### 如何修改网站标题和描述？
+登录后台，进入「设定 → SEO 优化」，修改网站标题和网站描述，保存后立即生效。
+### 后台地址是什么？
+默认后台地址为 `https://你的域名/proxy/qaqdmin`。如果开启了后台反代（「设定 → 后台附加设置」），也可以通过 API 地址直接访问。
+### 启动报错 `JWT_SECRET is required`
+JWT 密钥是必填项。在环境变量或 `docker-compose.yml` 中添加 `JWT_SECRET=你的随机字符串`（16-32 位）。
+### 启动报错 `SNOWFLAKE_WORKER_ID is required`
+单实例部署填 `SNOWFLAKE_WORKER_ID=1` 即可。
+## 内容相关
+### 文章的 URL 规则是什么？
+文章 URL 格式为 `/{分类 slug}/{文章 slug}`。分类 slug 和文章 slug 共同决定文章地址。例如分类 `coding` 下 slug 为 `hello-world` 的文章，URL 为 `/coding/hello-world`。
+### 如何为日记设置密码保护？
+在日记编辑面板中设置密码字段。设置后，访客需要输入密码才能查看日记内容。管理员在后台可以直接查看，不受限制。
+### 如何批量导入文章？
+在后台文章列表页面点击「导入」按钮，选择本地的 Markdown 文件。系统会自动解析 Frontmatter 中的标题、标签、分类等元数据。详见 [写作工作流](/docs/use/writing)。
+### 支持哪些编辑器格式？
+Mix Space 支持 **Markdown** 和 **Lexical 富文本**两种编辑格式。可以在编辑器中切换，也可以在设置中配置默认格式。
+## 图片与存储
+### 图片存在哪里？
+默认存储在服务器本地。你也可以配置 S3 兼容的对象存储（如 Cloudflare R2、AWS S3），详见 [图床与存储](/docs/configure/image-storage)。
+### 上传的图片 URL 格式是什么？
+- 本地存储：`/api/v2/static/{type}/{filename}`
+- S3 存储：`{自定义域名}/{前缀}/{filename}`
+自定义命名规则可以在「设定 → 文件上传设定」中配置。
+## 邮件与通知
+### 评论通知邮件不发送？
+请检查：
+1. 后台「设定 → 邮件通知设置」中是否开启了邮件提醒
+2. SMTP 配置是否正确（主机、端口、用户名、密码）
+3. 如果使用 Gmail，需要开启「应用专用密码」
+4. 服务器防火墙是否放行了 SMTP 端口（465/587）
+推荐使用 [Resend](https://resend.com) 等现代邮件 API 服务，配置更简单。
+### 如何推送到 Telegram / 微信？
+通过 Webhook 功能实现。在后台「其他 → Webhook」中创建一个 Webhook，Payload URL 填写你的通知服务地址，勾选关注的事件即可。详见 [Webhook 与事件通知](/docs/use/webhook)。
+## 数据库与迁移
+### 数据库可以迁移到另一台服务器吗？
+可以。推荐步骤：
+1. 在原服务器执行备份（后台备份或 `pg_dump`）
+2. 将备份文件传输到新服务器
+3. 在新服务器恢复数据并重启服务
+跨服务器迁移时，保持环境变量和配置一致，尤其是 `JWT_SECRET` 和加密密钥。
+### 如何从 MongoDB 迁移到 PostgreSQL？
+请参考 [v11 → v12 升级指南](/docs/migrate/v11-to-v12)。
+## 性能与优化
+### 站点访问速度慢？
+常见优化手段：
+1. **使用 CDN**：为静态资源和图片配置 CDN 加速
+2. **开启 S3 图床**：将图片托管到对象存储 + CDN
+3. **Redis 缓存**：确保 Redis 正常运行，Mix Space 大量依赖 Redis 缓存
+4. **反向代理优化**：开启 Nginx 的 gzip 压缩和静态文件缓存
+### Docker 容器占用内存过高？
+Mix Space 正常运行约需要 256-512MB 内存。如果内存占用异常，检查：
+- 是否有大量 AI 任务在后台运行
+- Redis 连接是否正常
+- 日志文件是否过大
+遇到文档中没有覆盖的问题？可以在 [GitHub Issues](https://github.com/mx-space/core/issues) 中搜索或提交新问题。
+
+================================================================================
+## 迁移概览
+Path: /docs/migrate/index
+================================================================================
+
+  <Card
+    icon={<ArrowUp />}
+    href={'/docs/migrate/v11-to-v12'}
+    title="v11 → v12 升级"
+  >
+    数据库从 MongoDB 迁移到 PostgreSQL 的完整指南
+
+  <Card
+    icon={<Globe />}
+    href={'/docs/migrate/from-wordpress'}
+    title="从 WordPress 迁移"
+  >
+    将 WordPress 内容导出并导入到 Mix Space
+
+迁移前务必备份。数据无价。
+
+================================================================================
+## v11 升级到 v12
+Path: /docs/migrate/v11-to-v12
+================================================================================
+
+v12 是一次**重大版本升级**，底层数据库从 MongoDB 更换为 PostgreSQL。虽然你的文章、评论、配置等数据都会保留，但升级过程中需要执行一次数据迁移，且需要短暂的停站维护。
+**如果你当前版本低于 v11，请先升级到 v11，再执行本指南。**
+## 升级前必读（3 分钟）
+### 这次升级会变什么？
+- **数据库**：MongoDB → PostgreSQL（性能更好，数据关系更安全）
+- **备份方式**：以后用 `pg_dump` 代替 `mongodump`
+- **环境变量**：旧的 `DB_HOST`、`MONGO_CONNECTION` 等变量失效
+### 什么不会变？
+- 前端页面、API 接口和之前完全一致
+- 你的文章、评论、图片、配置全部保留
+- 登录方式、密码、API Key 不受影响
+### 我需要停站多久？
+| 数据规模 | 预估时间 |
+|---------|---------|
+| 文章 < 100 篇，评论 < 1000 条 | 5–10 分钟 |
+| 文章 < 1000 篇，评论 < 1 万条 | 10–30 分钟 |
+| 大型站点 | 30–60 分钟 |
+## 第一步：备份（必须）
+无论你用 Docker 还是源码部署，先执行备份：
+```bash
+# 进入你放 docker-compose.yml 的文件夹，或者 core 源码文件夹
+cd ~/mx-space/core
+# 备份 MongoDB 数据
+docker exec -i $(docker ps -q -f name=mongo) mongodump --archive > backup-mongo-$(date +%Y%m%d).archive
+# 同时打包整个数据目录（包含配置文件、图片等）
+tar czvf mx-space-full-backup-$(date +%Y%m%d).tar.gz ./data
+```
+**验证备份**：
+- `backup-mongo-YYYYMMDD.archive` 文件大小不为 0
+- `mx-space-full-backup-YYYYMMDD.tar.gz` 包含 `data/mx-space` 目录
+## Docker 部署升级
+### 1. 停止当前服务
+```bash
+cd ~/mx-space/core
+docker compose down
+```
+### 2. 更新配置文件
+```bash
+# 备份旧配置（以防万一）
+cp docker-compose.yml docker-compose.yml.v11.backup
+# 拉取 v12 的 docker-compose.yml（已内置 PostgreSQL）
+wget -O docker-compose.yml https://fastly.jsdelivr.net/gh/mx-space/core@master/docker-compose.yml
+```
+### 3. 启动新数据库
+```bash
+# 只启动 PostgreSQL 和 Redis，先不启动主服务
+docker compose up -d postgres redis
+```
+等待 10 秒后检查状态：
+```bash
+docker compose ps
+```
+预期看到 `postgres` 和 `redis` 状态都是 `healthy` 或 `Up`。
+### 4. 执行数据迁移
+这是最关键的一步。执行前请确保没有用户在发文章或评论。
+```bash
+docker compose run --rm app npx tsx scripts/migrate-mongo-to-postgres.ts --mode apply
+```
+**预期输出**：
+- 看到 `Rows allocated: XXXX`，数字和你的文章/评论数量接近
+- 看到 `Missing refs: 0`（如果有少量数字，通常不影响）
+- 最后出现 `Migration completed successfully`
+**如果报错怎么办？**
+| 错误提示 | 原因 | 解决 |
+|---------|------|------|
+| `Connection refused` | PostgreSQL 还没启动好 | 等 30 秒重试 |
+| `Missing refs > 0` | 有孤儿数据 | 通常可忽略，截图记录后继续 |
+| 其他错误 | 未知问题 | **不要继续**，保留日志，回滚到 v11（见下方回滚章节） |
+### 5. 启动 v12
+```bash
+docker compose up -d
+```
+### 6. 验证（逐项检查）
+- [ ] 打开首页，文章列表正常显示
+- [ ] 打开一篇文章，内容和评论都在
+- [ ] 登录后台（`你的域名/proxy/qaqdmin`），能正常登录
+- [ ] 后台「其他 → 备份」页面能正常打开
+- [ ] 发一篇测试文章，能正常发布和显示
+- [ ] 删除测试文章，正常删除
+**全部通过 = 升级成功。**
+## 第三步：清理旧数据库（可选）
+建议 v12 稳定运行 **48 小时** 后再执行清理。保留旧数据是回滚的最后保障。
+### Docker 用户
+```bash
+cd ~/mx-space/core
+# 删除旧 MongoDB 容器
+docker compose rm -f mongo
+# 删除 MongoDB 数据卷（名字可能不同，先查看再删）
+docker volume ls
+docker volume rm mx-space_mongo_data  # 请替换为实际卷名
+```
+### 源码用户
+```bash
+# 停止 MongoDB 服务
+sudo systemctl stop mongod
+# 是否卸载 MongoDB 请自行决定，建议至少保留备份文件 30 天
+```
+## 常见问题
+### 迁移会删除我的 MongoDB 数据吗？
+**不会。** 迁移是读取 MongoDB → 写入 PostgreSQL，MongoDB 原封不动。这就是回滚安全的根本原因。
+### 图片和附件会丢吗？
+**不会。** 图片、附件存在文件系统或对象存储里，不在数据库中，完全不受影响。
+### 迁移可以中断后再继续吗？
+**可以。** 重复执行迁移命令不会重复导入已迁过的数据，所以可以放心重试。
+### 我需要改前端吗？
+**一般不需要。** 官方主题（Shiro / Kami / Yohaku）直接兼容。只有直接调用 API 的第三方工具可能需要更新 SDK。
+### 为什么要换数据库？
+PostgreSQL 是更成熟的关系型数据库，数据一致性更好，未来做复杂查询和统计分析也更方便。对日常使用而言，你感觉不到明显变化，但长期更稳定可靠。
+
+================================================================================
+## 从 WordPress 迁移
+Path: /docs/migrate/from-wordpress
+================================================================================
+
+Mix Space 原生支持 Markdown 文件导入，这让从 WordPress 迁移变得相对简单。本指南将帮助你完成从导出到导入的完整流程。
+## 迁移前准备
+在开始之前，建议你：
+- [ ] 备份 WordPress 站点的所有数据和文件
+- [ ] 准备好 Mix Space 的运行环境（参考 [快速开始](/docs/getting-started/quick-start)）
+- [ ] 确认 Mix Space 后台可以正常访问
+Mix Space 目前没有直接导入 WordPress WXR 格式的功能，需要先将内容转换为 Markdown 格式。
+## 迁移步骤
+### 导出 WordPress 内容
+在 WordPress 后台，进入「工具 → 导出」，选择「所有内容」，下载得到一个 XML 文件（WXR 格式）。
+如果你使用的是 WordPress.com，可以在「工具 → 导出」中导出站点内容。
+### 转换为 Markdown
+使用社区工具将 WordPress XML 转换为带有 Frontmatter 的 Markdown 文件。推荐工具：
+| 工具 | 说明 |
+|------|------|
+| [wordpress-export-to-markdown](https://github.com/lonekorean/wordpress-export-to-markdown) | 自动生成 Frontmatter，支持分类和标签 |
+| [wp2md](https://github.com/axdiamond/wp2md) | 轻量级转换工具 |
+以 `wordpress-export-to-markdown` 为例：
+```bash
+npx wordpress-export-to-markdown \
+  --input=wordpress.xml \
+  --output=markdown \
+  --frontmatter=true \
+  --save-attached-images=true
+```
+转换后会得到一组 `.md` 文件，每个文件的 Frontmatter 中包含标题、日期、分类、标签等信息。
+### 在 Mix Space 创建分类
+登录 Mix Space 后台，进入「分类」页面，提前创建好你在 WordPress 中使用的分类。确保分类名称一致，导入时系统才能正确匹配。
+如果导入时找不到对应分类，系统会自动创建新分类。
+### 导入 Markdown 文件
+登录 Mix Space 后台，进入「文章」页面，点击「导入」按钮，批量选择上一步生成的 Markdown 文件。
+系统会自动解析 Frontmatter 中的以下字段：
+| Frontmatter 字段 | 映射到 |
+|-------------------|--------|
+| `title` | 文章标题 |
+| `date` | 创建时间 |
+| `categories` | 分类 |
+| `tags` | 标签 |
+| `slug` | URL 路径 |
+| `status` | 发布状态（`publish` → 已发布） |
+### 处理图片
+WordPress 文章中的图片通常存放在 `wp-content/uploads/` 目录。迁移图片有三种方案：
+**方案一：迁移到 Mix Space 本地存储**
+将 WordPress 的 `uploads` 目录中的图片上传到 Mix Space 后台的「文件」管理中，然后批量替换文章中的图片链接。
+**方案二：使用对象存储**
+在 Mix Space 中配置 S3 图床（详见 [图床与存储](/docs/configure/image-storage)），将图片上传到对象存储，然后批量替换链接。
+**方案三：保留原链接**
+如果原 WordPress 站点的图片链接仍然可用，可以暂时保留不做处理。但建议最终迁移到 Mix Space 的存储中，避免原站点关闭后图片丢失。
+推荐使用批量查找替换的方式更新文章中的图片 URL：
+```sql
+-- 在数据库中批量替换图片链接（请先备份！）
+UPDATE posts SET text = REPLACE(text, 'old-domain.com/wp-content/uploads', 'new-domain.com/api/v2/static/image');
+```
+### 验证迁移结果
+迁移完成后，逐一检查以下内容：
+- [ ] 文章数量是否与原站点一致
+- [ ] 文章内容和格式是否正确（特别是代码块、表格等）
+- [ ] 分类和标签是否正确匹配
+- [ ] 图片是否正常显示
+- [ ] 文章 slug 是否与旧站一致（影响 SEO）
+## 评论迁移
+Mix Space 目前没有直接导入 WordPress 评论的功能。评论数据需要手动迁移或借助脚本辅助。
+如果你的站点评论较多，可以考虑：
+1. 通过脚本读取 WordPress 导出的 XML 中的评论数据
+2. 调用 Mix Space API 批量创建评论
+3. 或者接受从零开始，不迁移历史评论
+## SEO 过渡建议
+迁移完成后，建议进行以下 SEO 相关操作：
+| 操作 | 说明 |
+|------|------|
+| **301 重定向** | 将旧 WordPress 链接重定向到新的 Mix Space 链接 |
+| **更新 Sitemap** | Mix Space 会自动生成新的 Sitemap |
+| **提交搜索引擎** | 在百度/Bing 站长工具中重新提交站点地图 |
+| **保留 robots.txt** | 确保新的 robots.txt 配置正确 |
+### URL 映射规则
+WordPress 和 Mix Space 的 URL 结构不同，需要做重定向映射：
+| WordPress URL | Mix Space URL |
+|---------------|---------------|
+| `/?p=123` | `/{分类 slug}/{文章 slug}` |
+| `/2024/01/hello-world/` | `/{分类 slug}/{文章 slug}` |
+建议在 Nginx 中配置 rewrite 规则：
+```nginx
+# 示例：将 WordPress 固定链接重定向到 Mix Space
+location / {
+    # 如果旧文章有固定链接格式，可以逐条重定向
+    # rewrite ^/2024/01/hello-world/$ /coding/hello-world permanent;
+}
+```
+## 参考资源
+- [社区博文：从 WordPress 迁移数据到 Mix Space](https://blog.fosky.top/2024/10/09/wordpress-to-mix-space.html)
+- [GitHub: wordpress-export-to-markdown](https://github.com/lonekorean/wordpress-export-to-markdown)
+
+================================================================================
+## 开发指南
+Path: /docs/develop/index
+================================================================================
+
+Mix Space 是完全开源的，欢迎每一位开发者参与贡献。无论你是想修复 Bug、添加新功能，还是基于我们的 API 开发自己的前端主题，这里都能帮助你快速上手。
+## 技术栈
+| 层级 | 技术 |
+|------|------|
+| 后端框架 | [NestJS](https://nestjs.com/) 11 + Fastify |
+| 语言 | [TypeScript](https://www.typescriptlang.org/) |
+| 数据库 | [PostgreSQL](https://www.postgresql.org/) 16 + [Drizzle ORM](https://orm.drizzle.team/) |
+| 缓存 | [Redis](https://redis.io/) 7 |
+| 前端框架 | [React](https://react.dev/) / [Vue 3](https://vuejs.org/) |
+| 容器化 | [Docker](https://www.docker.com/) |
+## 环境要求
+在开始之前，请确保你的开发环境已安装以下工具：
+- [ ] [Node.js](https://nodejs.org/) >= 22（推荐使用 `.nvmrc` 中的版本）
+- [ ] [pnpm](https://pnpm.io/)（通过 Corepack 启用：`corepack enable`）
+- [ ] [PostgreSQL](https://www.postgresql.org/) >= 16
+- [ ] [Redis](https://redis.io/) >= 7
+- [ ] [Git](https://git-scm.com/)
+## 快速开始（后端）
+```bash
+# 克隆仓库
+git clone https://github.com/mx-space/core
+cd core
+# 安装依赖
+pnpm i
+# 启动 PostgreSQL 和 Redis
+docker compose up -d postgres redis
+# 启动开发服务器（端口 2333）
+pnpm dev
+```
+  提交 PR 时请确保使用 pnpm 安装依赖，项目根目录只保留 `pnpm-lock.yaml`。
+## 了解更多
+
+================================================================================
+## 后端开发
+Path: /docs/develop/backend
+================================================================================
+
+## 项目结构
+`apps/core/src/` 是后端的核心源码目录，主要结构如下：
+```
+src/
+├── modules/          # 业务模块（Post、Note、User 等）
+├── processors/       # 全局处理器（Database、Gateway、Redis 等）
+├── common/           # 公共工具（装饰器、过滤器、拦截器、管道）
+├── database/         # 数据库 schema 与迁移文件
+├── constants/        # 常量定义
+├── types/            # 全局类型声明
+├── utils/            # 工具函数
+├── app.module.ts     # 根模块
+└── main.ts           # 应用入口
+```
+每个业务模块通常包含 `module.ts`、`controller.ts`、`service.ts` 三个标准文件，遵循 NestJS 的模块化设计。
+## 添加新模块
+标准的 NestJS 模块结构如下：
+```
+src/modules/example/
+├── example.module.ts
+├── example.controller.ts
+├── example.service.ts
+└── dto/
+    └── example.dto.ts
+```
+然后在 `app.module.ts` 中导入新模块即可。如果模块需要数据库支持，先在 `database/schema/` 中定义表结构，再通过 Drizzle ORM 进行操作。
+## 数据库
+Mix Space 使用 [Drizzle ORM](https://orm.drizzle.team/) 管理 PostgreSQL 数据库。
+- **Schema 位置**: `apps/core/src/database/schema/`
+- **迁移文件位置**: `apps/core/src/database/migrations/`
+- **配置文件**: `apps/core/drizzle.config.ts`
+### 常用命令
+```bash
+# 生成迁移
+pnpm drizzle-kit generate
+# 执行迁移
+pnpm drizzle-kit migrate
+```
+Schema 中统一使用 `snake_case` 命名字段，Drizzle 配置已开启 `casing: 'snake_case'` 以确保自动映射。
+## API 设计
+### RESTful 规范
+- 使用标准的 HTTP 方法：`GET`、`POST`、`PATCH`、`DELETE`
+- URL 使用名词复数，如 `/posts`、`/notes`
+- 嵌套资源通过路径表达，如 `/posts/:id/comments`
+### 响应格式
+接口返回统一使用 `snake_case`，结构如下：
+```json
+{
+  "data": {},
+  "pagination": {
+    "page": 1,
+    "per_page": 10,
+    "total": 100
+  }
+}
+```
+### 分页
+列表接口默认支持分页查询，通过 `page` 和 `per_page` 参数控制，最大 `per_page` 通常限制为 50。
+## 测试
+后端使用 [Vitest](https://vitest.dev/) 进行测试，测试文件位于 `apps/core/test/` 目录。
+```bash
+# 运行测试
+pnpm test
+# 监听模式
+pnpm test:watch
+```
+测试环境通过 `test/setup.ts` 完成初始化，包括内存数据库和其他依赖的启动。编写测试时请注意保持测试的独立性，避免测试之间产生状态污染。
+## 代码规范
+- **ESLint**: 统一代码风格，提交前运行 `pnpm lint`
+- **Prettier**: 自动格式化，建议开启编辑器保存时自动格式化
+- **Commit Message**: 请遵守 [Conventional Commits](https://www.conventionalcommits.org/) 规范，仓库内可使用 `pnpm commit` 引导生成
+更多关于文档贡献的规范，请参阅 [贡献文档](/docs/develop/contribute)。
+
+================================================================================
+## 前端开发
+Path: /docs/develop/frontend
+================================================================================
+
+> 为什么要写这一节？
+>
+> 我希望不再是只有 Kami 一个风格，能有更多主题可供选择。
+Mix Space 采用前后端分离架构，后端不提供模板渲染，因此前端项目可以使用任何框架和架构设计。前端与后端完全解耦，你可以自由选择 React、Vue、Svelte 或其他技术栈来构建自己的主题。
+虽然开发比较自由，但在接口调用、数据定义和路由约定上仍需保持一致。本节将具体说明前端项目的开发规范。
+## 路由约定
+[Kami](https://github.com/mx-space/kami) 是由 Next.js、React 开发的原始项目，经过长时间的沉淀，前端项目路由的组织上建议遵守以下约定：
+> 路由的约定能很大程度保证网站因更换不同前端主题导致 SEO 异常、死链接等问题。
+约定如下：
+| Path                     | Description                      | Mark     |
+| ------------------------ | -------------------------------- | -------- |
+| `/`                      | 主页                             | 强制要求 |
+| `/posts`                 | 博文列表                         | 强制要求 |
+| `/posts/:category/:slug` | 博文详情页                       | 强制要求 |
+| `/pages/:slug`           | 独立页面详情页                   | 强制要求 |
+| `/notes/:nid`            | 日记详情页                       | 强制要求 |
+| `/feed`                  | RSS 订阅                         | 强制要求 |
+| `/:category/:slug`       | 302 -> `/posts/:category/:slug`  | 建议     |
+| `/category/:slug`        | 分类中文章列表页                 | 建议     |
+| `/notes`                 | 日记列表或者跳转最新日记页       | 建议     |
+| `/notes/latest`          | 最新日记详情页                   | 建议     |
+| `/friends`               | 友链                             | 建议     |
+| `/says`                  | 一言详情页                       | 可选     |
+| `/sitemap`               | 站点地图                         | 建议     |
+| `/timeline`              | 时间线                           | 可选     |
+| `/recently`              | 动态页                           | 可选     |
+| `/favorite/:type`        | 附加页                           | 可选     |
+| `/projects`              | 项目页                           | 可选     |
+| `/projects/:id`          | 项目详情页                       | 可选     |
+## 框架选择建议
+建议选择附带 SSR 功能的现代化框架：
+- React：Next.js、[RakkasJS](https://github.com/rakkasjs/rakkasjs)、umi
+- Vue: Vite (vite-ssr)、NuxtJS
+小程序：
+- React: Remax、taro
+- Vue: uni-app
+## 接口调用与 SDK 的使用
+考虑到单独编写接口定义和返回类型太麻烦，这里提供一个 SDK 方便开发。
+> SDK 仍在 beta 阶段，未来接口可能出现变化。
+详见：[api-client](https://github.com/mx-space/core/tree/master/packages/api-client)
+
+================================================================================
+## 后台单独部署
+Path: /docs/develop/admin
+================================================================================
+
+在正常情况下，你不需要单独部署后台，因为后台已经被打包到了后端中。
+如果你有以下需求：
+- 想使用其他域名作为后台地址
+- 想使用其他端口作为后台地址
+那么你可以选择单独部署后台，或者你可以参考 [反向代理配置](/themes/kami#反向代理)。
+## 拉取源文件
+```bash
+cd mx-space
+git clone https://github.com/mx-space/mx-admin.git --depth 1
+```
+## 修改配置文件
+进入到后台源码目录，找到 `.env.production` 文件，取消对应配置项的注释，然后修改为你的配置。
+例如：
+```yaml
+VITE_APP_BASE_API=https://server.test.cn/api/v2
+VITE_APP_WEB_URL=https://www.test.cn
+VITE_APP_GATEWAY=https://server.test.cn
+# # VITE_APP_PUBLIC_URL=https://fastly.jsdelivr.net/gh/mx-space/admin-next@gh-pages/
+```
+其他可以定义的配置在文件 `/src/configs.ts` 中。
+## 构建
+  构建 mx-admin 需要的内存至少为 2 GiB，如果你服务器内存不足，你可以在本地构建成功后，将产物上传到服务器。
+  在 Windows 系统上，mx-admin 无法正常构建，你可以使用 WSL2 或者 Linux 系统。
+```bash
+pnpm i
+pnpm build
+```
+## 部署产物
+构建生成的产物在 dist 目录下，你可以直接把它们移动到你准备好的后台网站的根目录下。
+假设你准备的后台网站域名是 `admin.test.cn`，
+网站根目录为 `/var/www/admin.test.cn/`，
+那么，你把 dist 目录下的所有文件移动到 `/var/www/admin.test.cn/` 目录下即可。
+## 修改后端配置
+编辑 Core 的 `.env` 文件，修改 `ALLOWED_ORIGINS` ，添加你的后台域名。
+示例域名为 `admin.test.cn` 。
+例如：
+```yaml
+# THIS ENV FILE EXAMPLE ONLY FOR DOCKER COMPOSE
+# SEE https://docs.docker.com/compose/environment-variables/#the-env-file
+JWT_SECRET=7294c34e0b28ad28          # 此处填写一个长度不小于 16 个字符，不大于 32 个字符的字符串
+ALLOWED_ORIGINS=test.cn,www.test.cn,admin.test.cn
+```
+然后重新启动 Core 即可：
+```bash
+docker compose up -d
+```
+
+================================================================================
+## 贡献文档
+Path: /docs/develop/contribute
+================================================================================
+
+我们随时欢迎你对 Mix Space 的文档做出贡献，但撰写文档是一件不易之事，我们更加希望你能规范贡献内容，减少我们的工作量。
+  部分内容来自于 https://github.com/mx-space/docs-archived/pull/163
+在撰写本文档之前，请确保你有基础的 Markdown 知识，并了解 Markdown 的语法，如果你不够了解，请使用 Typora 等 Markdown 编辑器进行撰写。
+目前 Mix Space 的文档使用的框架是 [Fumadocs](https://fumadocs.vercel.app/)，请在撰写之前详细阅读它的文档，并在本地运行开发服务器检查效果，确保符合预期后再提交 Pull Request。
+## 本地预览
+```bash
+# 安装依赖
+pnpm i
+# 启动开发服务器
+pnpm dev
+```
+在浏览器中打开 `http://localhost:3000` 预览你的修改。
+## 添加新页面
+文档内容位于 `content/docs/` 目录下，添加新页面的步骤如下：
+1. 在对应章节文件夹下新建文件夹或 `.mdx` 文件
+2. 如果新建了文件夹，在文件夹内创建 `meta.json` 定义标题和页面顺序
+3. 编写 `.mdx` 文件内容
+4. 在 `meta.json` 的 `pages` 数组中添加新页面路径
+示例 `meta.json`：
+```json
+{
+  "title": "章节标题",
+  "pages": ["index", "new-page"]
+}
+```
+## 规范
+- 文档只写最容易理解的方式，不要教别人改源码
+- 中英文之间加空格
+- 撰写 Git Commit Message 时尽可能遵守 [Conventional Commits](https://www.conventionalcommits.org/) 规范，不了解可使用 `pnpm commit` 引导生成
+## 常见问题
+<Accordions>
+<Accordion title="为什么不把文档写详细一点？比如魔改程序等？">
+为什么要写这么全面呢？甚至教别人改动源码。
+这是极不正确的文档写法。
+别人会写的自然会写，不会写的教他，他会不知道这个地方到底要不要搞、怎么搞、是不是有另外一种方法。
+更多的选择只会影响新手的判断，让他们不知道到底该怎么做。
+偏偏就是出现改动源码的地方就是有多种选择：
+你可以在文件后方传入值，比如 `node index.js --arg1=value1`
+你可以改动源码，在 xxx/xxx.ts 第 xxx 行到 xxx 行，修改对应的配置。
+你甚至可以写一个插件，在插件中进行配置。
+你这样让用户怎么选择？文档部署应该只选择最容易让人读明白的部署方式，这种改动源码的提一嘴在哪个文件就是了，为什么要写具体行数 & 告诉别人怎么改呢？
+如果碰到了一个 object，用户改漏了一个逗号，那这个问题的责任谁来承担呢？文档编写者吗？开发者吗？用户吗？
+很明显都不是，也很明显都要承担责任。不要让局面陷入到如此困境中 😕
+如果你有魔改方面的内容，可以提交到对应区域的社区部署教程内。
+</Accordion>
+<Accordion title="你们为什么不写各种服务器面板（宝塔，1Panel 一类面板）的部署教程？">
+这些面板程序随时都有可能会发生变化，我们无法保证文档的时效性。
+我们也不建议这样写任何官方类文档，因为会使得你的文档结构更加复杂，并且难以维护。
+本质上服务器面板部署方式的核心还是那几种方式。
+如果你有相关内容，可以提交到对应区域的社区部署教程内。
+</Accordion>
+</Accordions>
+## 提交 PR
+文档仓库地址：[github.com/mx-space/docs](https://github.com/mx-space/docs)
+1. Fork 仓库到你的账号
+2. 在功能分支上进行修改
+3. 本地预览确认无误后提交
+4. 向原仓库发起 Pull Request
+我们希望文档的结构能够更加简洁易用，这样对开发者，对用户都有好处。
+
+================================================================================
+## 参考手册
+Path: /docs/reference/index
+================================================================================
+
+不需要通读，遇到问题时来查。
+  }>
+    所有环境变量的完整列表和说明
+
+  }>
+    按症状分类的常见问题与解决方案
+
+  }>
+    在 GitHub 上查看 API Client 文档
+
+================================================================================
+## 常见错误与解决
+Path: /docs/reference/common-issues
+================================================================================
+
+## 无法启动服务
+### `Error: JWT_SECRET is required`
+- **原因**：JWT 签名密钥未设置，这是启动服务的必填项。
+- **解决**：在环境变量中添加 `JWT_SECRET`，设置一个随机字符串即可。
+### `Error: SNOWFLAKE_WORKER_ID is required`
+- **原因**：Snowflake 工作节点 ID 未设置。
+- **解决**：在环境变量中添加 `SNOWFLAKE_WORKER_ID=1`（单实例部署填 1 即可）。
+### `Connection refused to postgres:5432`
+- **原因**：PostgreSQL 服务未启动，或连接配置错误。
+- **解决**：
+  1. 确认 PostgreSQL 容器或服务已正常运行；
+  2. 检查 `PG_HOST`、`PG_PORT`、`PG_USER`、`PG_PASSWORD` 是否正确；
+  3. Docker 部署时，注意容器之间的网络是否互通。
+## 无法访问后台
+### 502 Bad Gateway
+- **原因**：反向代理（Nginx/Caddy）配置错误，无法正确代理到后端服务。
+- **解决**：检查反向代理配置中的 upstream 地址和端口，确认后端服务端口是否为 `2333`（或你自定义的 `PORT`）。
+### 证书错误
+- **原因**：HTTPS/SSL 证书配置有问题，或使用了自签名证书但客户端不信任。
+- **解决**：检查证书是否过期，确认 Nginx/Caddy 的 SSL 配置正确，必要时重新申请证书。
+## 功能异常
+### 搜索不工作
+- **原因**：Algolia 配置缺失或错误，索引未建立。
+- **解决**：
+  1. 进入后台检查 Algolia 的 `IndexName`、`AppID`、`ApiKey` 是否填写正确；
+  2. 确认 Algolia 控制台中索引已创建且有数据；
+  3. 保存配置后等待片刻，让系统自动同步索引。
+### 第三方登录失败
+- **原因**：OAuth 应用的回调地址（Callback URL）与后台配置不一致。
+- **解决**：
+  1. 在 GitHub/Google 控制台核对 `Authorization callback URL`；
+  2. 在 Mix Space 后台复制正确的回调地址并填入 OAuth 应用；
+  3. 确认 `ALLOWED_ORIGINS` 中包含了你的前端域名。
+## 数据相关
+### 备份文件无法下载
+- **原因**：备份目录权限不足，或备份路径配置错误。
+- **解决**：检查备份目录的读写权限，确认运行服务的用户有权访问该目录。
+### 回滚后数据丢失
+- **原因**：回滚时使用了错误的备份文件，或备份文件本身已损坏。
+- **解决**：
+  1. 确认使用的是正确的备份文件（注意时间戳）；
+  2. 回滚前务必先对当前数据做一次备份；
+  3. 若备份文件损坏，尝试使用更早的备份。

@@ -1,0 +1,114 @@
+---
+title: 使用外部数据库
+description: 配置外部 Redis 或 PostgreSQL 服务
+icon: Database
+---
+
+如果你需要使用来自远端或非容器内的 Redis / PostgreSQL 服务，可以通过环境变量或启动参数传入配置。
+
+## 外部 Redis
+
+支持传入的参数：
+
+| 参数 | 说明 |
+|------|------|
+| `redis_host` | Redis 服务地址，域名或 IP |
+| `redis_port` | Redis 服务端口 |
+| `redis_password` | Redis 服务密码 |
+| `disable_cache` | 是否禁用缓存，默认不启用 |
+
+### Docker 部署
+
+在 `docker-compose.yml` 的 `services.app.environment` 中添加：
+
+```yaml
+services:
+  app:
+    container_name: mx-server
+    image: innei/mx-server:latest
+    environment:
+      - TZ=Asia/Shanghai
+      - NODE_ENV=production
+      - REDIS_HOST=远端地址
+      - REDIS_PASSWORD=redis?passwd
+      - ALLOWED_ORIGINS=localhost
+      - JWT_SECRET=YOUR_SUPER_SECURED_JWT_SECRET_STRING
+    volumes:
+      - ./data/mx-space:/root/.mx-space
+```
+
+修改完成后执行 `docker compose up -d` 重启服务。
+
+### 源码部署
+
+修改 `ecosystem.config.js`，在 `script` 项中添加参数：
+
+```diff
+      script: 'out/index.js',
++     script: 'out/index.js --redis_host=远端地址 --redis_password=redis?passwd',
+```
+
+然后重启服务：
+
+```bash
+pnpm prod:pm2
+```
+
+## 外部 PostgreSQL
+
+支持传入的参数：（Docker 中为对应大写环境变量）
+
+| 参数 | 说明 |
+|------|------|
+| `pg_host` | PostgreSQL 服务地址 |
+| `pg_port` | PostgreSQL 服务端口 |
+| `pg_user` | PostgreSQL 用户名 |
+| `pg_password` | PostgreSQL 密码 |
+| `pg_database` | PostgreSQL 数据库名 |
+| `pg_connection_string` | 连接地址（`postgresql://` 或 `postgres://` 开头），优先级高于以上五项 |
+| `pg_ssl` | 是否启用 SSL 连接，`true` 为启用 |
+| `pg_max_pool_size` | 连接池大小，默认 `20` |
+
+<Callout type="warn">
+如果使用密码登录，必须同时传入 `user` 和 `password`，建议对数据库划分好用户权限。
+</Callout>
+
+### Docker 部署
+
+在 `docker-compose.yml` 的 `services.app.environment` 中添加：
+
+```yaml
+services:
+  app:
+    container_name: mx-server
+    image: innei/mx-server:latest
+    environment:
+      - TZ=Asia/Shanghai
+      - NODE_ENV=production
+      - PG_HOST=远端地址
+      - PG_USER=postgres-test
+      - PG_PASSWORD=db?passwd
+      - PG_DATABASE=mx_core
+      - REDIS_HOST=redis
+      - ALLOWED_ORIGINS=localhost
+      - JWT_SECRET=YOUR_SUPER_SECURED_JWT_SECRET_STRING
+    volumes:
+      - ./data/mx-space:/root/.mx-space
+```
+
+修改完成后执行 `docker compose up -d` 重启服务。
+
+### 源码部署
+
+修改 `ecosystem.config.js`，在 `script` 项中添加参数：
+
+```diff
+      script: 'out/index.js',
++     script: 'out/index.js --pg_host=远端地址 --pg_user=postgres-test --pg_password=db?passwd --pg_database=mx_core',
+```
+
+然后重启服务：
+
+```bash
+pnpm prod:pm2
+```

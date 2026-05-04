@@ -1,0 +1,13 @@
+{
+  "title": "开发",
+  "description": "开发 Mix Space 及其生态",
+  "icon": "Code2",
+  "root": true,
+  "pages": [
+    "index",
+    "backend",
+    "frontend",
+    "admin",
+    "contribute"
+  ]
+}

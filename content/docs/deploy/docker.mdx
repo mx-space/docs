@@ -1,0 +1,120 @@
+---
+title: Docker 部署
+description: 通过 Docker 部署 Mix Space 后端
+icon: Container
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { ExternalLink } from 'lucide-react';
+import { EnvVariableConfig } from 'app/components/EnvVariableConfig'
+
+<Steps>
+
+<Step>
+### 安装 Docker
+
+如果你的服务器在国内，建议使用阿里云的安装脚本：
+
+```bash
+curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+```
+
+在国外，可以直接使用官方脚本：
+
+```bash
+curl -fsSL https://get.docker.com | bash -s docker
+```
+
+验证安装：
+
+```bash
+docker -v
+docker compose version
+```
+
+</Step>
+
+<Step>
+### 拉取配置文件
+
+```bash
+cd && mkdir -p mx-space/core && cd $_
+
+# 拉取 docker-compose.yml 文件
+wget https://fastly.jsdelivr.net/gh/mx-space/core@master/docker-compose.yml
+```
+
+</Step>
+
+<Step>
+### 配置环境变量
+
+在下方的表格中填入配置，点击复制后粘贴到 `docker-compose.yml` 的 `environment` 字段中。
+
+<EnvVariableConfig
+  format="yaml"
+  variableNames={[
+    {
+      key: 'JWT_SECRET',
+      name: '[JWT 密钥] 长度 16-32 个字符',
+    },
+    {
+      key: 'ALLOWED_ORIGINS',
+      name: '[被允许的域名] 多个域名用英文逗号分隔',
+    },
+    {
+      key: 'ENCRYPT_ENABLE',
+      name: '[是否开启加密] true 或 false',
+    },
+    {
+      key: 'ENCRYPT_KEY',
+      name: '[加密密钥] 开启加密时必填',
+    },
+  ]}
+/>
+
+- **`JWT 密钥`**：长度 16-32 个字符，用于加密用户 JWT，务必保存好不要泄露。
+- **`被允许的域名`**：通常是前端的域名，多个用英文逗号分隔。
+- **`是否开启加密`**：如需开启，将 `false` 改为 `true`。
+- **`加密密钥`**：开启加密后必填，长度必须为 64 位且只有小写字母和数字。可用 `openssl rand -hex 32` 生成。**此操作不可逆，请谨慎。**
+
+</Step>
+
+<Step>
+### 启动服务
+
+<Callout type="warn">
+如果服务器在国内，拉取镜像速度过慢，可在 `docker-compose.yml` 的 image 前添加镜像域名，例如 `docker.1panel.top/innei/mx-server:latest`。
+</Callout>
+
+```bash
+docker compose up -d
+```
+
+</Step>
+
+<Step>
+### 验证
+
+启动后，请按以下清单确认服务正常：
+
+- [ ] `docker compose ps` 显示所有服务状态为 healthy
+- [ ] `curl http://localhost:2333/api/v2/ping` 返回 `pong`
+- [ ] 浏览器能打开后台初始化页面 `http://你的域名/proxy/qaqdmin`
+
+</Step>
+
+</Steps>
+
+## 下一步
+
+<Cards>
+  <Card title="配置反向代理" href="./reverse-proxy" icon={<ExternalLink />}>
+    将域名指向你的服务，并配置 HTTPS
+  </Card>
+  <Card title="前端主题部署" href="/docs/themes" icon={<ExternalLink />}>
+    部署前端主题完成整套系统
+  </Card>
+</Cards>

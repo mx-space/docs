@@ -1,3 +1,15 @@
 {
-  "pages": ["core", "themes", "usage", "development", "document"]
+  "title": "文档",
+  "description": "Mix Space 官方文档",
+  "root": true,
+  "pages": [
+    "getting-started",
+    "deploy",
+    "configure",
+    "themes",
+    "use",
+    "migrate",
+    "develop",
+    "reference"
+  ]
 }

@@ -1,0 +1,11 @@
+{
+  "title": "迁移",
+  "description": "从旧版本或其他平台迁移到 Mix Space",
+  "icon": "ArrowLeftRight",
+  "root": true,
+  "pages": [
+    "index",
+    "v11-to-v12",
+    "from-wordpress"
+  ]
+}

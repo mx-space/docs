@@ -46,7 +46,7 @@
     "prettier": "^3.7.4",
     "tailwindcss": "^4.1.18",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "config": {
     "commitizen": {

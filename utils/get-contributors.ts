@@ -21,7 +21,8 @@ export interface Contributor {
     );
   
     if (!response.ok) {
-      throw new Error(`Failed to fetch contributors: ${response.statusText}`);
+      console.warn(`Failed to fetch contributors: ${response.statusText}`);
+      return [];
     }
   
     const contributors = (await response.json()) as Contributor[];

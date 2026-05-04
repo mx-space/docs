@@ -1,0 +1,116 @@
+# Mix Space — llm.txt
+
+> Mix Space is an AI-powered headless CMS for personal blogs and content sites.
+> Documentation: https://mx-space.js.org/docs
+
+## What is Mix Space?
+
+Mix Space is a self-hosted, open-source CMS built with a headless architecture. It consists of:
+
+- **Core (Backend)**: NestJS 11 + Fastify + PostgreSQL 16 + Redis 7
+- **Admin Dashboard**: Vue 3 + Naive UI + TanStack Query
+- **Frontend Themes**: Next.js (Shiro, Yohaku) or other community themes
+
+Source code: https://github.com/mx-space/core
+
+## Quick Start (Docker)
+
+```bash
+git clone https://github.com/mx-space/core.git --depth=1
+cd core
+# Edit JWT_SECRET and ALLOWED_ORIGINS in docker-compose.yml
+docker compose up -d
+# Access admin at http://localhost:2333/proxy/qaqdmin
+```
+
+## Architecture
+
+- **API prefix**: `/api/v2` in production, no prefix in dev (port 2333)
+- **Auth**: JWT + Passkey + OAuth (GitHub/Google) via better-auth
+- **Database**: PostgreSQL 16 (Drizzle ORM)
+- **Cache**: Redis 7
+- **Response format**: All keys auto-converted to snake_case
+  - Array → `{ data: [...] }`
+  - Paginated → `{ data: [...], pagination: {...} }`
+  - `@Bypass` → skip transform
+
+## Content Types
+
+| Type | URL Format | Notes |
+|------|-----------|-------|
+| Post (文章) | `/{category-slug}/{post-slug}` | Has category, tags, pin, related posts |
+| Note (日记) | `/notes/{nid}` or `/notes/{y}/{m}/{d}/{slug}` | Has mood, weather, password, topic |
+| Page (页面) | `/{slug}` | Standalone pages (about, friends, etc.) |
+| Say (说说) | Short-form content, like tweets | |
+| Project (项目) | Portfolio showcase items | |
+
+All content types support Markdown and Lexical rich text editing.
+
+## AI Features
+
+Requires configuring at least one LLM provider (OpenAI / OpenAI-compatible / Anthropic / OpenRouter).
+
+| Feature | Description |
+|---------|-------------|
+| AI Summary | Auto-generate article summaries, multi-language |
+| AI Insights | Deep reading companion (TL;DR, structure map, Mermaid) |
+| AI Translation | Markdown + Lexical dual strategy, translation glossary |
+| AI Writer | Auto-generate title and SEO slug, bulk slug backfill |
+| AI Comment Review | Binary/score spam detection |
+| AI Agent | In-editor chat with AI |
+| AI Task Queue | Unified task management (batch, bulk, retry) |
+
+## Key Configuration Sections
+
+All config is managed via admin UI (设定 → System settings):
+
+- **SEO**: Title, description, keywords, sitemap, RSS feed
+- **Mail**: SMTP or Resend, used for notifications and subscriptions
+- **Comments**: Anti-spam, AI review, guest policy, IP blocking, image uploads
+- **File Upload**: Custom naming templates, S3 image storage
+- **OAuth**: GitHub and Google login setup
+- **Friend Links**: Application rules, avatar internalization
+- **Backup**: Auto backup to S3
+- **AI**: Multi-provider, per-feature model assignment, auto-trigger hooks
+
+## API Token
+
+Create tokens in admin (设定 → 账号与安全 → API Token). Required for:
+- Obsidian plugin
+- `@mx-space/api-client` SDK
+- Custom scripts and automation
+
+## Snippets / Serverless
+
+Extension system supporting JSON, Text, YAML, and Function types:
+- Function snippets = serverless cloud functions (custom API routes at `/s/{path}`)
+- Used for: Bilibili integration, music lists, custom data endpoints
+- Community snippets: https://github.com/mx-space/snippets
+
+## Webhook
+
+Push events to external services (Telegram, Slack, etc.). 30+ event types including:
+- Content CRUD (post, note, page, comment)
+- AI events (translation, insights)
+- Link applications
+
+## Deployment Options
+
+| Method | Difficulty | Best For |
+|--------|-----------|----------|
+| Docker | Easy | Most users (recommended) |
+| One-click script | Easy | Quick automated setup |
+| Source build | Hard | Developers |
+
+## Documentation Pages
+
+Full docs at https://mx-space.js.org/docs:
+
+- Getting Started: what you need, quick start
+- Deploy: Docker, one-script, source, reverse proxy, SSL, external services
+- Configure: environment variables, SEO, OAuth, Algolia, encryption, account security, image storage
+- Themes: Yohaku, Shiro, Kami, Yun, community themes
+- Use: writing workflow, content management, comments, friends, says, projects, files, analytics, AI features, webhook, mail & subscribe, serverless, cron tasks, backup, update, FAQ
+- Migrate: v11→v12 (MongoDB→PostgreSQL), WordPress
+- Develop: backend, frontend, admin, contribute
+- Reference: common issues

@@ -1,0 +1,25 @@
+{
+  "title": "使用",
+  "description": "日常使用 Mix Space",
+  "icon": "BookOpenCheck",
+  "root": true,
+  "pages": [
+    "index",
+    "writing",
+    "content",
+    "comments",
+    "friends",
+    "says",
+    "projects",
+    "files",
+    "analytics",
+    "ai-features",
+    "webhook",
+    "mail-subscribe",
+    "serverless",
+    "cron-tasks",
+    "backup-restore",
+    "update",
+    "faq"
+  ]
+}

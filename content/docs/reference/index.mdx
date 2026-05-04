@@ -1,0 +1,21 @@
+---
+title: 参考手册
+description: 速查手册和常见问题
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { BookOpen, Wrench, ExternalLink } from 'lucide-react';
+
+不需要通读，遇到问题时来查。
+
+<Cards>
+  <Card title="环境变量参考" href="/docs/configure/environment" icon={<BookOpen />}>
+    所有环境变量的完整列表和说明
+  </Card>
+  <Card title="常见错误排查" href="/docs/reference/common-issues" icon={<Wrench />}>
+    按症状分类的常见问题与解决方案
+  </Card>
+  <Card title="API Client SDK" href="https://github.com/mx-space/api-client" icon={<ExternalLink />}>
+    在 GitHub 上查看 API Client 文档
+  </Card>
+</Cards>

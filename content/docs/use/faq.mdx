@@ -1,0 +1,113 @@
+---
+title: 常见问题
+description: 日常使用 Mix Space 时的常见疑问与解答
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+## 部署相关
+
+### 忘记后台密码怎么办？
+
+如果你配置了 OAuth 登录（GitHub / Google），可以先通过第三方账号登录后台，再在「设定 → 个人信息」中修改密码。
+
+如果没有配置 OAuth，可以通过数据库直接修改密码字段来重置。
+
+### 如何修改网站标题和描述？
+
+登录后台，进入「设定 → SEO 优化」，修改网站标题和网站描述，保存后立即生效。
+
+### 后台地址是什么？
+
+默认后台地址为 `https://你的域名/proxy/qaqdmin`。如果开启了后台反代（「设定 → 后台附加设置」），也可以通过 API 地址直接访问。
+
+### 启动报错 `JWT_SECRET is required`
+
+JWT 密钥是必填项。在环境变量或 `docker-compose.yml` 中添加 `JWT_SECRET=你的随机字符串`（16-32 位）。
+
+### 启动报错 `SNOWFLAKE_WORKER_ID is required`
+
+单实例部署填 `SNOWFLAKE_WORKER_ID=1` 即可。
+
+## 内容相关
+
+### 文章的 URL 规则是什么？
+
+文章 URL 格式为 `/{分类 slug}/{文章 slug}`。分类 slug 和文章 slug 共同决定文章地址。例如分类 `coding` 下 slug 为 `hello-world` 的文章，URL 为 `/coding/hello-world`。
+
+### 如何为日记设置密码保护？
+
+在日记编辑面板中设置密码字段。设置后，访客需要输入密码才能查看日记内容。管理员在后台可以直接查看，不受限制。
+
+### 如何批量导入文章？
+
+在后台文章列表页面点击「导入」按钮，选择本地的 Markdown 文件。系统会自动解析 Frontmatter 中的标题、标签、分类等元数据。详见 [写作工作流](/docs/use/writing)。
+
+### 支持哪些编辑器格式？
+
+Mix Space 支持 **Markdown** 和 **Lexical 富文本**两种编辑格式。可以在编辑器中切换，也可以在设置中配置默认格式。
+
+## 图片与存储
+
+### 图片存在哪里？
+
+默认存储在服务器本地。你也可以配置 S3 兼容的对象存储（如 Cloudflare R2、AWS S3），详见 [图床与存储](/docs/configure/image-storage)。
+
+### 上传的图片 URL 格式是什么？
+
+- 本地存储：`/api/v2/static/{type}/{filename}`
+- S3 存储：`{自定义域名}/{前缀}/{filename}`
+
+自定义命名规则可以在「设定 → 文件上传设定」中配置。
+
+## 邮件与通知
+
+### 评论通知邮件不发送？
+
+请检查：
+1. 后台「设定 → 邮件通知设置」中是否开启了邮件提醒
+2. SMTP 配置是否正确（主机、端口、用户名、密码）
+3. 如果使用 Gmail，需要开启「应用专用密码」
+4. 服务器防火墙是否放行了 SMTP 端口（465/587）
+
+推荐使用 [Resend](https://resend.com) 等现代邮件 API 服务，配置更简单。
+
+### 如何推送到 Telegram / 微信？
+
+通过 Webhook 功能实现。在后台「其他 → Webhook」中创建一个 Webhook，Payload URL 填写你的通知服务地址，勾选关注的事件即可。详见 [Webhook 与事件通知](/docs/use/webhook)。
+
+## 数据库与迁移
+
+### 数据库可以迁移到另一台服务器吗？
+
+可以。推荐步骤：
+1. 在原服务器执行备份（后台备份或 `pg_dump`）
+2. 将备份文件传输到新服务器
+3. 在新服务器恢复数据并重启服务
+
+跨服务器迁移时，保持环境变量和配置一致，尤其是 `JWT_SECRET` 和加密密钥。
+
+### 如何从 MongoDB 迁移到 PostgreSQL？
+
+请参考 [v11 → v12 升级指南](/docs/migrate/v11-to-v12)。
+
+## 性能与优化
+
+### 站点访问速度慢？
+
+常见优化手段：
+1. **使用 CDN**：为静态资源和图片配置 CDN 加速
+2. **开启 S3 图床**：将图片托管到对象存储 + CDN
+3. **Redis 缓存**：确保 Redis 正常运行，Mix Space 大量依赖 Redis 缓存
+4. **反向代理优化**：开启 Nginx 的 gzip 压缩和静态文件缓存
+
+### Docker 容器占用内存过高？
+
+Mix Space 正常运行约需要 256-512MB 内存。如果内存占用异常，检查：
+- 是否有大量 AI 任务在后台运行
+- Redis 连接是否正常
+- 日志文件是否过大
+
+<Callout type="info">
+遇到文档中没有覆盖的问题？可以在 [GitHub Issues](https://github.com/mx-space/core/issues) 中搜索或提交新问题。
+</Callout>

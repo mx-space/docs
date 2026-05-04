@@ -1,0 +1,11 @@
+{
+  "title": "新手入门",
+  "description": "第一次使用 Mix Space，从这里开始",
+  "icon": "Rocket",
+  "root": true,
+  "pages": [
+    "index",
+    "what-you-need",
+    "quick-start"
+  ]
+}

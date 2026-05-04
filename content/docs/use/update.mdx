@@ -1,0 +1,71 @@
+---
+title: 版本更新
+description: 更新你的 Mix Space 后端与前端
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Card, Cards } from 'fumadocs-ui/components/card'
+import { FileText, AlertTriangle } from 'lucide-react'
+
+Mix Space 分为前端和后端两个部分，因此更新的时候二者也需要分开更新。
+
+## 小版本更新（常规）
+
+根据部署方式的不同，更新方式也有所不同。
+
+### Docker 部署
+
+进入 core 所在文件夹，执行：
+
+```bash
+docker compose pull && docker compose up -d
+```
+
+### 源码部署
+
+进入克隆 core 的文件夹，执行 `git pull origin master` 拉取新版本源码，随后正常进行构建：
+
+```bash
+pnpm i
+pnpm build
+pnpm bundle
+```
+
+随后进入 `./apps/core`，执行以下命令启动服务：
+
+```bash
+pm2 start ecosystem.config.js
+```
+
+## 大版本更新
+
+<Callout type="warn">
+v12 是一次重大升级，数据库从 MongoDB 迁移到 PostgreSQL。不能简单 `docker compose pull` 升级，请务必阅读专用升级指南。
+</Callout>
+
+<Cards>
+  <Card
+    title="v12 升级完整指南"
+    href="/docs/migrate/v11-to-v12"
+    icon={<AlertTriangle />}
+  />
+</Cards>
+
+## 前端更新
+
+请根据自己所部署的主题跳转到对应的更新部分完成更新。
+
+<Cards>
+  <Card
+    title="Shiro 更新"
+    href="/docs/themes/shiro/deploy/#更新主题"
+    icon={<FileText />}
+    target="_blank"
+  />
+  <Card
+    title="Kami 更新"
+    href="/docs/themes/kami#更新指南"
+    icon={<FileText />}
+    target="_blank"
+  />
+</Cards>

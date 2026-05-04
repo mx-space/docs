@@ -1,0 +1,366 @@
+---
+title: v11 升级到 v12
+description: 从 v11 升级到 v12 的完整指南，包含 MongoDB 到 PostgreSQL 的迁移步骤
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Card, Cards } from 'fumadocs-ui/components/card'
+import { AlertTriangle, CheckCircle, Container, Pickaxe, RotateCcw } from 'lucide-react'
+
+<Callout type="warn">
+v12 是一次**重大版本升级**，底层数据库从 MongoDB 更换为 PostgreSQL。虽然你的文章、评论、配置等数据都会保留，但升级过程中需要执行一次数据迁移，且需要短暂的停站维护。
+
+**如果你当前版本低于 v11，请先升级到 v11，再执行本指南。**
+</Callout>
+
+## 升级前必读（3 分钟）
+
+### 这次升级会变什么？
+
+- **数据库**：MongoDB → PostgreSQL（性能更好，数据关系更安全）
+- **备份方式**：以后用 `pg_dump` 代替 `mongodump`
+- **环境变量**：旧的 `DB_HOST`、`MONGO_CONNECTION` 等变量失效
+
+### 什么不会变？
+
+- 前端页面、API 接口和之前完全一致
+- 你的文章、评论、图片、配置全部保留
+- 登录方式、密码、API Key 不受影响
+
+### 我需要停站多久？
+
+| 数据规模 | 预估时间 |
+|---------|---------|
+| 文章 < 100 篇，评论 < 1000 条 | 5–10 分钟 |
+| 文章 < 1000 篇，评论 < 1 万条 | 10–30 分钟 |
+| 大型站点 | 30–60 分钟 |
+
+---
+
+## 升级 Checklist
+
+开始前，请确认：
+
+- [ ] 当前版本是 **v11.x**
+- [ ] 服务器剩余磁盘空间 **> 当前数据量的 2 倍**
+- [ ] 已准备好至少 30 分钟的维护窗口（期间不要发文章/评论）
+
+---
+
+## 第一步：备份（必须）
+
+无论你用 Docker 还是源码部署，先执行备份：
+
+```bash
+# 进入你放 docker-compose.yml 的文件夹，或者 core 源码文件夹
+cd ~/mx-space/core
+
+# 备份 MongoDB 数据
+docker exec -i $(docker ps -q -f name=mongo) mongodump --archive > backup-mongo-$(date +%Y%m%d).archive
+
+# 同时打包整个数据目录（包含配置文件、图片等）
+tar czvf mx-space-full-backup-$(date +%Y%m%d).tar.gz ./data
+```
+
+**验证备份**：
+- `backup-mongo-YYYYMMDD.archive` 文件大小不为 0
+- `mx-space-full-backup-YYYYMMDD.tar.gz` 包含 `data/mx-space` 目录
+
+---
+
+## 第二步：选择你的升级路径
+
+<Cards>
+  <Card title="Docker 部署" href="#docker-部署升级" icon={<Container />}>
+    适合大多数用户，使用 docker compose 部署的
+  </Card>
+  <Card title="源码 / PM2 部署" href="#源码--pm2-部署升级" icon={<Pickaxe />}>
+    适合进阶用户，手动编译部署的
+  </Card>
+</Cards>
+
+---
+
+## Docker 部署升级
+
+### 1. 停止当前服务
+
+```bash
+cd ~/mx-space/core
+docker compose down
+```
+
+### 2. 更新配置文件
+
+```bash
+# 备份旧配置（以防万一）
+cp docker-compose.yml docker-compose.yml.v11.backup
+
+# 拉取 v12 的 docker-compose.yml（已内置 PostgreSQL）
+wget -O docker-compose.yml https://fastly.jsdelivr.net/gh/mx-space/core@master/docker-compose.yml
+```
+
+### 3. 启动新数据库
+
+```bash
+# 只启动 PostgreSQL 和 Redis，先不启动主服务
+docker compose up -d postgres redis
+```
+
+等待 10 秒后检查状态：
+
+```bash
+docker compose ps
+```
+
+预期看到 `postgres` 和 `redis` 状态都是 `healthy` 或 `Up`。
+
+### 4. 执行数据迁移
+
+<Callout type="warn">
+这是最关键的一步。执行前请确保没有用户在发文章或评论。
+</Callout>
+
+```bash
+docker compose run --rm app npx tsx scripts/migrate-mongo-to-postgres.ts --mode apply
+```
+
+**预期输出**：
+- 看到 `Rows allocated: XXXX`，数字和你的文章/评论数量接近
+- 看到 `Missing refs: 0`（如果有少量数字，通常不影响）
+- 最后出现 `Migration completed successfully`
+
+**如果报错怎么办？**
+
+| 错误提示 | 原因 | 解决 |
+|---------|------|------|
+| `Connection refused` | PostgreSQL 还没启动好 | 等 30 秒重试 |
+| `Missing refs > 0` | 有孤儿数据 | 通常可忽略，截图记录后继续 |
+| 其他错误 | 未知问题 | **不要继续**，保留日志，回滚到 v11（见下方回滚章节） |
+
+### 5. 启动 v12
+
+```bash
+docker compose up -d
+```
+
+### 6. 验证（逐项检查）
+
+- [ ] 打开首页，文章列表正常显示
+- [ ] 打开一篇文章，内容和评论都在
+- [ ] 登录后台（`你的域名/proxy/qaqdmin`），能正常登录
+- [ ] 后台「其他 → 备份」页面能正常打开
+- [ ] 发一篇测试文章，能正常发布和显示
+- [ ] 删除测试文章，正常删除
+
+**全部通过 = 升级成功。**
+
+---
+
+## 源码 / PM2 部署升级
+
+### 1. 停止服务
+
+```bash
+cd ~/mx-space/core/apps/core
+pm2 stop ecosystem.config.js
+```
+
+### 2. 拉取 v12 代码
+
+```bash
+cd ~/mx-space/core
+git fetch origin
+git checkout v12.x.x  # 替换为实际 tag，或 master 上的最新 v12
+pnpm i
+```
+
+### 3. 安装 PostgreSQL
+
+如果你服务器上还没有 PostgreSQL 16+：
+
+```bash
+# Ubuntu / Debian
+sudo apt update
+sudo apt install postgresql-16
+
+# macOS
+brew install postgresql@16
+brew services start postgresql@16
+```
+
+创建数据库：
+
+```bash
+sudo -u postgres psql -c "CREATE USER mx WITH PASSWORD 'mx';"
+sudo -u postgres psql -c "CREATE DATABASE mx_core OWNER mx;"
+```
+
+### 4. 修改环境变量
+
+编辑你的环境配置文件（`.env` 或直接在 `ecosystem.config.js` 里），**删除**旧变量：
+
+```diff
+- DB_HOST=xxx
+- MONGO_CONNECTION=xxx
+```
+
+**添加**新变量：
+
+```bash
+# 方式一：连接字符串（推荐）
+PG_URL=postgresql://mx:mx@localhost:5432/mx_core
+
+# 方式二：分开配置
+PG_HOST=localhost
+PG_PORT=5432
+PG_USER=mx
+PG_PASSWORD=mx
+PG_DATABASE=mx_core
+
+# 必须添加：单实例填 1 即可
+SNOWFLAKE_WORKER_ID=1
+```
+
+### 5. 执行迁移
+
+先试运行（不写入，只检查）：
+
+```bash
+cd apps/core
+SNOWFLAKE_WORKER_ID=1 \
+MONGO_URI="mongodb://localhost:27017/mx-space" \
+PG_URL="postgresql://mx:mx@localhost:5432/mx_core" \
+npx tsx scripts/migrate-mongo-to-postgres.ts --mode dry-run
+```
+
+确认无致命错误后，正式迁移：
+
+```bash
+SNOWFLAKE_WORKER_ID=1 \
+MONGO_URI="mongodb://localhost:27017/mx-space" \
+PG_URL="postgresql://mx:mx@localhost:5432/mx_core" \
+npx tsx scripts/migrate-mongo-to-postgres.ts --mode apply
+```
+
+### 6. 构建并启动
+
+```bash
+pnpm build
+pnpm bundle
+cd apps/core
+pm2 start ecosystem.config.js
+```
+
+### 7. 验证
+
+与 Docker 验证清单相同（见上方第 6 步）。
+
+---
+
+## 第三步：清理旧数据库（可选）
+
+<Callout type="info">
+建议 v12 稳定运行 **48 小时** 后再执行清理。保留旧数据是回滚的最后保障。
+</Callout>
+
+### Docker 用户
+
+```bash
+cd ~/mx-space/core
+
+# 删除旧 MongoDB 容器
+docker compose rm -f mongo
+
+# 删除 MongoDB 数据卷（名字可能不同，先查看再删）
+docker volume ls
+docker volume rm mx-space_mongo_data  # 请替换为实际卷名
+```
+
+### 源码用户
+
+```bash
+# 停止 MongoDB 服务
+sudo systemctl stop mongod
+
+# 是否卸载 MongoDB 请自行决定，建议至少保留备份文件 30 天
+```
+
+---
+
+## 如果失败，如何回滚
+
+### 场景 1：迁移命令就报错了
+
+最简单的回滚，直接恢复 v11：
+
+```bash
+# Docker
+cd ~/mx-space/core
+cp docker-compose.yml.v11.backup docker-compose.yml
+docker compose up -d
+
+# 源码
+cd ~/mx-space/core
+git checkout v11.x.x
+pm2 restart ecosystem.config.js
+```
+
+> 因为迁移过程**只读** MongoDB 不写，所以回滚后数据完全和升级前一样。
+
+### 场景 2：v12 启动了，但发现数据不对或功能异常
+
+立即切回 v11：
+
+```bash
+# Docker
+cd ~/mx-space/core
+docker compose down
+cp docker-compose.yml.v11.backup docker-compose.yml
+docker compose up -d
+
+# 源码
+cd ~/mx-space/core/apps/core
+pm2 stop ecosystem.config.js
+cd ..
+git checkout v11.x.x
+pm2 start ecosystem.config.js
+```
+
+### 场景 3：已经在 v12 写了新数据，又想回滚
+
+这种情况比较麻烦，因为新数据在 PostgreSQL 里，回滚到 v11（MongoDB）会丢失这部分。建议：
+
+1. 优先在 v12 上排查修复问题（推荐）
+2. 如需帮助，带上错误日志发 [GitHub Issue](https://github.com/mx-space/core/issues)
+
+---
+
+## 常见问题
+
+### 迁移会删除我的 MongoDB 数据吗？
+
+**不会。** 迁移是读取 MongoDB → 写入 PostgreSQL，MongoDB 原封不动。这就是回滚安全的根本原因。
+
+### 图片和附件会丢吗？
+
+**不会。** 图片、附件存在文件系统或对象存储里，不在数据库中，完全不受影响。
+
+### 迁移可以中断后再继续吗？
+
+**可以。** 重复执行迁移命令不会重复导入已迁过的数据，所以可以放心重试。
+
+### 我需要改前端吗？
+
+**一般不需要。** 官方主题（Shiro / Kami / Yohaku）直接兼容。只有直接调用 API 的第三方工具可能需要更新 SDK。
+
+### 为什么要换数据库？
+
+PostgreSQL 是更成熟的关系型数据库，数据一致性更好，未来做复杂查询和统计分析也更方便。对日常使用而言，你感觉不到明显变化，但长期更稳定可靠。
+
+---
+
+## 还需要帮助？
+
+- [GitHub Issues](https://github.com/mx-space/core/issues)
+- [Mix Space 文档站](https://mx-space.js.org)

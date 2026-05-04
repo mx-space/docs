@@ -1,0 +1,113 @@
+---
+title: 账号与安全
+description: 管理站点所有者信息、API Token、Passkey 和 OAuth 登录
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
+Mix Space 的账号系统围绕「所有者」概念设计。每个 Mix Space 实例只有一个所有者（Owner），所有者拥有完整的管理权限。
+
+## 所有者信息
+
+登录后台，进入「设定 → 个人信息」页面。你可以设置以下信息：
+
+| 字段 | 说明 |
+|------|------|
+| **昵称** | 显示名称 |
+| **头像** | 头像图片 URL |
+| **邮箱** | 联系邮箱 |
+| **个人介绍** | 一段简短的个人介绍 |
+| **社交链接** | GitHub、Twitter、Bilibili 等社交账号链接 |
+
+这些信息会被前端主题读取并展示在首页的博主信息区域。
+
+## API Token
+
+API Token 是访问 Mix Space API 的凭证。第三方工具（如 Obsidian 插件、API 客户端）需要 Token 才能调用需要认证的 API。
+
+### 管理 Token
+
+进入「设定 → 账号与安全 → API Token」：
+
+| 操作 | 说明 |
+|------|------|
+| **创建 Token** | 设置名称和过期时间，生成新的 Token |
+| **查看 Token** | 创建时显示完整的 Token 值，请妥善保存 |
+| **删除 Token** | 吊销指定 Token，所有使用该 Token 的请求将被拒绝 |
+
+<Callout type="warn">
+Token 仅在创建时显示一次完整值。如果忘记 Token，需要删除后重新创建。请勿将 Token 提交到公开的代码仓库。
+</Callout>
+
+### Token 的用途
+
+- **Obsidian 插件**：配置 API Token 以同步内容
+- **API 客户端**：`@mx-space/api-client` SDK 使用 Token 认证
+- **自动化脚本**：CI/CD 或自定义脚本调用 API
+
+## Passkey（通行密钥）
+
+Mix Space 支持使用 Passkey（WebAuthn）进行无密码登录，更加安全便捷。
+
+### 添加 Passkey
+
+<Steps>
+<Step>
+### 进入账号设置
+
+前往「设定 → 账号与安全 → Passkey」。
+</Step>
+
+<Step>
+### 注册新密钥
+
+点击「添加 Passkey」，浏览器会弹出安全密钥注册窗口。根据设备不同，可能需要：
+- 使用指纹识别（Touch ID / Windows Hello）
+- 使用面部识别
+- 插入硬件安全密钥（如 YubiKey）
+</Step>
+
+<Step>
+### 命名密钥
+
+为 Passkey 设置一个便于识别的名称（如「MacBook Touch ID」），方便管理。
+</Step>
+</Steps>
+
+<Callout type="info">
+Passkey 与设备和浏览器绑定。如果你更换设备，需要在旧设备上仍然可以登录时添加新的 Passkey。
+</Callout>
+
+## OAuth 第三方登录
+
+Mix Space 支持通过 GitHub、Google 等第三方账号登录后台。
+
+### 配置 OAuth
+
+前往「设定 → OAuth」页面。详细配置步骤请参考 [OAuth 2.0 登录](/docs/configure/oauth)。
+
+### 将 OAuth 账号设为所有者
+
+首次通过 OAuth 登录后，需要在「设定 → 账号与安全」中点击「设为所有者」，将该 OAuth 账号与站点所有者身份绑定。
+
+## 安全设置
+
+### 禁用密码登录
+
+如果你已经配置了 Passkey 或 OAuth 登录，可以在「认证安全设置」中禁用密码登录，提高安全性。
+
+<Callout type="warn">
+禁用密码登录前，请确保你至少有一种可用的替代登录方式（Passkey 或 OAuth）。否则你将无法登录后台。
+</Callout>
+
+## 登录会话
+
+在账号与安全页面，你可以查看当前所有活跃的登录会话：
+
+- 设备和浏览器信息
+- 登录 IP 地址
+- 登录时间
+- 当前会话标记
+
+你可以手动结束其他设备的会话。

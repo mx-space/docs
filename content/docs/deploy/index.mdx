@@ -1,0 +1,40 @@
+---
+title: 选择部署方式
+description: 根据你的技术背景选择合适的 Mix Space 部署方式
+icon: GitBranch
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { Container, Pickaxe, SquareTerminal } from 'lucide-react';
+
+Mix Space 提供三种部署方式，从简单到复杂依次为 Docker、一键脚本、源码编译。
+
+## 部署方式对比
+
+| 方式 | 难度 | 维护成本 | 适合谁 |
+|------|------|----------|--------|
+| Docker | ⭐ | 低 | 大多数用户，推荐 |
+| 一键脚本 | ⭐ | 中 | 想自动化部署的用户 |
+| 源码编译 | ⭐⭐⭐ | 高 | 开发者，需要二次开发 |
+
+## 如何选择
+
+- **如果你第一次部署** → 选择 [Docker 部署](./docker)，稳定、可维护、社区支持最好。
+- **如果你想在服务器上一键搞定** → 选择 [一键脚本部署](./one-script)，自动安装依赖并配置。
+- **如果你想改后端代码，或需要深度定制** → 选择 [源码部署](./source)，完全可控但维护成本更高。
+
+## 快速开始
+
+<Cards num={3}>
+  <Card title="Docker 部署" href="./docker" icon={<Container />}>
+    推荐大多数用户使用，简单稳定
+  </Card>
+  <Card title="一键脚本部署" href="./one-script" icon={<SquareTerminal />}>
+    自动化安装，适合懒人
+  </Card>
+  <Card title="源码部署" href="./source" icon={<Pickaxe />}>
+    面向开发者，完全可控
+  </Card>
+</Cards>
+
+部署完成后，请继续配置 [反向代理](./reverse-proxy) 和 [SSL 证书](./ssl)。

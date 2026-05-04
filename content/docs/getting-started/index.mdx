@@ -1,0 +1,57 @@
+---
+title: Mix Space 是什么
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Card, Cards } from 'fumadocs-ui/components/card'
+import { Files, File, Folder } from 'fumadocs-ui/components/files'
+
+Mix Space 是一个简洁、现代、高性能的个人博客系统，采用前后端分离架构。
+
+## 系统组成
+
+Mix Space 由两大部分组成：
+
+<Folder name="Mix Space" defaultOpen>
+  <Folder name="后端 (Core)">
+    <File name="RESTful API" />
+    <File name="后台管理系统 (qAqDmin)" />
+    <File name="数据库 (MongoDB / PostgreSQL)" />
+  </Folder>
+  <Folder name="前端 (Theme)">
+    <File name="访客展示页面" />
+    <File name="主题配置" />
+  </Folder>
+</Folder>
+
+- **后端 (Core)**：提供数据存储、业务逻辑、RESTful API 以及后台管理界面。你可以通过后台管理文章、页面、笔记、评论等所有内容。
+- **前端 (Theme)**：面向访客的展示站点，通过调用后端 API 获取数据并渲染页面。
+
+这种分离设计让你可以自由搭配前端主题，而后端数据始终保持一致。
+
+## 官方主题
+
+目前官方维护的前端主题有：
+
+- **Shiro** —— 最受欢迎的现代化主题，设计精致，功能丰富
+- **Yohaku** —— 简约留白风格，注重阅读体验
+- **Kami** —— 经典风格，稳定可靠
+- **Yun** —— 早期主题，轻量简洁
+
+<Callout type="warn">
+  这不是 WordPress 式的「一键安装」。你需要分别部署后端和前端，但这也带来了更大的灵活性。
+</Callout>
+
+## 继续阅读
+
+<Cards>
+  <Card title="准备工作" href="./what-you-need">
+    了解你需要准备的服务器、域名和基础知识
+  </Card>
+  <Card title="5 分钟快速体验" href="./quick-start">
+    在本地快速启动 Mix Space，无需配置域名
+  </Card>
+  <Card title="部署指南" href="/docs/deploy">
+    完整的生产环境部署文档
+  </Card>
+</Cards>

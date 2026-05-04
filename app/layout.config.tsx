@@ -60,13 +60,13 @@ export const baseOptions: BaseLayoutProps = {
     {
       type: 'menu',
       text: '文档',
-      url: '/docs/core',
+      url: '/docs/getting-started',
       items: [
         {
           icon: <BookMarked />,
           text: '使用文档',
           description: '了解 Mix Space 如何使用',
-          url: '/docs/usage',
+          url: '/docs/use',
           menu: {
             className: 'md:row-span-2',
           },
@@ -75,7 +75,7 @@ export const baseOptions: BaseLayoutProps = {
           icon: <Server />,
           text: '后端部署',
           description: '部署 Mix Space 的后端部分',
-          url: '/docs/core',          
+          url: '/docs/deploy',          
           menu: {
             className: 'lg:col-start-2',
           },
@@ -93,7 +93,7 @@ export const baseOptions: BaseLayoutProps = {
           icon: <Pencil />,
           text: '文档撰写',
           description: '了解 Mix Space 的文档撰写规范',
-          url: '/docs/document',
+          url: '/docs/use/writing',
           menu: {
             className: 'lg:col-start-3 lg:row-start-1',
           },
@@ -102,7 +102,7 @@ export const baseOptions: BaseLayoutProps = {
           icon: <Cpu />,
           text: '开发指南',
           description: '了解如何为 Mix Space 开发后端和前端',
-          url: '/docs/development',
+          url: '/docs/develop',
           menu: {
             className: 'lg:col-start-3',
           },
