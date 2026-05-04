@@ -12,8 +12,8 @@ const config = {
   },
   async redirects() {
     return [
-      // --- Old section redirects (for dev mode; production uses static HTML in public/docs/) ---
-      // Section roots
+      // Old section redirects — keep for backward compat (bookmarks, external links)
+      // Dev mode: handled by these redirects. Production: handled by static HTML in public/docs/.
       { source: '/docs/core', destination: '/docs/getting-started', permanent: true },
       { source: '/docs/core/index', destination: '/docs/getting-started', permanent: true },
       { source: '/docs/core/features', destination: '/docs/getting-started', permanent: true },
@@ -38,9 +38,6 @@ const config = {
       { source: '/docs/development/frontend', destination: '/docs/develop/frontend', permanent: true },
       { source: '/docs/document', destination: '/docs/develop/contribute', permanent: true },
       { source: '/docs/document/index', destination: '/docs/develop/contribute', permanent: true },
-      // Common short paths
-      { source: '/docs/quick-start', destination: '/docs/getting-started/quick-start', permanent: true },
-      { source: '/docs/docker', destination: '/docs/deploy/docker', permanent: true },
     ]
   },
   async rewrites() {
