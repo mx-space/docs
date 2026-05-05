@@ -11,7 +11,7 @@ const imageNames = ['余白 / Yohaku', 'Shiro 主题']
 import { cn } from 'utils/cn'
 import { buttonVariants } from 'app/components/ui/button'
 import { LuCirclePlay } from 'react-icons/lu'
-import { FaGithub } from 'react-icons/fa'
+import { FaGithub, FaTelegram } from 'react-icons/fa'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export function Hero() {
@@ -75,6 +75,21 @@ export function Hero() {
               )}
             >
               <FaGithub className="size-4 mr-2" /> Github
+            </a>
+            <a
+              href="https://t.me/+lRRxARqVZC1mYTc9"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                buttonVariants({
+                  size: 'lg',
+                  variant: 'outline',
+                  className:
+                    'rounded-full bg-background min-w-[140px] justify-center',
+                }),
+              )}
+            >
+              <FaTelegram className="size-4 mr-2" /> Telegram
             </a>
           </div>
         </div>
