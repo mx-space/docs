@@ -83,11 +83,24 @@ tar czvf mx-space-full-backup-$(date +%Y%m%d).tar.gz ./data
 
 ## Docker 部署升级
 
-### 1. 停止当前服务
+### 1. 停止应用，保留 MongoDB 容器
+
+<Callout type="warn">
+**关键**：只停 `app` 服务，**不要** `docker compose down`。MongoDB 容器需要继续运行，迁移脚本会从中读取数据。
+</Callout>
 
 ```bash
 cd ~/mx-space/core
-docker compose down
+
+# 只停业务进程，让 mongo 继续跑
+docker compose stop app
+```
+
+确认 MongoDB 仍在运行：
+
+```bash
+docker ps | grep mongo
+# 记下容器名（一般是 mongo），下面要用
 ```
 
 ### 2. 更新配置文件
@@ -115,36 +128,65 @@ docker compose ps
 
 预期看到 `postgres` 和 `redis` 状态都是 `healthy` 或 `Up`。
 
-### 4. 执行数据迁移
+### 4. 把 MongoDB 容器接入 v12 网络
+
+迁移脚本要在同一个 docker 网络里同时访问到 mongo 和 postgres。先查询 v12 compose 创建的网络名：
+
+```bash
+docker network ls | grep mx-space
+# 类似输出： xxxxxxxxx   mx-space_mx-space   bridge   local
+```
+
+把旧 mongo 容器接入这个网络（容器名替换为你 `docker ps` 看到的实际名字）：
+
+```bash
+docker network connect mx-space_mx-space mongo
+```
+
+### 5. 执行数据迁移
 
 <Callout type="warn">
 这是最关键的一步。执行前请确保没有用户在发文章或评论。
 </Callout>
 
 ```bash
-docker compose run --rm app npx tsx scripts/migrate-mongo-to-postgres.ts --mode apply
+docker compose run --rm \
+  -e MONGO_URI=mongodb://mongo:27017/mx-space \
+  app \
+  node mongo-pg-cli.mjs --mode apply
 ```
+
+参数说明：
+- `MONGO_URI` 中的 `mongo` 是上一步接入网络的容器名；如果你的容器名不同，对应替换
+- `mx-space` 是 v11 默认的数据库名，自定义过的请改
 
 **预期输出**：
 - 看到 `Rows allocated: XXXX`，数字和你的文章/评论数量接近
 - 看到 `Missing refs: 0`（如果有少量数字，通常不影响）
-- 最后出现 `Migration completed successfully`
+- 最后出现 `✅ Migration finished without missing references.`
 
 **如果报错怎么办？**
 
 | 错误提示 | 原因 | 解决 |
 |---------|------|------|
-| `Connection refused` | PostgreSQL 还没启动好 | 等 30 秒重试 |
+| `Connection refused` (mongo) | 容器名不对 / 未接入网络 | 重做第 4 步，确认容器名 |
+| `Connection refused` (postgres) | PostgreSQL 还没启动好 | 等 30 秒重试 |
 | `Missing refs > 0` | 有孤儿数据 | 通常可忽略，截图记录后继续 |
 | 其他错误 | 未知问题 | **不要继续**，保留日志，回滚到 v11（见下方回滚章节） |
 
-### 5. 启动 v12
+### 6. 断开旧 MongoDB 网络（可选清理）
+
+```bash
+docker network disconnect mx-space_mx-space mongo
+```
+
+### 7. 启动 v12
 
 ```bash
 docker compose up -d
 ```
 
-### 6. 验证（逐项检查）
+### 8. 验证（逐项检查）
 
 - [ ] 打开首页，文章列表正常显示
 - [ ] 打开一篇文章，内容和评论都在
@@ -227,11 +269,12 @@ SNOWFLAKE_WORKER_ID=1
 先试运行（不写入，只检查）：
 
 ```bash
-cd apps/core
+cd packages/mongo-pg-cli
+pnpm build
 SNOWFLAKE_WORKER_ID=1 \
 MONGO_URI="mongodb://localhost:27017/mx-space" \
 PG_URL="postgresql://mx:mx@localhost:5432/mx_core" \
-npx tsx scripts/migrate-mongo-to-postgres.ts --mode dry-run
+node dist/cli.mjs --mode dry-run
 ```
 
 确认无致命错误后，正式迁移：
@@ -240,7 +283,8 @@ npx tsx scripts/migrate-mongo-to-postgres.ts --mode dry-run
 SNOWFLAKE_WORKER_ID=1 \
 MONGO_URI="mongodb://localhost:27017/mx-space" \
 PG_URL="postgresql://mx:mx@localhost:5432/mx_core" \
-npx tsx scripts/migrate-mongo-to-postgres.ts --mode apply
+MIGRATIONS_DIR="$(pwd)/../../apps/core/src/database/migrations" \
+node dist/cli.mjs --mode apply
 ```
 
 ### 6. 构建并启动
