@@ -81,6 +81,40 @@ tar czvf mx-space-full-backup-$(date +%Y%m%d).tar.gz ./data
 
 ---
 
+## 数据迁移工具：`@mx-space/mongo-pg-cli`
+
+无论 Docker 部署还是源码部署，**核心步骤是同一个 CLI**：
+
+```bash
+npx @mx-space/mongo-pg-cli@latest --mode dry-run
+npx @mx-space/mongo-pg-cli@latest --mode apply
+```
+
+它做三件事：
+
+1. 读取 v11 的 MongoDB
+2. 在目标 PostgreSQL 上跑 v12 的 schema migration
+3. 分配 Snowflake ID，把每个 collection 的数据写进对应 PG 表
+
+**两种模式**：
+
+- `dry-run`（默认）：只读，不写入。先跑这个看报告
+- `apply`：写入。可重复执行，不会重复导入
+
+**环境变量**（最少 2 个）：
+
+| 变量 | 说明 |
+|---|---|
+| `MONGO_URI` | v11 MongoDB 连接串，如 `mongodb://127.0.0.1:27017/mx-space` |
+| `PG_URL` | v12 PostgreSQL 连接串，如 `postgres://mx:mx@127.0.0.1:5432/mx_core` |
+| `SNOWFLAKE_WORKER_ID` | 迁移产生的行的 worker id，建议留 `900–999` 给迁移用，默认 `900` |
+
+完整参数与故障排查见 CLI 自身的 [README](https://www.npmjs.com/package/@mx-space/mongo-pg-cli)。
+
+需要 **Node.js 22+** 来跑 `npx`。如果服务器没有 Node，下面的 Docker 流程提供了用镜像内置 CLI 的备选方案。
+
+---
+
 ## Docker 部署升级
 
 ### 1. 停止应用，保留 MongoDB 容器
@@ -96,11 +130,13 @@ cd ~/mx-space/core
 docker compose stop app
 ```
 
-确认 MongoDB 仍在运行：
+确认 MongoDB 仍在运行并对宿主机暴露 27017 端口：
 
 ```bash
 docker ps | grep mongo
-# 记下容器名（一般是 mongo），下面要用
+docker port $(docker ps -q -f name=mongo) | grep 27017
+# 期望看到类似  27017/tcp -> 0.0.0.0:27017
+# 没暴露则在旧 compose 里 ports: ["27017:27017"]，重启 mongo 容器
 ```
 
 ### 2. 更新配置文件
@@ -126,67 +162,83 @@ docker compose up -d postgres redis
 docker compose ps
 ```
 
-预期看到 `postgres` 和 `redis` 状态都是 `healthy` 或 `Up`。
-
-### 4. 把 MongoDB 容器接入 v12 网络
-
-迁移脚本要在同一个 docker 网络里同时访问到 mongo 和 postgres。先查询 v12 compose 创建的网络名：
+预期看到 `postgres` 和 `redis` 状态都是 `healthy` 或 `Up`。也确认 PostgreSQL 端口 5432 已映射到宿主机：
 
 ```bash
-docker network ls | grep mx-space
-# 类似输出： xxxxxxxxx   mx-space_mx-space   bridge   local
+docker port postgres | grep 5432
+# 期望看到  5432/tcp -> 0.0.0.0:5432
 ```
 
-把旧 mongo 容器接入这个网络（容器名替换为你 `docker ps` 看到的实际名字）：
-
-```bash
-docker network connect mx-space_mx-space mongo
-```
-
-### 5. 执行数据迁移
+### 4. 执行数据迁移
 
 <Callout type="warn">
 这是最关键的一步。执行前请确保没有用户在发文章或评论。
 </Callout>
 
+#### 方式 A（推荐）：宿主机直接 `npx`
+
+要求服务器装了 Node.js 22+。`npx` 会自动下载 CLI 并连接两边端口：
+
 ```bash
+MONGO_URI="mongodb://127.0.0.1:27017/mx-space" \
+PG_URL="postgres://mx:mx@127.0.0.1:5432/mx_core" \
+npx @mx-space/mongo-pg-cli@latest --mode dry-run
+```
+
+确认报告无致命错误后，再 apply：
+
+```bash
+MONGO_URI="mongodb://127.0.0.1:27017/mx-space" \
+PG_URL="postgres://mx:mx@127.0.0.1:5432/mx_core" \
+npx @mx-space/mongo-pg-cli@latest --mode apply
+```
+
+如果你的 mongo 数据库名不是 `mx-space`、PG 凭证不是 `mx:mx`，对应替换。
+
+#### 方式 B：服务器没装 Node.js
+
+让 mongo 容器接入 v12 的 docker 网络，再用 v12 镜像内置的 CLI bundle：
+
+```bash
+# 查 v12 compose 创建的网络名
+docker network ls | grep mx-space
+# 类似输出： xxxxxxxxx   mx-space_mx-space   bridge   local
+
+# 接入旧 mongo 容器（容器名替换为你 docker ps 看到的实际名字）
+docker network connect mx-space_mx-space mongo
+
+# 跑镜像内置的 CLI bundle
 docker compose run --rm \
   -e MONGO_URI=mongodb://mongo:27017/mx-space \
   app \
   node mongo-pg-cli.mjs --mode apply
-```
 
-参数说明：
-- `MONGO_URI` 中的 `mongo` 是上一步接入网络的容器名；如果你的容器名不同，对应替换
-- `mx-space` 是 v11 默认的数据库名，自定义过的请改
-
-**预期输出**：
-- 看到 `Rows allocated: XXXX`，数字和你的文章/评论数量接近
-- 看到 `Missing refs: 0`（如果有少量数字，通常不影响）
-- 最后出现 `✅ Migration finished without missing references.`
-
-**如果报错怎么办？**
-
-| 错误提示 | 原因 | 解决 |
-|---------|------|------|
-| `Connection refused` (mongo) | 容器名不对 / 未接入网络 | 重做第 4 步，确认容器名 |
-| `Connection refused` (postgres) | PostgreSQL 还没启动好 | 等 30 秒重试 |
-| `Missing refs > 0` | 有孤儿数据 | 通常可忽略，截图记录后继续 |
-| 其他错误 | 未知问题 | **不要继续**，保留日志，回滚到 v11（见下方回滚章节） |
-
-### 6. 断开旧 MongoDB 网络（可选清理）
-
-```bash
+# 完事后断开网络（可选清理）
 docker network disconnect mx-space_mx-space mongo
 ```
 
-### 7. 启动 v12
+#### 预期输出
+
+- `Rows allocated: XXXX`，数字与你的文章/评论数量接近
+- `Missing refs: 0`（少量孤儿数据可接受）
+- 最后出现 `✅ Migration finished without missing references.`
+
+#### 如果报错怎么办？
+
+| 错误提示 | 原因 | 解决 |
+|---------|------|------|
+| `MongoServerSelectionError` | mongo 端口未暴露 / 网络未联通 | 方式 A：检查 mongo 容器是否映射 27017；方式 B：重做 `docker network connect` |
+| `Connection refused` (postgres) | PG 还没启动好 | 等 30 秒重试 |
+| `Missing refs > 0` | 有孤儿数据 | 通常可忽略，截图记录后继续 |
+| 其他错误 | 未知问题 | **不要继续**，保留日志，回滚到 v11（见下方回滚章节） |
+
+### 5. 启动 v12
 
 ```bash
 docker compose up -d
 ```
 
-### 8. 验证（逐项检查）
+### 6. 验证（逐项检查）
 
 - [ ] 打开首页，文章列表正常显示
 - [ ] 打开一篇文章，内容和评论都在
@@ -266,26 +318,25 @@ SNOWFLAKE_WORKER_ID=1
 
 ### 5. 执行迁移
 
-先试运行（不写入，只检查）：
-
-```bash
-cd packages/mongo-pg-cli
-pnpm build
-SNOWFLAKE_WORKER_ID=1 \
-MONGO_URI="mongodb://localhost:27017/mx-space" \
-PG_URL="postgresql://mx:mx@localhost:5432/mx_core" \
-node dist/cli.mjs --mode dry-run
-```
-
-确认无致命错误后，正式迁移：
+先试运行（只读 MongoDB，不写 PostgreSQL）：
 
 ```bash
 SNOWFLAKE_WORKER_ID=1 \
 MONGO_URI="mongodb://localhost:27017/mx-space" \
 PG_URL="postgresql://mx:mx@localhost:5432/mx_core" \
-MIGRATIONS_DIR="$(pwd)/../../apps/core/src/database/migrations" \
-node dist/cli.mjs --mode apply
+npx @mx-space/mongo-pg-cli@latest --mode dry-run
 ```
+
+确认报告无致命错误（`Rows allocated` 接近真实条数、`Missing refs` 数量可接受）后，正式迁移：
+
+```bash
+SNOWFLAKE_WORKER_ID=1 \
+MONGO_URI="mongodb://localhost:27017/mx-space" \
+PG_URL="postgresql://mx:mx@localhost:5432/mx_core" \
+npx @mx-space/mongo-pg-cli@latest --mode apply
+```
+
+`apply` 模式可重复执行：被 `Ctrl+C` 打断后再跑不会重复导入。
 
 ### 6. 构建并启动
 
