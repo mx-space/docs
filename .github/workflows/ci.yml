@@ -13,6 +13,7 @@ jobs:
       contents: read
     env:
       CI: true
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v6
 
