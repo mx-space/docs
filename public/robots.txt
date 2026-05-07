@@ -5,6 +5,6 @@ Sitemap: https://mx-space.js.org/sitemap.xml
 
 # LLM / AI crawlers
 User-agent: *
-Allow: /llm.txt
-Allow: /llm-full.txt
+Allow: /llms.txt
+Allow: /llms-full.txt
 Allow: /agent-skills/

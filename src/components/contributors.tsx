@@ -33,10 +33,14 @@ async function fetchContributors(): Promise<{
     let page = 1;
     while (true) {
       try {
+        const headers: Record<string, string> = { 'User-Agent': 'mx-docs' };
+        if (process.env.GITHUB_TOKEN) {
+          headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+        }
         const res = await fetch(
           `https://api.github.com/repos/${repo}/contributors?per_page=100&page=${page}`,
           {
-            headers: { 'User-Agent': 'mx-docs' },
+            headers,
             next: { revalidate: 86400 },
           },
         );

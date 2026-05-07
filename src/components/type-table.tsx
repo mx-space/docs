@@ -4,7 +4,7 @@ import { ChevronDown } from 'lucide-react';
 import Link from 'fumadocs-core/link';
 import { cva } from 'class-variance-authority';
 import { cn } from '../lib/cn';
-import { type ComponentProps, type ReactNode, useState } from 'react';
+import { type ComponentProps, type ReactNode, useEffect, useState } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 
 export interface ParameterNode {
@@ -94,10 +94,13 @@ function Item({
   item: TypeNode;
 }) {
   const id = parentId ? `${parentId}-${name}` : undefined;
-  const [open, setOpen] = useState(() => {
-    if (!id || typeof window === 'undefined') return false;
-    return window.location.hash === `#${id}`;
-  });
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (id && window.location.hash === `#${id}`) {
+      setOpen(true);
+    }
+  }, [id]);
 
   return (
     <Collapsible

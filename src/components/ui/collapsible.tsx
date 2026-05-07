@@ -1,7 +1,7 @@
 'use client';
 import * as Primitive from '@radix-ui/react-collapsible';
 import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '../../lib/cn';
 
 export const Collapsible = Primitive.Root;
@@ -13,10 +13,8 @@ export function CollapsibleContent({
   ...props
 }: React.ComponentPropsWithRef<typeof Primitive.CollapsibleContent>) {
   const [animate, setAnimate] = useState(false);
-  const mounted = useRef(false);
 
   useEffect(() => {
-    mounted.current = true;
     setAnimate(true);
   }, []);
 

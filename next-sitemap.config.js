@@ -6,4 +6,4 @@ const config = {
   exclude: ['/api/*', '/og/*', '/llms.txt', '/llms-full.txt', '/llms.mdx/*', '/__next.*'],
 };
 
-export default config;
+module.exports = config;

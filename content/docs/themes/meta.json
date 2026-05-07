@@ -2,7 +2,7 @@
     "root": true,
     "title": "前端主题",
     "description": "部署 Mix Space 的前端主题",
-    "icons": "Paintbrush",
+    "icon": "Paintbrush",
     "pages": [
         "index",
         "yohaku",
