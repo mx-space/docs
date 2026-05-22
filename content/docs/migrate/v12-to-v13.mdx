@@ -1,0 +1,216 @@
+---
+title: v12 升级到 v13
+description: 从 v12 升级到 v13 的指南，含 V3 API 响应契约切换、api-client v5 与 mx-admin v8 同步升级
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Card, Cards } from 'fumadocs-ui/components/card'
+import { AlertTriangle, CheckCircle, Container, Pickaxe, RotateCcw } from 'lucide-react'
+
+<Callout type="warn">
+v13 是一次 **API 契约的 breaking change**：列表与详情端点改用 V3 响应封套 `{ data, meta }`，字段命名一律 snake_case，路由前缀由 `/api/v2/*` 改为 `/api/v3/*`。前端可经 `@mx-space/api-client@5` 之 legacy adapter 渐进迁移，无须一次改尽。
+
+数据层、文章/评论/图片等数据本身**不会改动**，亦无须数据库迁移。仅是接口形态变了。
+</Callout>
+
+## 升级前必读（2 分钟）
+
+### 这次升级会变什么？
+
+- **路由前缀**：`/api/v2/*` → `/api/v3/*`
+- **响应封套**：`{ ...resource }` 直平展 → `{ data, meta }`，资源字段进 `data`，平台元数据（pagination、translation、enrichments、related、insights）进 `meta`
+- **字段命名**：mixedCase / camelCase 不再混用，统一 **snake_case**
+- **named views**：列表端点用 `card` 视图（精简字段），详情端点用 `detail` 视图（全字段）
+- **后台 dashboard**：mx-core v13 的 dashboard 钉版从 v7.4.0 升到 **v8.0.0**，自建用户须同步部署 mx-admin v8
+
+### 什么不会变？
+
+- 数据库 schema、文章/评论/图片/配置等数据**完全不变**
+- 登录方式、密码、API Key、Better-Auth 会话不受影响
+- WebSocket / SSE 端点形态不变
+- 文件上传、备份机制不变
+
+### 我需要停站多久？
+
+| 场景 | 预估时间 |
+|---|---|
+| Docker 拉新镜像 + dashboard 升级 | 2–5 分钟 |
+| 源码部署 `pnpm i + build` | 5–10 分钟 |
+
+无数据迁移步骤，停站窗口比 v11→v12 短得多。
+
+---
+
+## 升级 Checklist
+
+开始前请确认：
+
+- [ ] 当前版本是 **v12.x**（若仍在 v11，先依 [v11→v12 指南](/docs/migrate/v11-to-v12)）
+- [ ] 准备好与 mx-core v13 配套的 **mx-admin v8.0.0** 部署
+- [ ] 直调 mx-core REST 的第三方脚本/工具已盘点（小程序、外部聚合等）
+
+---
+
+## 第一步：升级 mx-core 服务端
+
+### Docker 部署
+
+```bash
+cd ~/mx-space/core
+
+# 拉取 v13 镜像
+docker compose pull app
+
+# 重启业务进程（PostgreSQL/Redis 保持运行）
+docker compose up -d app
+```
+
+确认日志中出现 `Mix Space v13.x.x started`。
+
+### 源码 / PM2 部署
+
+```bash
+cd ~/mx-space/core
+
+git fetch origin --tags
+git checkout v13.x.x   # 或 master
+pnpm i
+pnpm build
+
+cd apps/core
+pm2 restart ecosystem.config.cjs
+```
+
+### 验证
+
+向新路由前缀发一个最简单的 GET 请求：
+
+```bash
+curl -s http://localhost:2333/api/v3/aggregate | head -c 200
+```
+
+应返回形如 `{"data":{...},"meta":{...}}` 之 JSON。`/api/v2/*` 不再可用。
+
+---
+
+## 第二步：升级 mx-admin Dashboard
+
+mx-core v13 的 `dashboard.version` 字段钉版 `8.0.0`。若你使用 mx-core 自动下载的 dashboard 资源，重启后会自动拉新版；若你自部署 admin，请手动同步：
+
+```bash
+# Docker 自动下载 dashboard（默认）— 重启已生效，无须额外步骤
+# 如显式部署
+cd ~/mx-space/mx-admin
+git fetch origin --tags
+git checkout v8.0.0
+pnpm i && pnpm build
+# 把 apps/admin/dist 部署到原路径
+```
+
+打开后台 `你的域名/proxy/qaqdmin`，确认登入正常、文章列表可见。
+
+---
+
+## 第三步：升级前端 / 接口消费者
+
+前端调用 mx-core 的方式分两类，迁移路径不同。
+
+### A 类：使用 `@mx-space/api-client`（含 Shiro / Yohaku 等官方主题）
+
+升级到 **v5.x**，其内置 **legacy adapter** 会把 V3 envelope 反向还原为 V1 wire 形态（camelCase、扁平 meta、`currentPage`/`totalPage` 分页键），现有调用代码**无须改动**即可工作。
+
+```bash
+pnpm add @mx-space/api-client@^5
+```
+
+随后逐 endpoint 把读取处迁移到 V3 envelope：
+
+```ts
+// 旧：res.pagination.total
+// 新：res.meta.pagination.total
+
+// 旧：post.translation
+// 新：post.meta.translation
+
+// 旧：post.enrichments
+// 新：post.meta.enrichments
+```
+
+legacy adapter 是迁移桥梁，非终态。新代码请直读 V3 envelope。
+
+### B 类：直接 HTTP / REST 调用
+
+- 路由前缀全替：`/api/v2/*` → `/api/v3/*`
+- 分页：读 `meta.pagination`（含 `page`、`size`、`total`、`total_pages`）
+- 翻译/相关/插件元数据：读 `meta.translation` / `meta.related` / `meta.enrichments` / `meta.insights`
+- 字段名一律 snake_case：`createdAt` → `created_at`、`refId` → `ref_id`、`pinAt` → `pin_at` 等
+- 文章详情（post/page/note）固定返回 `meta.translation.is_translated` / `source_lang` / `available_translations`，**不再** 在未翻译时省略——若你之前以这些字段是否存在做判断，可以直接删该判断
+
+---
+
+## 升级 Checklist（完成后逐项验证）
+
+- [ ] mx-core 日志显示 v13.x.x 已启动
+- [ ] `curl /api/v3/aggregate` 返回正常 JSON
+- [ ] `/api/v2/*` 返回 404（确认旧前缀已废）
+- [ ] 后台登入正常、文章列表加载
+- [ ] 前端首页正常加载（含分页、翻译、enrichments 渲染）
+- [ ] 新发一篇测试文章 → 列表能见 → 删除正常
+
+---
+
+## 如果失败，如何回滚
+
+回滚之直，因为本次升级**不动数据**。
+
+```bash
+# Docker
+cd ~/mx-space/core
+# 编辑 docker-compose.yml 把 image 钉回上一 v12 tag
+docker compose pull app
+docker compose up -d app
+
+# 源码
+cd ~/mx-space/core
+git checkout v12.x.x
+pnpm i && pnpm build
+cd apps/core
+pm2 restart ecosystem.config.cjs
+```
+
+mx-admin 同步回 v7.x。前端若已升 `@mx-space/api-client@5` 须降回 v4 配合 v12 mx-core，或保 v5 但回退 mx-core 之同事亦保留 legacy adapter 工作——legacy adapter 设计可兼两侧。
+
+---
+
+## 常见问题
+
+### 我必须立刻迁前端代码到 V3 envelope 吗？
+
+**否。** `@mx-space/api-client@5` 之 legacy adapter 把 V3 还原 V1 wire 形态。升级 api-client 后，凡走 client 的代码无须改。可逐端点渐进迁。
+
+### 直调 REST 的第三方脚本怎么办？
+
+须更两处：
+1. 路由前缀 `/api/v2` → `/api/v3`
+2. 读响应时按 V3 envelope（`data` + `meta`）与 snake_case 字段名
+
+短期可在反向代理层加 path rewrite `/api/v2/* → /api/v3/*` 缓冲，但响应字段名变更无 wire-level 兼容层，必须改代码。
+
+### 数据库需要迁移吗？
+
+**否。** v13 与 v12 同 schema（PostgreSQL），无 migration。
+
+### mx-admin 必须升 v8 吗？
+
+**强烈建议。** mx-admin v8 与 mx-core v13 之 V3 envelope 同步开发，旧版 admin 调 V3 端点会失败。
+
+### 为何把 API 前缀也改了？
+
+V3 是真正的 wire-level breaking change（envelope 形态、字段命名、视图模式）。换前缀使得新旧版本可在同代理后共存，并让 client 升级期间走两条路。
+
+---
+
+## 还需要帮助？
+
+- [GitHub Issues](https://github.com/mx-space/core/issues)
+- [v13 Release Notes](https://github.com/mx-space/core/releases/tag/v13.0.0)
