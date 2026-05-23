@@ -20,13 +20,12 @@ v12 是一次**重大版本升级**，底层数据库从 MongoDB 更换为 Postg
 - **数据库**：MongoDB → PostgreSQL（性能更好，数据关系更安全）
 - **备份方式**：以后用 `pg_dump` 代替 `mongodump`
 - **环境变量**：旧的 `DB_HOST`、`MONGO_CONNECTION` 等变量失效
-- **API 路径**：`/api/v2` → `/api/v3`（响应结构亦有调整，详见下文）
 
 ### 什么不会变？
 
+- 前端页面、API 接口和之前完全一致
 - 你的文章、评论、图片、配置全部保留
 - 登录方式、密码、API Key 不受影响
-- 已适配 v3 的前端（如 yohaku）可直接对接；旧主题（yun/kami/shiro）已不再维护，建议迁至 yohaku
 
 ### 我需要停站多久？
 
