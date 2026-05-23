@@ -115,7 +115,7 @@ server {
 
 <Callout type="info">
 使用双域名配置时：
-- API 地址为 `https://server.example.com/api/v2`
+- API 地址为 `https://server.example.com/api/v3`
 - 前端地址为 `https://www.example.com`
 - Gateway 为 `https://server.example.com`
 - 后台为 `https://server.example.com/proxy/qaqdmin`
@@ -145,8 +145,8 @@ server {
         proxy_pass http://127.0.0.1:2333/socket.io;
     }
 
-    location /api/v2 {
-        proxy_pass http://127.0.0.1:2333/api/v2;
+    location /api/v3 {
+        proxy_pass http://127.0.0.1:2333/api/v3;
     }
 
     location /render {
@@ -174,7 +174,7 @@ server {
 
 <Callout type="info">
 使用单域名配置时：
-- API 地址为 `https://www.example.com/api/v2`
+- API 地址为 `https://www.example.com/api/v3`
 - 前端地址为 `https://www.example.com`
 - Gateway 为 `https://www.example.com`
 - 后台为 `https://www.example.com/proxy/qaqdmin`
