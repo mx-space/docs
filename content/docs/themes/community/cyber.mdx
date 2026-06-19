@@ -1,0 +1,248 @@
+---
+title: Cyber
+description: Shiro 的分支, 以炫酷赛博风为核心开发目标
+---
+
+import Image from 'next/image'
+
+<ToGithub repo="At87668/Cyber" description="Cyber — A cyber style theme for Mx Space." />
+## 概述
+
+<Callout title= "注意！" type="warn">
+  **Cyber 是 [Shiro](https://github.com/Innei/Shiro) 的社区分支**，请勿向原作者 (Innei) 报告本项目的 Issue。
+  **版本要求**：目前 Cyber **仅支持 Mix Space Core 版本 == 13.x (API v3)**。
+</Callout>
+
+由 [Shiro](https://github.com/Innei/Shiro) 分支而来，专为 [Mix Space](https://github.com/mx-space) 生态系统设计的现代化个人站点前端。在继承 Shiro 极简主义与极致性能的基础上，适配了最新的 API v3，并融入了更具科技感的视觉风格。
+
+欢迎体验 Cyber 带来的赛博炫酷！
+
+## 部署指南
+
+### 前端部署
+
+#### Vercel 一键部署（推荐）
+
+点击下方按钮即可快速部署，部署时请填写以下环境变量：
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FAt87668%2FCyber&env=NEXT_PUBLIC_API_URL,NEXT_PUBLIC_GATEWAY_URL,ENABLE_EXPERIMENTAL_COREPACK&envDefaults=%7B%22NEXT_PUBLIC_API_URL%22%3A%22https%3A%2F%2Fexample.com%2Fapi%2Fv3%22%2C%22NEXT_PUBLIC_GATEWAY_URL%22%3A%22https%3A%2F%2Fexample.com%22%2C%22ENABLE_EXPERIMENTAL_COREPACK%22%3A%221%22%7D&envDescription=API%20URL%20needed%20for%20the%20application.&project-name=mxspace-cyber&repository-name=mxspace-cyber)
+
+#### 环境变量说明
+
+| 变量名 | 必填 | 说明 |
+| :--- | :--- | :--- |
+| `NEXT_PUBLIC_API_URL` | ✅ | Mix Space Core API 地址，必须以 `/api/v3` 结尾 |
+| `NEXT_PUBLIC_GATEWAY_URL` | ✅ | Mix Space Gateway 地址，用于 WebSocket 等功能 |
+| `ENABLE_EXPERIMENTAL_COREPACK` | ❌ | 建议设为 `1`，启用 Corepack 以优化依赖管理 |
+
+#### 从其他方式部署
+
+参照 [Shiro](https://mx-space.js.org/docs/themes/shiro/deploy)
+
+### 后端配置
+
+1. 在管理员面板中切换至`代码片段`区
+
+2. 新建一个项: 名称为`cyber`, 分组为`theme`, 类型为`json`
+
+  填入以下内容并按需修改
+  ```json
+{
+  "footer": {
+    "otherInfo": {
+      "date": "2020-{{now}}",
+      "icp": {
+        "text": "萌 ICP 备 20236136 号",
+        "link": "https://icp.gov.moe/?keyword=20236136"
+      }
+    },
+    "linkSections": [
+      {
+        "name": "关于",
+        "links": [
+          {
+            "name": "关于本站",
+            "href": "/about-site"
+          },
+          {
+            "name": "关于我",
+            "href": "/about"
+          },
+          {
+            "name": "关于此项目",
+            "href": "https://github.com/innei/Shiro",
+            "external": true
+          }
+        ]
+      },
+      {
+        "name": "更多",
+        "links": [
+          {
+            "name": "时间线",
+            "href": "/timeline"
+          },
+          {
+            "name": "友链",
+            "href": "/friends"
+          },
+          {
+            "name": "监控",
+            "href": "https://status.innei.in/status/main",
+            "external": true
+          }
+        ]
+      },
+      {
+        "name": "联系",
+        "links": [
+          {
+            "name": "写留言",
+            "href": "/message"
+          },
+          {
+            "name": "发邮件",
+            "href": "mailto:i@innei.ren",
+            "external": true
+          },
+          {
+            "name": "GitHub",
+            "href": "https://github.com/innei",
+            "external": true
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "color": {
+      "light": [
+        "#33A6B8",
+        "#FF6666",
+        "#26A69A",
+        "#fb7287",
+        "#69a6cc",
+        "#F11A7B",
+        "#78C1F3",
+        "#FF6666",
+        "#7ACDF6"
+      ],
+      "dark": [
+        "#F596AA",
+        "#A0A7D4",
+        "#ff7b7b",
+        "#99D8CF",
+        "#838BC6",
+        "#FFE5AD",
+        "#9BE8D8",
+        "#A1CCD1",
+        "#EAAEBA"
+      ]
+    },
+
+    "bg": [
+      "/static/images/F0q8mwwaIAEtird.jpeg",
+      "/static/images/IMG_2111.jpeg.webp.jpg"
+    ],
+    "custom": {
+      "css": [],
+      "styles": [],
+      "js": [],
+      "scripts": []
+    },
+    "site": {
+      "favicon": "/innei.svg",
+      "faviconDark": "/innei-dark.svg"
+    },
+    "hero": {
+      "title": {
+        "template": [
+          {
+            "type": "h1",
+            "text": "Hi, I'm ",
+            "class": "font-light text-4xl"
+          },
+          {
+            "type": "h1",
+            "text": "Innei",
+            "class": "font-medium mx-2 text-4xl"
+          },
+          {
+            "type": "h1",
+            "text": "👋。",
+            "class": "font-light text-4xl"
+          },
+          {
+            "type": "br"
+          },
+          {
+            "type": "h1",
+            "text": "A NodeJS Full Stack ",
+            "class": "font-light text-4xl"
+          },
+          {
+            "type": "code",
+            "text": "<Developer />",
+            "class": "font-medium mx-2 text-3xl rounded p-1 bg-gray-200 dark:bg-gray-800/0 hover:dark:bg-gray-800/100 bg-opacity-0 hover:bg-opacity-100 transition-background duration-200"
+          },
+          {
+            "type": "span",
+            "class": "inline-block w-[1px] h-8 -bottom-2 relative bg-gray-800/80 dark:bg-gray-200/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200 group-hover:animation-blink"
+          }
+        ]
+      },
+      "description": "An independent developer coding with love."
+    },
+    "module": {
+      "activity": {
+        "enable": true,
+        "endpoint": "/fn/ps/update"
+      },
+      "donate": {
+        "enable": true,
+        "link": "https://afdian.net/@Innei",
+        "qrcode": [
+          "/static/images/20191211132347.png",
+          "/static/images/0424213144.png"
+        ]
+      },
+      "bilibili": {
+        "liveId": 1434499
+      },
+      "rss": {
+        "noRSS": true
+      }
+    }
+  }
+}
+  ```
+  
+3. 新建一个项: 名称为`status`, 分组为`cyber`, 类型为`fuction`
+
+  填入以下内容
+  ```typescript
+export default async function handler(ctx: Context) {
+    return 'null';
+}
+  ```
+  
+**其他配置信息参见**: [Shiro](https://mx-space.js.org/docs/themes/shiro/config)
+
+## 预览
+
+<Image
+  src="/assets/images/preview/cyber.png"
+  alt="Cyber 首页预览"
+  width={600}
+  height={375}
+  className="rounded-lg border"
+/>
+
+### 本地开发
+
+```bash
+git clone https://github.com/At87668/Cyber.git
+cd Cyber
+pnpm install
+cp .env.template .env.local  # 编辑 .env.local 填入上述环境变量
+pnpm dev
