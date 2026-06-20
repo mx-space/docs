@@ -34,7 +34,7 @@ const features = [
   },
   {
     icon: Settings,
-    title: '配置与云函数',
+    title: '代码片段',
     description:
       '无限扩展，无限可能。通过云函数配置实现状态上报等第三方 API 集成功能，通过 JSON/YAML 编辑器快速编辑前端设置。',
   },
