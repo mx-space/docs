@@ -15,7 +15,8 @@ export function CollapsibleContent({
   const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
-    setAnimate(true);
+    const frame = window.requestAnimationFrame(() => setAnimate(true));
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   return (

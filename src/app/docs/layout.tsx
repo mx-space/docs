@@ -21,7 +21,7 @@ const iconMap: Record<string, React.ReactNode> = {
   '参考手册': <BookOpen className="size-4" />,
 };
 
-export default function Layout({ children }: LayoutProps<'/docs'>) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <DocsLayout
       tree={source.getPageTree()}

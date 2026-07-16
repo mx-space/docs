@@ -98,7 +98,8 @@ function Item({
 
   useEffect(() => {
     if (id && window.location.hash === `#${id}`) {
-      setOpen(true);
+      const frame = window.requestAnimationFrame(() => setOpen(true));
+      return () => window.cancelAnimationFrame(frame);
     }
   }, [id]);
 

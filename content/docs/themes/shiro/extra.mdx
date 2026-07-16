@@ -14,23 +14,30 @@ description: Shiro 主题的额外功能配置
 - GitHub，默认直接用浏览器访问，可能受到 rate limit，可以填写 `GH_TOKEN` 以保证 API 可达性。
 - TMDB，必须填写 `TMDB_API_KEY` 才可以正确解析 tmdb 的链接。参考 https://post.smzdm.com/p/a5op4w33/ 这里获取 TOKEN
 
-## 我的动态
+## 我的动态（ProcessReporter / Yohaku Companion）
 
-Shiro 主题中，有一个可以在顶部显示博主当前正在做的事情的功能，这个功能是通过云函数和 ProcessReporter 软件实现的。
+Shiro 可以在页面顶部显示博主当前使用的应用和媒体状态。这条兼容路径仍由 Mix Space 云函数保存状态，再由桌面客户端发送更新。
+
+macOS 客户端已经从 ProcessReporter 演进并更名为 **Yohaku Companion**。新版工具在 [Innei/YohakuCompanion](https://github.com/Innei/YohakuCompanion) 完整开源；Windows 与 Linux 继续使用社区客户端。
+
 <ToGithubGroup>
-<ToGithub repo="mx-space/ProcessReporterMac" />
+<ToGithub repo="Innei/YohakuCompanion" />
 <ToGithub repo="TNXG/ProcessReporterWinpy" />
 <ToGithub repo="ttimochan/processforlinux" />
 </ToGithubGroup>
 
 <Callout type="info">
-  非常感谢 Innei, timochan, TNXG 的贡献，目前 ProcessReporter 已支持全平台！
+  Yohaku 主题用户应优先使用 Yohaku Companion 的一方 Live Desk 连接。它直接使用 Companion Protocol v2，不需要本节的云函数。具体配置参见 [Yohaku 配置文档](/docs/themes/yohaku/config)。
+</Callout>
+
+<Callout type="warning">
+  本节仅描述 Shiro `activity` 模块的兼容方案。旧 ProcessReporter 与 Yohaku Companion 使用独立的应用身份、设置、历史和凭据；新版不会自动迁移旧应用数据。
 </Callout>
 
 import { Step, Steps } from 'fumadocs-ui/components/steps'
 
 <Steps>
-### 配置云函数
+### 配置 Shiro 活动云函数
 
 进入后台，点击左侧菜单栏的「集成 - 代码片段」（原 配置与云函数），然后点击新建按钮，在选项卡中填入以下信息：
 
@@ -58,7 +65,7 @@ import { Step, Steps } from 'fumadocs-ui/components/steps'
   请关注此代码的更新，它可能会随时变化，你需要及时更新它们
 </Callout>
 
-### 配置主题配置
+### 配置 Shiro 主题
 
 继续「集成 - 代码片段」页面（原 配置与云函数），找到「theme -> shiro」配置，点击编辑，进入编辑页面，在代码中找到 `module`，加入 activity 配置，如下：（高亮部分）
 
@@ -84,11 +91,11 @@ import { Step, Steps } from 'fumadocs-ui/components/steps'
 }
 ```
 
-### 配置软件
+### 配置客户端
 
-前往对应着你的电脑系统的软件的 GitHub 仓库，下载并打开 ProcessReporter。
+前往对应操作系统的 GitHub 仓库，下载并打开客户端。
 <ToGithubGroup>
-<ToGithub repo="mx-space/ProcessReporterMac" />
+<ToGithub repo="Innei/YohakuCompanion" />
 <ToGithub repo="TNXG/ProcessReporterWinpy" />
 <ToGithub repo="ttimochan/processforlinux" />
 </ToGithubGroup>
@@ -96,16 +103,24 @@ import { Step, Steps } from 'fumadocs-ui/components/steps'
 
 </Steps>
 
-### ProcessReporter `Mac`
+### macOS：Yohaku Companion
 
-打开软件后，你会发现你的系统菜单栏中多了一个图标，点击图标，然后点击「设置」，在弹出的窗口中填入你的信息：
+1. 在 [Releases](https://github.com/Innei/YohakuCompanion/releases/latest) 下载 DMG，将 Yohaku Companion 移入「应用程序」并启动。
+2. 打开 **Settings → Destinations → MixSpace**，填写：
 
-- Endpoint：`{你的API地址}/fn/ps/update` （请将 `{你的API地址}` 替换为你的 API 地址，如：`https://api.example.com/api/v2`）
-- API Key：填入你刚刚在云函数中设置的密钥
+   - Endpoint：`{你的 API 地址}/fn/ps/update`，例如 `https://api.example.com/api/v2/fn/ps/update`
+   - API Token：填入云函数 Secret 中设置的 `key`
+   - Request Method：`POST`
 
-如果你希望软件在开机时自动启动，可以勾选「Launch at login」选项。
+3. 先检查 **Sanitized Request Preview**，使用 **Send Test Presence…** 验证真实写入，再保存并启用 MixSpace destination。
+4. 返回 **Settings → General**，按需启用 Applications、Window Titles 与 Media Playback，并打开 **Share to Bridges**。
+5. 在 **Privacy & Rules** 中确认全局默认值和应用级 Share、Hide、Alias 规则。
 
-接着关闭窗口，再次点击菜单栏中的图标，点击「Enable」即可。如果一切正常，刷新一下你的博客就可以在博客顶部看到你的动态了。
+Yohaku Companion 的 **Settings → Yohaku** 是一方 Live Desk 配对入口，与本节 Shiro 云函数方案彼此独立；只使用 Shiro `activity` 时无需完成 Yohaku 配对。
+
+<Callout type="info">
+  Window Titles 默认关闭，只有显式启用后才会请求辅助功能权限。媒体状态可由内置 provider 获取；可选的 `media-control` 仅用于补充更丰富的进程和封面信息。
+</Callout>
 
 ### ProcessReporter `Windows`
 
@@ -123,7 +138,7 @@ Windows 版本的使用问题，请前往 [TNXG/ProcessReporterWinpy](https://gi
 在 [Releases](https://github.com/TNXG/ProcessReporterWinpy/releases) 页面下载 `ProcessReporterWinpy.exe`，配置好 `config.yml` 文件后，在终端运行即可，示例如下
 
 ```powershell
-processforwinpy.exe --path "运行目录的路径"
+ProcessReporterWinpy.exe --path "运行目录的路径"
 ```
 
 `config.yml` 配置具体配置项以及说明请参考 [TNXG/ProcessReporterWinpy](https://github.com/TNXG/ProcessReporterWinpy#readme)。

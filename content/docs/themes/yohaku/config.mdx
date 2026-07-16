@@ -126,12 +126,40 @@ interface Hitokoto {
 
 此部分配置了网站的一些特定功能模块，比如活动跟踪、捐赠支持、社交媒体链接等。
 
+### Live Desk (`liveDesk`) 模块
+
+Live Desk 在站点顶部展示由 [Yohaku Companion](https://github.com/Innei/YohakuCompanion) 发布的最新应用和媒体状态。它使用 Mix Space Core 的 Companion Protocol v2、短期 lease 与实时 Gateway event，不依赖旧 `/fn/ps/update` 云函数。
+
+```json
+{
+  "module": {
+    "liveDesk": {
+      "enable": true
+    }
+  }
+}
+```
+
+首次配置需要完成以下步骤：
+
+1. 在 Core 环境变量中设置 `COMPANION_LIVE_DESK_ENABLED=true`，然后重启 Core。
+2. 在后台 **Companion** 页面生成一次性配对码。配对码十分钟后过期，且只能使用一次。
+3. 在 Yohaku Companion 的 **Settings → Yohaku** 中填写站点公开 URL、设备名称和配对码。
+4. 检查 **Current Sanitized Preview**，再显式启用 Live Desk。完成配对本身不会开始公开状态。
+5. 将主题配置中的 `config.module.liveDesk.enable` 设为 `true`。
+
+Application、可选 Window Title 和 Media Playback 会先经过本地 source switch、Privacy & Rules 与 Alias，再作为一个原子快照发送。媒体播放进度仅在服务端 capability 声明支持 `mediaTimeline` 时启用；pause、睡眠、锁屏、移除设备或退出应用时会发起清除，lease 到期是最终兜底。
+
+<Callout type="warning">
+  Window Titles 可能包含文档名或会话名，默认关闭。只有在应用内显式开启后，Yohaku Companion 才会请求辅助功能权限并读取当前标题。
+</Callout>
+
 ### 实时活动 (`activity`) 模块
 
 - **`enable`**: 控制模块是否启用。
 - **`endpoint`**: 指定活动更新的服务器端点。
 
-**如何使用**: 若需开启活动跟踪功能，将 `enable` 设为 `true` 并设置 `endpoint` 为处理活动数据的服务器地址。
+**如何使用**: 这是兼容旧 ProcessReporter 云函数的路径。若仍需使用，将 `enable` 设为 `true` 并设置 `endpoint`；新部署应优先使用上方 Live Desk。
 
 ### 捐赠 (`donate`) 模块
 
@@ -298,8 +326,11 @@ interface Hitokoto {
       "description": "An independent developer coding with love."
     },
     "module": {
+      "liveDesk": {
+        "enable": true
+      },
       "activity": {
-        "enable": true,
+        "enable": false,
         "endpoint": "/fn/ps/update"
       },
       "donate": {
