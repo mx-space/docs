@@ -140,13 +140,12 @@ Live Desk 在站点顶部展示由 [Yohaku Companion](https://github.com/Innei/Y
 }
 ```
 
-首次配置需要完成以下步骤：
+支持 Companion Protocol v2 的 Core 默认提供 Live Desk，不需要额外的服务端环境变量。首次配置需要完成以下步骤：
 
-1. 在 Core 环境变量中设置 `COMPANION_LIVE_DESK_ENABLED=true`，然后重启 Core。
-2. 在后台 **Companion** 页面生成一次性配对码。配对码十分钟后过期，且只能使用一次。
-3. 在 Yohaku Companion 的 **Settings → Yohaku** 中填写站点公开 URL、设备名称和配对码。
-4. 检查 **Current Sanitized Preview**，再显式启用 Live Desk。完成配对本身不会开始公开状态。
-5. 将主题配置中的 `config.module.liveDesk.enable` 设为 `true`。
+1. 在后台 **Companion** 页面生成一次性配对码。配对码十分钟后过期，且只能使用一次。
+2. 在 Yohaku Companion 的 **Settings → Yohaku** 中填写站点公开 URL、设备名称和配对码。
+3. 检查 **Current Sanitized Preview**，再显式启用 Live Desk。完成配对本身不会开始公开状态。
+4. 将主题配置中的 `config.module.liveDesk.enable` 设为 `true`。
 
 Application、可选 Window Title 和 Media Playback 会先经过本地 source switch、Privacy & Rules 与 Alias，再作为一个原子快照发送。媒体播放进度仅在服务端 capability 声明支持 `mediaTimeline` 时启用；pause、睡眠、锁屏、移除设备或退出应用时会发起清除，lease 到期是最终兜底。
 
