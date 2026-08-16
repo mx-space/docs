@@ -35,6 +35,13 @@ description: 按症状分类的常见问题速查
 - **原因**：HTTPS/SSL 证书配置有问题，或使用了自签名证书但客户端不信任。
 - **解决**：检查证书是否过期，确认 Nginx/Caddy 的 SSL 配置正确，必要时重新申请证书。
 
+## 无法访问前端
+
+### 升级 v13 后 error.api_fetchError Not found
+
+- **原因**：代码逻辑要求至少需要有一篇手记（详见 [此 issues 讨论](https://github.com/innei-dev/yohaku/issues/151#issuecomment-4642861551)）
+- **解决**：发布一篇手记保证 `api/v3/aggregate` 能正常工作。
+
 ## 功能异常
 
 ### 搜索不工作

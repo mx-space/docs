@@ -55,6 +55,10 @@ Starting Cloudflared Tunnel
 手写配置文件需要较高的技术功底，请量力而行。
 </Callout>
 
+<Callout type="info">
+自 mx-core **v14** 起，实时通道由 socket.io 迁移为原生 WebSocket，路径为 `/ws/web` 与 `/ws/admin`；以下配置使用 `/ws/` 前缀。若仍在运行 v13 及更早版本，请将对应 location 换回 `/socket.io`。
+</Callout>
+
 ### 双域名配置
 
 假定前端域名为 `www.example.com`，后端为 `server.example.com`。
@@ -63,8 +67,8 @@ Starting Cloudflared Tunnel
 
 ```nginx
 server {
-    location /socket.io {
-      proxy_pass http://127.0.0.1:2333/socket.io;
+    location /ws/ {
+      proxy_pass http://127.0.0.1:2333;
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -73,6 +77,8 @@ server {
       proxy_set_header Connection "upgrade";
       proxy_buffering off;
       proxy_http_version 1.1;
+      proxy_read_timeout 300s;
+      proxy_send_timeout 300s;
       add_header Cache-Control no-cache;
     }
 
@@ -136,13 +142,16 @@ server {
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
 
-    location /socket.io {
+    location /ws/ {
+        proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "Upgrade";
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_pass http://127.0.0.1:2333/socket.io;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 300s;
+        proxy_pass http://127.0.0.1:2333;
     }
 
     location /api/v3 {
