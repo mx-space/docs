@@ -15,35 +15,36 @@ import { remarkSteps } from 'fumadocs-core/mdx-plugins/remark-steps';
 import { redirects } from './redirects.config.mjs';
 
 /**
- * 把 content/docs 里对 fumadocs 组件的导入重定向到 Astro 兼容层。
+ * 把全站对 fumadocs 组件的导入重定向到 Astro 兼容层。
  * 两个兼容层解决的问题不同，详见各自的源文件：
  * - `fumadocs-ui/components/card`      → src/components/card.tsx（JSX 作为 prop 传入 React 组件）
  * - `fumadocs-ui/components/accordion` → src/components/accordion.tsx（Radix Context 跨不出 Astro slot）
  *
- * 为什么用「按 importer 路径限定」的 resolveId 插件，而不是全局 alias：
- * 兼容层自己也要导入真正的 fumadocs 组件，全局 alias 会让它解析到自己（循环）。
- * 限定 importer 后，兼容层自身（src/components/**）与其它 consumer 都不受影响，
- * content/docs 也因此无需改动（保持“内容零搬迁”）。
+ * 为什么用 resolve.alias 而不是 resolveId 插件：dev 下 Vite 的依赖预构建
+ * （optimizeDeps）会把 `fumadocs-ui/components/card` 打进 .vite/deps，让
+ * content 里的显式 import 直接命中优化产物、绕过 resolveId——原版 Card 于是
+ * 把 astro:jsx 对象当 React child 渲染而崩（build 不走 optimizeDeps，所以
+ * 旧方案只在 build 验证过、未暴露此问题）。alias 在所有阶段（含 optimizeDeps）
+ * 生效，从根上重定向；兼容层自身已改用 dist 深路径，不会形成循环。
  */
-function astroReactCompat() {
-  const shims = new Map([
-    ['fumadocs-ui/components/card', fileURLToPath(new URL('./src/components/card.tsx', import.meta.url))],
-    [
-      'fumadocs-ui/components/accordion',
-      fileURLToPath(new URL('./src/components/accordion.tsx', import.meta.url)),
-    ],
-  ]);
-
-  return {
-    name: 'mx:astro-react-compat',
-    enforce: 'pre',
-    resolveId(source, importer) {
-      if (!importer || !/[\\/]content[\\/]docs[\\/]/.test(importer)) return null;
-
-      return shims.get(source) ?? null;
-    },
-  };
-}
+const astroReactAliases = [
+  {
+    find: 'fumadocs-ui/components/card',
+    replacement: fileURLToPath(new URL('./src/components/card.tsx', import.meta.url)),
+  },
+  {
+    find: 'fumadocs-ui/components/accordion',
+    replacement: fileURLToPath(new URL('./src/components/accordion.tsx', import.meta.url)),
+  },
+  // 兼容层自身引用原组件用的「深路径」specifier：fumadocs-ui 的 exports 不导出
+  // ./dist/**，这里直接映射到真实文件。specifier 与上面的 find 不同，不会循环。
+  {
+    find: 'fumadocs-ui/dist/components/card.js',
+    replacement: fileURLToPath(
+      new URL('./node_modules/fumadocs-ui/dist/components/card.js', import.meta.url),
+    ),
+  },
+];
 
 // Astro 7 默认使用自研的 Sätteri Markdown 管线，fumadocs 的 remark/rehype 插件
 // 只有在显式设置 `markdown.processor: unified()` 时才会生效。
@@ -78,7 +79,10 @@ export default defineConfig({
     // 保持 URL 与条数与旧站一致。
   ],
   vite: {
-    plugins: [astroReactCompat(), tailwindcss()],
+    resolve: {
+      alias: astroReactAliases,
+    },
+    plugins: [tailwindcss()],
     build: {
       rollupOptions: {
         // Astro 7 的 content-assets 插件会为**每个 MDX**生成一个虚拟模块
