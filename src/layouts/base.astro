@@ -13,6 +13,8 @@ export interface Props {
    * 缺省回退到 `Astro.url.pathname`（首页等）。
    */
   canonical?: string;
+  /** 该页的 Markdown 版本 URL；传入时在 head 输出 `alternate: text/markdown` 供 AI 爬虫发现 */
+  markdownUrl?: string;
 }
 
 const siteName = 'Mix Space';
@@ -30,7 +32,7 @@ const keywords = [
   '开源',
 ];
 
-const { title, description, image, canonical: canonicalProp } = Astro.props;
+const { title, description, image, canonical: canonicalProp, markdownUrl } = Astro.props;
 
 /** title 模板语义：有 title 时 `<title>` 为 `${title} | Mix Space`，否则用整站默认标题。 */
 const pageTitle = title ? `${title} | ${siteName}` : defaultTitle;
@@ -48,6 +50,7 @@ const ogImage = new URL(image ?? '/og.png', Astro.site).href;
     <meta name="description" content={pageDescription} />
     <meta name="keywords" content={keywords.join(',')} />
     <link rel="canonical" href={canonicalHref} />
+    {markdownUrl && <link rel="alternate" type="text/markdown" href={markdownUrl} />}
     <link rel="icon" href="/images/logo.png" />
     <link rel="shortcut icon" href="/images/logo.png" />
     <link rel="apple-touch-icon" href="/images/logo.png" />

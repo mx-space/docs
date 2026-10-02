@@ -4,6 +4,8 @@ Allow: /
 # LLM / AI crawlers
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /llms.mdx/
+Allow: /docs/*.mdx
 Allow: /agent-skills/
 
 Sitemap: https://mx-space.js.org/sitemap.xml

@@ -33,7 +33,8 @@ const toc = headings.map((heading) => ({
   url: `#${heading.slug}`,
 }));
 const image = getPageImage(page).url;
-const markdownUrl = getPageMarkdownUrl(page).url;
+// Fumadocs 约定：页面 URL + `.mdx` 即 Markdown 版本（由 [...slug].mdx.ts 端点提供）
+const markdownUrl = new URL(`${page.url}.mdx`, Astro.site).href;
 const githubUrl = `https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/docs/${page.path}`;
 // canonical 用 fumadocs 的 `page.url`（无尾斜杠），与 /sitemap.xml 及旧站字符串完全一致；
 // 若用 Astro.url.pathname，在 directory 格式下会得到带尾斜杠的 `/docs/xxx/`。
@@ -45,6 +46,7 @@ const canonical = new URL(page.url, Astro.site).href;
   description={page.data.description}
   image={image}
   canonical={canonical}
+  markdownUrl={markdownUrl}
 >
   <Docs
     client:load
