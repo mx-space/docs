@@ -19,3 +19,8 @@ overrides:
   browserslist: ^4.28.7
   baseline-browser-mapping: ^2.11.0
   sharp: ^0.35.4
+# eslint-plugin-astro 依赖的 eslint-plugin-jsx-a11y@6.10.2（已是最新版）
+# peer 范围尚未包含 eslint 10，实际规则运行正常，显式放行。
+peerDependencyRules:
+  allowedVersions:
+    eslint: ^10
