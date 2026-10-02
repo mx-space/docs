@@ -1,5 +1,5 @@
+import { Image } from '@/components/image';
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
-import Image from 'next/image';
 import { gitConfig } from './shared';
 
 export function baseOptions(): BaseLayoutProps {

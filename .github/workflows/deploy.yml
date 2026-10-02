@@ -29,24 +29,18 @@ jobs:
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          static_site_generator: astro
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v5
 
-      - name: Use Node.js LTS
+      - name: Use Node.js 24
         uses: actions/setup-node@v6
         with:
-          node-version: lts/*
+          node-version: 24
           check-latest: true
           cache: pnpm
-
-      - name: Setup Next.js cache
-        uses: actions/cache@v5
-        with:
-          path: .next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-
 
       - name: Install dependencies
         run: pnpm install
@@ -56,12 +50,12 @@ jobs:
 
       - name: Add CNAME
         run: |
-          echo "mx-space.js.org" > out/CNAME
+          echo "mx-space.js.org" > dist/CNAME
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: out
+          path: dist
 
   deploy:
     runs-on: ubuntu-latest

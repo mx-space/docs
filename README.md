@@ -2,14 +2,16 @@
 
 ## Contributing 贡献
 
-这个站点使用的是 [Fumadocs](https://fumadocs.vercel.app) 程序。站点内容使用 MDX 编写，文档文件在 `/content/docs` 文件夹中。如果只有一些简单的修改，你可以直接在 GitHub 网页端进行修改并新建一个 Pull Request.
+这个站点基于 [Astro](https://astro.build) + [Fumadocs](https://fumadocs.vercel.app) 构建，样式使用 Tailwind CSS 4，输出为纯静态站点（`dist/`）。站点内容使用 MDX 编写，文档文件在仓库根目录的 `content/docs/` 文件夹中（内容目录保持在仓库根的 `content/docs/`，不随 Astro 迁移移动）。如果只有一些简单的修改，你可以直接在 GitHub 网页端进行修改并新建一个 Pull Request.
 
-在本地开发中，[pnpm](https://pnpm.io) 被选用为项目的包管理器，你需要使用 pnpm 安装依赖：
+在本地开发中，[pnpm](https://pnpm.io) 被选用为项目的包管理器，需要 Node.js ≥ 22.12.0（推荐 24）。你需要使用 pnpm 安装依赖：
 
 ```bash
   pnpm install
-  pnpm dev
-  pnpm build
+  pnpm dev       # astro dev，本地开发服务器
+  pnpm check     # astro check，类型检查
+  pnpm build     # astro build，产物输出到 dist/
+  pnpm preview   # astro preview，本地预览构建产物
 ```
 
 ## Working on the content 修改文字

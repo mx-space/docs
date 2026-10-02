@@ -3,6 +3,9 @@ title: Docker 部署
 description: 通过 Docker 部署 Mix-Space 的后端
 ---
 
+import { EnvVariableConfig } from '@/components/env-variable-config'
+import { TypeTable } from 'fumadocs-ui/components/type-table'
+
 ## 安装 Docker [step]
 
 不论在海外还是中国大陆境内我们都可以使用 Linuxmirrors 提供的 Docker 安装脚本来安装 Docker 和 Docker Compose，它具备可在多种系统上安装 Docker 的能力：
@@ -68,6 +71,7 @@ wget "https://gh-proxy.org/https://github.com/mx-space/core/blob/master/docker-c
 在下方的组件中填入配置，点击复制后粘贴到 `docker-compose.yml` 的 `environment` 字段中，覆盖`JWT_SECRET` 和 `ALLOWED_ORIGINS` 的值，如果需要开启加密功能，请添加并将 `ENCRYPT_ENABLE` 的值改为 `true`，并填入 `ENCRYPT_KEY`。
 
 <EnvVariableConfig
+  client:load
   format="yaml"
   variableNames={[
     {
@@ -89,11 +93,10 @@ wget "https://gh-proxy.org/https://github.com/mx-space/core/blob/master/docker-c
   ]}
 />
 
-import { TypeTable } from 'fumadocs-ui/components/type-table';
-
 ### 变量介绍
 
 <TypeTable
+  client:load
   type={{
     'JWT 密钥': {
       description: '长度 16-32 个字符，用于加密用户 JWT，务必保存好不要泄露。',

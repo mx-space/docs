@@ -45,7 +45,6 @@ export function Testimonials() {
               &ldquo;{item.quote}&rdquo;
             </p>
             <div className="flex items-center gap-3 pt-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={item.avatar}
                 alt={item.name}

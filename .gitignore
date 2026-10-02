@@ -1,43 +1,41 @@
-# deps
-/node_modules
+# 依赖
+node_modules/
+.pnpm-store/
 
-# generated content
-.contentlayer
-.content-collections
-.source
-
-# test & build
-/coverage
-/.next/
-/out/
-/build
+# 构建产物与工具缓存
+dist/
+.astro/
 *.tsbuildinfo
 
-# misc
-.DS_Store
-*.pem
-/.pnp
-.pnp.js
+# 测试覆盖率（本项目未接入测试，仅作兜底）
+coverage/
+
+# 构建时生成的数据（prebuild 会自动写入，缺失会导致构建失败）
+src/components/contributors.json
+
+# 环境变量
+.env
+.env.*
+!.env.example
+
+# 编辑器与 IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# 日志
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# others
-.env*.local
-.vercel
-next-env.d.ts
-.env
-.vscode/
+# 证书
+*.pem
 
-# generated contributors data
-src/components/contributors.json
+# 系统文件
+.DS_Store
+Thumbs.db
 
-# sitemap
-public/sitemap.xml
-
-# Webstorm
-/.idea/.gitignore
-/.idea/docs.iml
-/.idea/MarsCodeWorkspaceAppSettings.xml
-/.idea/modules.xml
-/.idea/vcs.xml
+# Yarn PnP（本项目用 pnpm，留作兜底）
+.pnp.*

@@ -1,10 +1,9 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mx-space.js.org/sitemap.xml
-
 # LLM / AI crawlers
-User-agent: *
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /agent-skills/
+
+Sitemap: https://mx-space.js.org/sitemap.xml

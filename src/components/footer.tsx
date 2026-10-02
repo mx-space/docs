@@ -1,5 +1,5 @@
 import { Heart } from 'lucide-react';
-import Image from 'next/image';
+import { Image } from '@/components/image';
 
 export function Footer() {
   return (

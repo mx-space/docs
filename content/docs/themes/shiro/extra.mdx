@@ -3,6 +3,8 @@ title: 额外功能
 description: Shiro 主题的额外功能配置
 ---
 
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+
 # 额外功能
 
 ## 扩展的 Markdown 语法
@@ -34,9 +36,9 @@ macOS 客户端已经从 ProcessReporter 演进并更名为 **Yohaku Companion**
   本节仅描述 Shiro `activity` 模块的兼容方案。旧 ProcessReporter 与 Yohaku Companion 使用独立的应用身份、设置、历史和凭据；新版不会自动迁移旧应用数据。
 </Callout>
 
-import { Step, Steps } from 'fumadocs-ui/components/steps'
-
 <Steps>
+
+<Step>
 ### 配置 Shiro 活动云函数
 
 进入后台，点击左侧菜单栏的「集成 - 代码片段」（原 配置与云函数），然后点击新建按钮，在选项卡中填入以下信息：
@@ -64,7 +66,9 @@ import { Step, Steps } from 'fumadocs-ui/components/steps'
 <Callout type="info">
   请关注此代码的更新，它可能会随时变化，你需要及时更新它们
 </Callout>
+</Step>
 
+<Step>
 ### 配置 Shiro 主题
 
 继续「集成 - 代码片段」页面（原 配置与云函数），找到「theme -> shiro」配置，点击编辑，进入编辑页面，在代码中找到 `module`，加入 activity 配置，如下：（高亮部分）
@@ -90,7 +94,9 @@ import { Step, Steps } from 'fumadocs-ui/components/steps'
   }
 }
 ```
+</Step>
 
+<Step>
 ### 配置客户端
 
 前往对应操作系统的 GitHub 仓库，下载并打开客户端。
@@ -100,6 +106,7 @@ import { Step, Steps } from 'fumadocs-ui/components/steps'
 <ToGithub repo="ttimochan/processforlinux" />
 </ToGithubGroup>
 由于不同平台有不同的使用方法，不同的软件我们会在下方具体讲述。
+</Step>
 
 </Steps>
 

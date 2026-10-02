@@ -3,6 +3,8 @@ title: Mix Space 简介
 description: 为个人博客、创作者主页打造的 AI 驱动型内容管理系统
 ---
 
+import { File, Folder } from 'fumadocs-ui/components/files'
+
 ![UwU Logo](/images/uwu.png)
 
 这个 uwu 标志由 [Arthals](https://github.com/zhuozhiyongde) 设计。
@@ -15,13 +17,13 @@ Mix Space 是一个简洁、现代、高性能的个人博客系统，采用前�
 
 Mix Space 由两大部分组成：
 
-<Folder name="Mix Space" defaultOpen>
-  <Folder name="后端 (Core)">
+<Folder name="Mix Space" defaultOpen client:load>
+  <Folder name="后端 (Core)" client:load>
     <File name="RESTful API" />
     <File name="后台管理系统 (qAqDmin)" />
     <File name="数据库 (PostgreSQL)" />
   </Folder>
-  <Folder name="前端 (Theme)">
+  <Folder name="前端 (Theme)" client:load>
     <File name="访客展示页面" />
     <File name="主题配置" />
   </Folder>

@@ -3,8 +3,10 @@
  * key: 源路径 (如 '/old-path')
  * value: 目标 URL，可以是相对路径或绝对 URL
  *
- * 开发环境: next.config.mjs 的 redirects 配置直接生效
- * 静态部署: build 后由 scripts/generate-redirects.mjs 生成 HTML 跳转页面
+ * 使用方: astro.config.mjs 的 `redirects` 字段（唯一使用方）。
+ * 开发环境: astro dev 的 dev server 直接返回 302。
+ * 静态部署: astro build 在 output: 'static' 下为每条规则生成带 meta refresh 的 HTML 跳转页，
+ *           因此不再需要 scripts/generate-redirects.mjs。
  */
 export const redirects = {
   '/docs/core/advanced': '/docs/core/advanced/overview',

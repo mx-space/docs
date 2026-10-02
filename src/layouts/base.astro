@@ -1,0 +1,91 @@
+---
+import '@fontsource-variable/inter';
+import '@/styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  /**
+   * 自指 canonical。文档页传 `new URL(page.url, Astro.site).href`，
+   * 即与 `/sitemap.xml`（同样用 `page.url`）以及旧站字符串完全一致、不带尾斜杠。
+   * 缺省回退到 `Astro.url.pathname`（首页等）。
+   */
+  canonical?: string;
+}
+
+const siteName = 'Mix Space';
+const defaultTitle = 'Mix Space - 现代化的个人空间解决方案';
+const defaultDescription =
+  'AI 驱动型内容管理系统，为个人博客、创作者主页和内容网站打造。支持前后端分离、混合编辑器、AI 集成。';
+const keywords = [
+  'Mix Space',
+  '个人博客',
+  'CMS',
+  '内容管理系统',
+  'AI',
+  '个人空间',
+  '博客系统',
+  '开源',
+];
+
+const { title, description, image, canonical: canonicalProp } = Astro.props;
+
+/** title 模板语义：有 title 时 `<title>` 为 `${title} | Mix Space`，否则用整站默认标题。 */
+const pageTitle = title ? `${title} | ${siteName}` : defaultTitle;
+const pageDescription = description ?? defaultDescription;
+const canonicalHref = canonicalProp ?? new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL(image ?? '/og.png', Astro.site).href;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <meta name="keywords" content={keywords.join(',')} />
+    <link rel="canonical" href={canonicalHref} />
+    <link rel="icon" href="/images/logo.png" />
+    <link rel="shortcut icon" href="/images/logo.png" />
+    <link rel="apple-touch-icon" href="/images/logo.png" />
+    <meta
+      name="robots"
+      content="index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:url" content={canonicalHref} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={siteName} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={ogImage} />
+    <script is:inline>
+      // 主题防闪（ADR/R5）：在 HTML 解析阶段消除深色模式闪烁
+      // 对齐原实现的 attribute: 'class' / defaultTheme: 'system' / storageKey: 'theme'
+      (() => {
+        try {
+          const theme = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const dark = theme === 'dark' || ((theme === 'system' || theme === null) && prefersDark);
+          if (dark) document.documentElement.classList.add('dark');
+        } catch {
+          // localStorage 不可用时静默降级
+        }
+      })();
+    </script>
+    <ClientRouter />
+  </head>
+  <body class="flex flex-col min-h-screen">
+    <slot />
+  </body>
+</html>

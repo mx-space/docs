@@ -1,2 +1,25 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# 统一以 LF 存入仓库、LF 检出到工作区（跨平台一致，避免每个提交都出现
+# "LF will be replaced by CRLF" 噪音，也避免 Windows 上产生整文件 diff）
+* text=auto eol=lf
+
+# 锁死行尾的产物/配置：这些文件由工具生成或本身就是纯文本数据，
+# 不允许 git 做任何 eol 转换，否则内容会随平台漂移
+pnpm-lock.yaml   text eol=lf
+dist/**          text eol=lf
+public/CNAME     text eol=lf
+public/robots.txt text eol=lf
+*.mdx            text eol=lf
+*.md             text eol=lf
+
+# 二进制资源：禁止任何行尾/文本转换
+*.png  binary
+*.gif  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.ico  binary
+*.woff  binary
+*.woff2 binary
