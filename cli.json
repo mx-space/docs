@@ -9,6 +9,6 @@
   },
   "baseDir": "src",
   "uiLibrary": "radix-ui",
-  "framework": "next",
+  "framework": "astro",
   "commands": {}
 }

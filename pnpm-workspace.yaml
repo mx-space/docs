@@ -1,0 +1,11 @@
+# pnpm 11 的构建脚本许可清单。两者都显式拒绝：
+# - sharp 通过 optionalDependencies 的 @img/sharp-win32-x64 预编译二进制工作，已实测 require('sharp') 正常（libvips 8.18.7）
+# - esbuild 通过 @esbuild/win32-x64 预编译二进制工作，其 postinstall 只做校验
+# 拒绝后 `pnpm install` 不再以 ERR_PNPM_IGNORED_BUILDS 退出 1（CI 需要 exit 0）。
+allowBuilds:
+  esbuild: false
+  sharp: false
+minimumReleaseAgeExclude:
+  - fumadocs-core@16.15.18
+  - fumadocs-ui@16.15.18
+  - lucide-react@1.50.0

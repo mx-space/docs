@@ -1,0 +1,27 @@
+---
+import Base from '@/layouts/base.astro';
+---
+
+<Base title="页面未找到" description="你访问的页面不存在或已被移动。">
+  <main class="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-32 text-center">
+    <p class="text-6xl font-bold tracking-tight">404</p>
+    <h1 class="text-2xl font-semibold">页面未找到</h1>
+    <p class="text-fd-muted-foreground max-w-md text-sm">
+      你访问的页面不存在或已被移动，请检查地址是否正确。
+    </p>
+    <div class="mt-2 flex flex-row gap-3">
+      <a
+        href="/"
+        class="bg-fd-primary text-fd-primary-foreground hover:bg-fd-primary/90 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+      >
+        返回首页
+      </a>
+      <a
+        href="/docs"
+        class="bg-fd-secondary text-fd-secondary-foreground hover:bg-fd-secondary/80 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+      >
+        阅读文档
+      </a>
+    </div>
+  </main>
+</Base>

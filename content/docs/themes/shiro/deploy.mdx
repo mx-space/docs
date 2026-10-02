@@ -3,7 +3,10 @@ title: 部署
 description: 一个极简主义的个人网站，纸的纯净和雪的清新
 ---
 
-import Image from 'next/image'
+import { Image } from '@/components/image'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion'
+import { EnvVariableConfig } from '@/components/env-variable-config'
 
 <Callout type="info">
   Shiro 的下一代演进版本 **[余白 / Yohaku](/docs/themes/yohaku)** 已经发布。Yohaku 基于 Shiro 深度重构，提供更精致的视觉设计与更多功能。如果你正在寻找最新的体验，请前往 [Yohaku 文档](/docs/themes/yohaku) 了解更多。
@@ -17,29 +20,9 @@ import Image from 'next/image'
 <Callout type="warn">
   自 Core v7 起，已抛弃 Clerk，取而代之的是 GitHub 和 Google 的 OAuth 2.0，
   配置步骤请参考 [OAuth 2.0](/docs/configure/oauth)
-
-  ~~请注意，Shiro 主题的部署教程与初版有所不同，如果你已经部署过 Shiro
-  主题，请重新阅读本文档（尤其是填入配置文件环节，配置有所变化），并阅读
-  [「移除 Edge Config」](#移除-edge-config) 部分。~~
 </Callout>
 
 ## 准备步骤
-
-import { Step, Steps } from 'fumadocs-ui/components/steps';
-
-
-export function FAQBox({ title, children }) {
-  return (
-    <details
-      className="last-of-type:mb-0 rounded-lg bg-neutral-50 dark:bg-neutral-800 p-2 mt-4"
-    >
-      <summary>
-        <strong className="text-lg">{title}</strong>
-      </summary>
-      <div className="nx-p-2">{children}</div>
-    </details>
-  )
-}
 
 <Steps>
 
@@ -242,6 +225,7 @@ export function FAQBox({ title, children }) {
 在下方的配置表格中，填入你的环境变量，然后点击复制按钮，将环境变量复制到剪贴板中。
 
 <EnvVariableConfig
+  client:load
   variableNames={[
     {
       key: 'NEXT_PUBLIC_API_URL',
@@ -307,9 +291,7 @@ export function FAQBox({ title, children }) {
 
 ## 更新主题
 
-import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
- 
-<Accordions>
+<Accordions client:load>
 <Accordion title="Vercel 托管">
  
 使用 Vercel 托管的话，只需要在自己 Fork 的项目上 Sync Fork 即可（如图）。如果自己有魔改某些内容的话不要点击 Discard Changes，会把自己的魔改搞没了。

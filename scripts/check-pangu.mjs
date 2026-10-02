@@ -2,9 +2,9 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { resolve, extname, join } from 'node:path';
 
 const ROOT = resolve(import.meta.dirname, '..');
-const EXTS = new Set(['.ts', '.tsx', '.mdx', '.md']);
+const EXTS = new Set(['.ts', '.tsx', '.astro', '.mdx', '.md']);
 const DIRS = ['src', 'content'];
-const IGNORE = new Set(['node_modules', '.next', 'out', '.source', 'build']);
+const IGNORE = new Set(['node_modules', '.astro', 'dist', 'build']);
 
 // CJK <-> alphanumeric
 const RE = /([一-鿿㐀-䶿])([a-zA-Z0-9])|([a-zA-Z0-9])([一-鿿㐀-䶿])/g;

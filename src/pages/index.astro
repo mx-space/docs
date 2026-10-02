@@ -1,0 +1,47 @@
+---
+import Base from '@/layouts/base.astro';
+import Home from '@/components/home';
+import { LandingHero } from '@/components/landing-hero';
+import { PreviewImages } from '@/components/preview-images';
+import { Features } from '@/components/features';
+import { Testimonials } from '@/components/testimonials';
+import { Contributors } from '@/components/contributors';
+
+// JSON-LD 内容与迁移前的首页保持一致（name/description/offers/author 语义不变）
+const softwareApplicationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Mix Space',
+  description: 'AI 驱动型内容管理系统，为个人博客、创作者主页和内容网站打造。',
+  url: 'https://mx-space.js.org',
+  applicationCategory: 'ContentManagementSystem',
+  operatingSystem: 'Any',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+  author: {
+    '@type': 'Organization',
+    name: 'Mix Space Team',
+    url: 'https://github.com/mx-space',
+  },
+};
+---
+
+<!-- 首页自指 canonical = 站点根（旧站硬编码站点根是 bug，这里仍是站点根但改为正确的自指） -->
+<Base canonical={Astro.site?.origin}>
+  <script
+    type="application/ld+json"
+    is:inline
+    set:html={JSON.stringify(softwareApplicationSchema)}
+  />
+  <Home client:load pathname={Astro.url.pathname}>
+    <LandingHero />
+    <!-- 自动轮播需要 JS，因此单独作为岛屿水合（见 R10：slot 内岛屿是否水合待构建验证） -->
+    <PreviewImages client:load />
+    <Features />
+    <Testimonials />
+    <Contributors />
+  </Home>
+</Base>

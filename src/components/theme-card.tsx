@@ -1,5 +1,4 @@
-import Image from 'next/image';
-import Link from 'next/link';
+import { Image } from '@/components/image';
 import type { LucideIcon } from 'lucide-react';
 
 interface Badge {
@@ -85,9 +84,9 @@ export function ThemeCard({
 
   if (href) {
     return (
-      <Link href={href} className="block no-underline">
+      <a href={href} className="block no-underline">
         {content}
-      </Link>
+      </a>
     );
   }
 

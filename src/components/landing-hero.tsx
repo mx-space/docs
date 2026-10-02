@@ -1,5 +1,4 @@
-import Image from 'next/image';
-import Link from 'next/link';
+import { Image } from '@/components/image';
 
 export function LandingHero() {
   return (
@@ -23,7 +22,7 @@ export function LandingHero() {
             为个人博客、创作者主页打造的 AI 驱动型内容管理系统
           </p>
           <div className="flex items-center gap-3 justify-center">
-            <Link
+            <a
               href="/docs"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-medium transition-colors hover:bg-neutral-700 dark:hover:bg-neutral-200"
             >
@@ -31,7 +30,7 @@ export function LandingHero() {
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 8h10M9 4l4 4-4 4" />
               </svg>
-            </Link>
+            </a>
             <a
               href="https://github.com/mx-space"
               target="_blank"

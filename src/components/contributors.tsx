@@ -36,7 +36,6 @@ export function Contributors() {
             rel="noopener noreferrer"
             title={`${c.login} (${c.contributions} contributions)`}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={c.avatar_url}
               alt={c.login}
@@ -62,7 +61,6 @@ export function Contributors() {
                 rel="noopener noreferrer"
                 title={`${c.login} (${c.contributions} contributions)`}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={c.avatar_url}
                   alt={c.login}

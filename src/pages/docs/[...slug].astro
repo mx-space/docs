@@ -1,0 +1,63 @@
+---
+import type { InferGetStaticPropsType } from 'astro';
+import { render } from 'astro:content';
+import Base from '@/layouts/base.astro';
+import Docs from '@/components/docs';
+import { getMDXComponents } from '@/components/mdx';
+import { getPageImage, getPageMarkdownUrl, source } from '@/lib/source';
+import { gitConfig } from '@/lib/shared';
+
+export const prerender = true;
+
+/**
+ * rest 路由同时覆盖 `/docs`（slug: undefined）与 `/docs/**`。
+ * 注意：Astro 的 `getStaticPaths` 只接受 string | undefined 的 param，
+ * 所以 `slugs` 必须自己 `join('/')`。
+ */
+export function getStaticPaths() {
+  return source.getPages().map((page) => ({
+    params: { slug: page.slugs.length > 0 ? page.slugs.join('/') : undefined },
+    props: { page },
+  }));
+}
+
+export type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { page } = Astro.props;
+// `render()` 要的是 content collection 的条目，不是 fumadocs 的 page 对象
+const { Content, headings } = await render(page.data._raw);
+const tree = source.getPageTree();
+const toc = headings.map((heading) => ({
+  depth: heading.depth,
+  title: heading.text,
+  url: `#${heading.slug}`,
+}));
+const image = getPageImage(page).url;
+const markdownUrl = getPageMarkdownUrl(page).url;
+const githubUrl = `https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/docs/${page.path}`;
+// canonical 用 fumadocs 的 `page.url`（无尾斜杠），与 /sitemap.xml 及旧站字符串完全一致；
+// 若用 Astro.url.pathname，在 directory 格式下会得到带尾斜杠的 `/docs/xxx/`。
+const canonical = new URL(page.url, Astro.site).href;
+---
+
+<Base
+  title={page.data.title}
+  description={page.data.description}
+  image={image}
+  canonical={canonical}
+>
+  <Docs
+    client:load
+    tree={tree}
+    pathname={Astro.url.pathname}
+    params={Astro.params}
+    toc={toc}
+    full={page.data.full}
+    title={page.data.title}
+    description={page.data.description}
+    markdownUrl={markdownUrl}
+    githubUrl={githubUrl}
+  >
+    <Content components={getMDXComponents()} />
+  </Docs>
+</Base>

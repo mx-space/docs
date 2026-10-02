@@ -20,7 +20,6 @@ export function ToGithub({
       rel="noopener noreferrer"
       className="group flex items-center gap-3 rounded-lg border border-fd-border bg-fd-card px-3 py-0.5 transition-all hover:border-fd-primary/40 hover:shadow-md hover:shadow-fd-primary/5 no-underline"
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={`https://github.com/${owner}.png`}
         alt={owner}

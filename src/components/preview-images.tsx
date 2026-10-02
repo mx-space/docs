@@ -1,7 +1,5 @@
-'use client';
-
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import { Image } from '@/components/image';
 import { cn } from '@/lib/cn';
 
 const previews = [

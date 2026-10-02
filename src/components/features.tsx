@@ -10,9 +10,9 @@ import {
 const features = [
   {
     icon: Blocks,
-    title: '基于 Next.js',
+    title: '现代化技术栈',
     description:
-      '内置代码分割和图片优化，服务器端渲染（SSR）支持，性能强劲，速度快，SEO 友好。',
+      '后端 Core 由 NestJS 驱动，官方前端主题基于 Next.js 构建，数据存储使用 PostgreSQL，Redis 提供缓存。',
   },
   {
     icon: ArrowLeftRight,
