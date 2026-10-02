@@ -10,6 +10,7 @@ import { Image } from '@/components/image'
 
 <Callout title= "注意！" type="warn">
   **Cyber 是 [Shiro](https://github.com/Innei/Shiro) 的社区分支**，请勿向原作者 (Innei) 报告本项目的 Issue。
+  
   **版本要求**：目前 Cyber **仅支持 Mix Space Core 版本 == 13.x (API v3)**。
 </Callout>
 
@@ -217,7 +218,7 @@ import { Image } from '@/components/image'
 }
   ```
   
-3. 新建一个项: 名称为`status`, 分组为`cyber`, 类型为`fuction`
+3. 新建一个项: 名称为`status`, 分组为`cyber`, 类型为`function`
 
   填入以下内容
   ```typescript
@@ -226,6 +227,68 @@ export default async function handler(ctx: Context) {
 }
   ```
   
+### 国际化配置
+若您需要在`theme/cyber.json`配置国际化占位符而不是硬编码`name`, 您需要新建函数:
+
+例如, 您访问中文页面, 语言编码为`zh`,
+
+则需要新建: 名称为`zh`, 分组为`i18n`, 类型为`function`
+
+  填入以下内容
+```typescript
+  export default async function handler(ctx: Context) {
+  return {
+  "footer": {
+    "about": "关于",
+    "about_site": "关于本站",
+    "about_me": "关于我",
+    "about_project": "关于此项目",
+    "more": "更多",
+    "timeline": "时间线",
+    "friends": "友链",
+    "contact": "联系",
+    "write_message": "写留言",
+    "send_email": "发邮件"
+  }
+}
+  ```
+  
+同理, 若您需要英文翻译, 则在`i18n`分组下新建`en`函数。
+
+`theme/cyber.json`需要遵循以下格式:
+
+```json
+{
+  "footer": {
+    "linkSections": [
+      {
+        "name": "$i18n.footer.about",
+        "links": [
+          {
+            "name": "$i18n.footer.about_site",
+            "href": "/about-site"
+          },
+          {
+            "name": "$i18n.footer.about_me",
+            "href": "/about"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+其中`$i18n.xx.xx`为i18n占位符, 将使用`{api_address}/s/i18n/{locale}`中的内容进行替换,
+
+例如, 您访问中文页面, 语言编码为`zh`, `{api_address}/s/i18n/zh`返回了`{"footer":{"about":"关于","about_site":"关于本站"}}`,
+
+则`$i18n.footer.about`将替换为`关于`, `$i18n.footer.about_site`将替换为`关于本站`。
+
+<Callout title= "注意！" type="warn">
+  若您访问的语言页面没有配置对应函数, i18n占位符将保留在页面上。
+</Callout>
+
 **其他配置信息参见**: [Shiro](https://mx-space.js.org/docs/themes/shiro/config)
 
 ## 预览
