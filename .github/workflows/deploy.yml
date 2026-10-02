@@ -27,10 +27,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # 不传 static_site_generator：configure-pages@v5 只支持
+      # "nuxt" / "next" / "gatsby" / "sveltekit"，传 "astro" 会让该步骤直接失败。
+      # Pages 只关心产物路径，而路径由下面的 upload-pages-artifact 指定。
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-        with:
-          static_site_generator: astro
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v5
