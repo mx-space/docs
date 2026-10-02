@@ -9,3 +9,13 @@ minimumReleaseAgeExclude:
   - fumadocs-core@16.15.18
   - fumadocs-ui@16.15.18
   - lucide-react@1.50.0
+# 压制 fumadocs 传递依赖（next 子树，本站 Astro 运行时不执行）的已知漏洞：
+# 全部强制到各 advisory 的修复版本，详见 pnpm audit --prod。
+overrides:
+  next: ^16.3.6
+  '@babel/core': ^7.29.1
+  postcss: ^8.5.22
+  esbuild: ^0.28.1
+  browserslist: ^4.28.7
+  baseline-browser-mapping: ^2.11.0
+  sharp: ^0.35.4
