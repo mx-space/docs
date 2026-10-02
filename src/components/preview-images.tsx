@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { Image } from '@/components/image';
+import type { ResponsiveImage } from '@/lib/images';
 import { cn } from '@/lib/cn';
 
-const previews = [
-  { name: '余白/Yohaku', image: '/screenshot/Yohaku.png' },
-  { name: '白/Shiro', image: '/screenshot/Shiro.png' },
-  { name: '控制面板/Dashboard', image: '/screenshot/Dashboard.png' },
-];
+interface PreviewItem extends ResponsiveImage {
+  name: string;
+}
 
-export function PreviewImages() {
+export function PreviewImages({ previews }: { previews: PreviewItem[] }) {
   const [active, setActive] = useState(0);
   const btnRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
@@ -50,7 +49,9 @@ export function PreviewImages() {
               )}
             >
               <Image
-                src={item.image}
+                src={item.src}
+                srcSet={item.srcSet}
+                sizes={item.sizes}
                 alt={item.name}
                 fill
                 className="object-cover"

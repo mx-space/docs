@@ -6,6 +6,30 @@ import { PreviewImages } from '@/components/preview-images';
 import { Features } from '@/components/features';
 import { Testimonials } from '@/components/testimonials';
 import { Contributors } from '@/components/contributors';
+import { responsiveImage } from '@/lib/images';
+import uwu from '@/assets/uwu.png';
+import yohaku from '@/assets/previews/yohaku.png';
+import shiro from '@/assets/previews/shiro.png';
+import dashboard from '@/assets/previews/dashboard.png';
+
+// 首页两个岛屿（Home client:load、PreviewImages client:load）内部无法使用 astro:assets，
+// 图片优化统一在 .astro 层完成后以可序列化 props 下发。
+// hero logo 显示宽 192/256px → 2x/3x 取 384/512；轮播容器 max-w-6xl(1152px) → 至 1920 覆盖大屏。
+const heroLogo = await responsiveImage(
+  uwu,
+  [256, 384, 512],
+  '(min-width: 768px) 256px, 192px',
+);
+const previewSrcSets = await Promise.all(
+  [yohaku, shiro, dashboard].map((image) =>
+    responsiveImage(image, [640, 960, 1280, 1600, 1920], '(min-width: 1152px) 1152px, 100vw'),
+  ),
+);
+const previews = [
+  { name: '余白/Yohaku', ...previewSrcSets[0] },
+  { name: '白/Shiro', ...previewSrcSets[1] },
+  { name: '控制面板/Dashboard', ...previewSrcSets[2] },
+];
 
 // JSON-LD 内容与迁移前的首页保持一致（name/description/offers/author 语义不变）
 const softwareApplicationSchema = {
@@ -37,9 +61,9 @@ const softwareApplicationSchema = {
     set:html={JSON.stringify(softwareApplicationSchema)}
   />
   <Home client:load pathname={Astro.url.pathname}>
-    <LandingHero />
+    <LandingHero logo={heroLogo} />
     <!-- 自动轮播需要 JS，因此单独作为岛屿水合（见 R10：slot 内岛屿是否水合待构建验证） -->
-    <PreviewImages client:load />
+    <PreviewImages client:load previews={previews} />
     <Features />
     <Testimonials />
     <Contributors />

@@ -8,6 +8,7 @@ import type { CSSProperties, ImgHTMLAttributes } from 'react';
  */
 export function Image({
   src,
+  srcSet,
   alt,
   width,
   height,
@@ -19,6 +20,8 @@ export function Image({
   ...rest
 }: {
   src: string;
+  /** 响应式 srcset（由 src/lib/images.ts 在构建期生成，如 `xx.webp 640w, yy.webp 960w`） */
+  srcSet?: string;
   alt: string;
   width?: number;
   height?: number;
@@ -39,6 +42,7 @@ export function Image({
     <img
       {...(rest as ImgHTMLAttributes<HTMLImageElement>)}
       src={src}
+      {...(srcSet ? { srcSet } : {})}
       alt={alt}
       {...(fill ? {} : { width, height })}
       className={mergedClassName}

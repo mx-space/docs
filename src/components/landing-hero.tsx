@@ -1,16 +1,19 @@
 import { Image } from '@/components/image';
+import type { ResponsiveImage } from '@/lib/images';
 
-export function LandingHero() {
+export function LandingHero({ logo }: { logo: ResponsiveImage }) {
   return (
     <section className="flex flex-col items-center gap-8 max-w-5xl mx-auto px-3 py-16 md:py-24 flex-1">
       {/* Icon + Image row */}
       <div className="flex items-center gap-4">
         <YarnBall />
         <Image
-          src="/images/uwu.png"
+          src={logo.src}
+          srcSet={logo.srcSet}
+          sizes={logo.sizes}
           alt="Mix Space"
-          width={320}
-          height={80}
+          width={logo.width}
+          height={logo.height}
           className="h-auto w-48 md:w-64 shrink-0"
           priority
         />

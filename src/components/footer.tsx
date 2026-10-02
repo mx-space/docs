@@ -1,5 +1,6 @@
 import { Heart } from 'lucide-react';
 import { Image } from '@/components/image';
+import logo from '@/assets/logo.png';
 
 export function Footer() {
   return (
@@ -7,7 +8,7 @@ export function Footer() {
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Image src="/images/logo.png" alt="Mix Space" width={28} height={28} className="size-7 rounded" />
+            <Image src={logo.src} alt="Mix Space" width={28} height={28} className="size-7 rounded" />
             <span className="font-semibold text-neutral-900 dark:text-neutral-50">
               Mix Space
             </span>
