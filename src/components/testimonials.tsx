@@ -29,26 +29,50 @@ const testimonials = [
   },
 ];
 
+/**
+ * 用户证言：单排 CSS 跑马灯（两端渐隐、悬停暂停），
+ * 每条证言渲染两份以实现无缝循环；超出视口的副本用 aria-hidden 去重。
+ */
 export function Testimonials() {
   return (
-    <section className="w-full max-w-6xl mx-auto px-6 pb-16 md:pb-24">
-      <h2 className="text-3xl md:text-4xl font-semibold text-center tracking-tight text-neutral-900 dark:text-neutral-50 mb-10">
-        Loved by users. Built for developers.
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {testimonials.map((item) => (
-          <div
-            key={item.name}
-            className="flex flex-col gap-4 p-6 rounded-2xl border bg-neutral-50 dark:bg-neutral-900"
+    <section className="w-full pb-14 md:pb-20" data-reveal>
+      <header className="max-w-2xl mx-auto px-6 text-center mb-8 md:mb-10">
+        <p className="text-sm font-medium text-teal-600 dark:text-teal-400 tracking-wide">
+          社区
+        </p>
+        <h2 className="mt-2 text-3xl md:text-4xl font-semibold tracking-tight text-balance text-neutral-900 dark:text-neutral-50">
+          他们正在用 Mix Space 记录与分享
+        </h2>
+      </header>
+
+      <div className="mx-marquee-mask overflow-hidden">
+        <MarqueeRow items={testimonials} />
+      </div>
+    </section>
+  );
+}
+
+function MarqueeRow({ items }: { items: typeof testimonials }) {
+  // 渲染三份、位移 -1/3：保证在超宽视口下循环无缝（内容宽度需 ≥ 视口宽度）
+  const tripled = [...items, ...items, ...items];
+
+  return (
+    <div className="overflow-hidden">
+      <div className="flex w-max gap-4 pr-4 animate-marquee">
+        {tripled.map((item, i) => (
+          <figure
+            key={`${item.name}-${i}`}
+            aria-hidden={i >= items.length}
+            className="flex w-[320px] md:w-[400px] shrink-0 flex-col gap-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 p-5"
           >
-            <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed flex-1">
+            <blockquote className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
               &ldquo;{item.quote}&rdquo;
-            </p>
-            <div className="flex items-center gap-3 pt-2">
+            </blockquote>
+            <figcaption className="mt-auto flex items-center gap-3 pt-2">
               <img
                 src={item.avatar}
                 alt={item.name}
-                className="size-10 rounded-full object-cover"
+                className="size-9 rounded-full object-cover"
                 loading="lazy"
               />
               <div>
@@ -59,10 +83,10 @@ export function Testimonials() {
                   {item.role}
                 </p>
               </div>
-            </div>
-          </div>
+            </figcaption>
+          </figure>
         ))}
       </div>
-    </section>
+    </div>
   );
 }

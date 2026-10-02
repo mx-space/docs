@@ -18,16 +18,21 @@ const { humans, bots } = data as {
 export function Contributors() {
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-6 pb-16 md:pb-24">
-      <h2 className="text-3xl md:text-4xl font-semibold text-center tracking-tight text-neutral-900 dark:text-neutral-50 mb-4">
-        由像你一样充满热情的开发者共同创造
-      </h2>
-      <p className="text-center text-neutral-500 dark:text-neutral-400 mb-10">
-        感谢这些为 Mix Space 开源社区做出贡献的优秀开发者
-      </p>
+    <section className="w-full max-w-6xl mx-auto px-6 pb-16 md:pb-24" data-reveal>
+      <div className="mx-auto max-w-2xl text-center mb-10">
+        <p className="text-sm font-medium text-teal-600 dark:text-teal-400 tracking-wide">
+          社区
+        </p>
+        <h2 className="mt-2 text-3xl md:text-4xl font-semibold tracking-tight text-balance text-neutral-900 dark:text-neutral-50">
+          由像你一样充满热情的开发者共同创造
+        </h2>
+        <p className="mt-3 text-neutral-500 dark:text-neutral-400">
+          感谢这些为 Mix Space 开源社区做出贡献的开发者
+        </p>
+      </div>
 
       {/* Human contributors */}
-      <div className="flex flex-wrap justify-center gap-3 mb-8">
+      <div className="flex flex-wrap justify-center gap-2.5 mb-8">
         {humans.map((c) => (
           <a
             key={c.login}
@@ -39,7 +44,7 @@ export function Contributors() {
             <img
               src={c.avatar_url}
               alt={c.login}
-              className="size-10 rounded-full object-cover ring-2 ring-transparent hover:ring-teal-500 transition-all hover:scale-110"
+              className="size-10 rounded-full object-cover bg-neutral-200 dark:bg-neutral-800 ring-2 ring-transparent grayscale-[35%] hover:grayscale-0 hover:ring-teal-500 transition-all hover:scale-110"
               loading="lazy"
             />
           </a>

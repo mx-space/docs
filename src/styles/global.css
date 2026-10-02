@@ -20,3 +20,112 @@ html > body[data-scroll-locked] {
   margin-right: 0px !important;
   --removed-body-scroll-bar-size: 0px !important;
 }
+
+/* ------------------------------------------------------------------ */
+/* 首页落地页动效基建（全部纯 CSS，尊重 prefers-reduced-motion）        */
+/* ------------------------------------------------------------------ */
+
+@theme {
+  --animate-marquee: marquee 44s linear infinite;
+
+  @keyframes marquee {
+    to {
+      transform: translateX(calc(-100% / 3));
+    }
+  }
+}
+
+/* 滚动渐显：Chromium 走 scroll-driven animations，其余浏览器保持可见 */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      animation: mx-reveal 0.8s ease-out both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}
+@keyframes mx-reveal {
+  from {
+    opacity: 0.001;
+    transform: translateY(28px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 首屏入场：层级交错（配 hero 内联的 --stagger 延迟使用） */
+@media (prefers-reduced-motion: no-preference) {
+  [data-stagger] {
+    animation: mx-stagger 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--stagger, 0ms);
+  }
+}
+@keyframes mx-stagger {
+  from {
+    opacity: 0.001;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 细颗粒噪点：打破纯色/渐变的数字扁平感 */
+.mx-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* 点阵网格（hero 背景） */
+.mx-dots {
+  background-image: radial-gradient(circle, var(--dots-color) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+/* 聚光边框卡片：--mx/--my 由 React onMouseMove 写入 */
+.mx-spotlight {
+  position: relative;
+}
+.mx-spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 50%),
+    var(--spot-color, oklch(0.7 0.12 190 / 0.8)),
+    transparent 70%
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.mx-spotlight:hover::before {
+  opacity: 1;
+}
+
+/* 跑马灯两端渐隐 */
+.mx-marquee-mask {
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+.mx-marquee-mask:hover [class*='animate-marquee'] {
+  animation-play-state: paused;
+}
+
+/* 键盘焦点环（全站统一） */
+@layer base {
+  :focus-visible {
+    outline: 2px solid oklch(0.62 0.12 190);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
