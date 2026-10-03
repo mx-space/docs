@@ -1,5 +1,8 @@
 import { glob } from 'astro/loaders';
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+// z 从 astro/zod 导入：astro:content 的 re-export 已标记 deprecated 并计划移除。
+// 本文件此前贡献 13 条 ts(6385) 弃用 hint，换成官方 ./zod 入口后全部消除。
+import { z } from 'astro/zod';
 
 /**
  * 内容目录仍然保持在仓库根的 `content/docs`（与 Next 时代完全一致，零搬迁）。
