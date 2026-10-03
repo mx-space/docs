@@ -10,9 +10,13 @@
   pnpm install
   pnpm dev       # astro dev，本地开发服务器
   pnpm check     # astro check，类型检查
+  pnpm lint      # eslint
+  pnpm pangu     # 中英混排空格检查（CI 门禁之一）
   pnpm build     # astro build，产物输出到 dist/
   pnpm preview   # astro preview，本地预览构建产物
 ```
+
+Pull Request 会被 `.github/workflows/ci.yml` 的 4 个 step 拦下：`build`、`check`、`check-links`（站内死链检查，只读 `dist/` 做文件系统真值判断，因此必须排在 `build` 之后）、`pangu`。提交前在本地跑一遍同样的命令，能省掉一轮 CI 往返。注意 `pnpm lint` 目前**没有**接进 CI，属于本地自检项。
 
 ## Working on the content 修改文字
 
@@ -30,7 +34,7 @@
 
 **<u>编写内容的时候需要注意的事情</u>**：
 
-1. 中文与英文之间请保留一个空格，如`测试 test 测试`，可以使用 [AutoCorrect](https://github.com/huacnlee/autocorrect) 进行检查和修改
+1. 中文与英文之间请保留一个空格，如`测试 test 测试`。仓库自带的 `pnpm pangu`（`scripts/check-pangu.mjs`）就是 CI 实际执行的那道门禁，提交前用它自查；[AutoCorrect](https://github.com/huacnlee/autocorrect) 的自动修正更顺手，但两者规则口径以本仓库脚本为准
 
 ## Author
 
