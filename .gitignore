@@ -7,6 +7,12 @@ dist/
 .astro/
 *.tsbuildinfo
 
+# 本地工具产物，不应进版本库
+# .playwright/ 为调试截图（单个 800KB+，全量约 5MB）
+.playwright/
+# .mimosa/ 为 mimosa 本地审计 ledger，运行时生成
+.mimosa/
+
 # 测试覆盖率（本项目未接入测试，仅作兜底）
 coverage/
 
