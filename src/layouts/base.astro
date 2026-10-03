@@ -73,16 +73,47 @@ const ogImage = new URL(image ?? '/og.png', Astro.site).href;
     <meta name="twitter:description" content={pageDescription} />
     <meta name="twitter:image" content={ogImage} />
     <script is:inline>
-      // 主题防闪（ADR/R5）：在 HTML 解析阶段消除深色模式闪烁
+      // 主题防闪（ADR/R5）+ ClientRouter 导航期主题保持
       // 对齐原实现的 attribute: 'class' / defaultTheme: 'system' / storageKey: 'theme'
       (() => {
-        try {
-          const theme = localStorage.getItem('theme');
+        const readStoredTheme = () => {
+          try {
+            return localStorage.getItem('theme');
+          } catch {
+            // localStorage 不可用时静默降级
+            return null;
+          }
+        };
+        const resolveDark = () => {
+          const theme = readStoredTheme();
           const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          const dark = theme === 'dark' || ((theme === 'system' || theme === null) && prefersDark);
-          if (dark) document.documentElement.classList.add('dark');
-        } catch {
-          // localStorage 不可用时静默降级
+          return theme === 'dark' || ((theme === 'system' || theme === null) && prefersDark);
+        };
+
+        // 硬导航：HTML 解析阶段直接定妆，body 绘制前 dark 已就位。
+        if (resolveDark()) document.documentElement.classList.add('dark');
+
+        // 客户端导航：Astro 的 swapRootAttributes() 会剥掉 <html> 上除
+        // data-astro-transition* 外的全部属性（见 astro/dist/transitions/swap-functions.js，
+        // NON_OVERRIDABLE_ASTRO_ATTRS 只有那两个），而服务端产物 <html lang="zh-CN">
+        // 本身不带 class —— 于是 dark 会在 swap 完成与 runScripts() 重跑本脚本之间出现
+        // 空窗。导航走 startViewTransition，空窗状态会被快照并交叉淡入，于是表现为一次日间闪烁。
+        //
+        // astro:before-swap 在交换发生前派发并携带 newDocument（见 astro/dist/transitions/
+        // events.js 的 doSwap：先 dispatchEvent 再 event.swap()），把当前已解析的主题写进
+        // 新文档，交换过程本身就永不产生中间态。
+        //
+        // 以 <html> 的实时 class 为真值而非 localStorage：用户中途切过主题、或 system
+        // 跟随系统变化时，实时 class 才是当前真相。
+        // 本内联脚本每次导航都会被 runScripts() 重跑，故用全局标志保证监听器只注册一次。
+        if (!window.__mxThemeSync) {
+          window.__mxThemeSync = true;
+          document.addEventListener('astro:before-swap', (event) => {
+            event.newDocument.documentElement.classList.toggle(
+              'dark',
+              document.documentElement.classList.contains('dark'),
+            );
+          });
         }
       })();
     </script>
