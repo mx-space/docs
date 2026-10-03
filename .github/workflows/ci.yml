@@ -35,3 +35,13 @@ jobs:
 
       - name: Type check
         run: pnpm check
+
+      # 站内死链检查。必须排在 build 之后：脚本只读 dist/ 产物做文件系统真值判断，
+      # 不做服务器端路由猜测。已有断链按 scripts/check-links.mjs 的
+      # KNOWN_PREEXISTING_DEAD 登记为非阻塞，其余一律 BLOCKING 直接挂掉 PR。
+      - name: Check internal links
+        run: node scripts/check-links.mjs
+
+      # 中英混排空格。只读 src/ 与 content/，不依赖产物。
+      - name: Check CJK-Latin spacing
+        run: pnpm pangu

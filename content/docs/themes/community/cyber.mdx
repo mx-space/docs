@@ -279,14 +279,14 @@ export default async function handler(ctx: Context) {
 }
 ```
 
-其中`$i18n.xx.xx`为i18n占位符, 将使用`{api_address}/s/i18n/{locale}`中的内容进行替换,
+其中`$i18n.xx.xx`为 i18n 占位符, 将使用`{api_address}/s/i18n/{locale}`中的内容进行替换,
 
 例如, 您访问中文页面, 语言编码为`zh`, `{api_address}/s/i18n/zh`返回了`{"footer":{"about":"关于","about_site":"关于本站"}}`,
 
 则`$i18n.footer.about`将替换为`关于`, `$i18n.footer.about_site`将替换为`关于本站`。
 
 <Callout title= "注意！" type="warn">
-  若您访问的语言页面没有配置对应函数, i18n占位符将保留在页面上。
+  若您访问的语言页面没有配置对应函数, i18n 占位符将保留在页面上。
 </Callout>
 
 **其他配置信息参见**: [Shiro](https://mx-space.js.org/docs/themes/shiro/config)
