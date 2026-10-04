@@ -47,11 +47,15 @@ const ogImage = new URL(image ?? '/og.png', Astro.site).href;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a" />
     <meta name="description" content={pageDescription} />
     <meta name="keywords" content={keywords.join(',')} />
     <link rel="canonical" href={canonicalHref} />
     {markdownUrl && <link rel="alternate" type="text/markdown" href={markdownUrl} />}
-    <link rel="icon" href="/images/logo.png" />
+    <!-- favicon：SVG 为主（品牌渐变 + M 标记），logo.png 作 PNG 兜底与 apple-touch-icon -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/images/logo.png" sizes="any" type="image/png" />
     <link rel="shortcut icon" href="/images/logo.png" />
     <link rel="apple-touch-icon" href="/images/logo.png" />
     <meta
@@ -120,6 +124,17 @@ const ogImage = new URL(image ?? '/og.png', Astro.site).href;
     <ClientRouter />
   </head>
   <body class="flex flex-col min-h-screen">
-    <slot />
+    <!-- skip-to-content：视觉隐藏，键盘 Tab 首焦点即出现（焦点环沿用 global.css 的 :focus-visible） -->
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-neutral-900 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white dark:focus:bg-white dark:focus:text-neutral-900"
+    >
+      跳到主要内容
+    </a>
+    <!-- fumadocs 的 HomeLayout/DocsLayout 内部的 <main> 无法从外部加 id，
+         故在此包一层作为 skip link 的落点；类与原 body 一致，保持 flex 布局语义 -->
+    <div id="main" tabindex="-1" class="flex flex-col min-h-screen w-full outline-none">
+      <slot />
+    </div>
   </body>
 </html>

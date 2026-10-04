@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Mix Space favicon：圆角方块 + teal→cyan 品牌渐变（landing-hero 的 from-teal-600 to-cyan-500）+ 白色 M 标记 -->
+  <defs>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d9488" />
+      <stop offset="1" stop-color="#06b6d4" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#brand)" />
+  <path
+    d="M16 46 L16 18 L23 18 L32 33 L41 18 L48 18 L48 46 L41 46 L41 29 L32 42 L23 29 L23 46 Z"
+    fill="#ffffff"
+  />
+</svg>
