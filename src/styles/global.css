@@ -12,6 +12,18 @@
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 }
 
+/*
+ * 文档区主题色覆盖：与首页品牌 teal 统一（fumadocs 默认 primary 是灰蓝/中性色）。
+ * 只覆盖 primary：亮色 teal-700、暗色 teal-400（teal-600 对正文/白字仅约 3.4:1，
+ * 不满足 WCAG AA，故亮色取同色相加深一档），两套模式对比度均达标。
+ */
+:root {
+  --color-fd-primary: var(--color-teal-700);
+}
+.dark {
+  --color-fd-primary: var(--color-teal-400);
+}
+
 html {
   scrollbar-gutter: stable;
 }
@@ -121,10 +133,10 @@ html > body[data-scroll-locked] {
   animation-play-state: paused;
 }
 
-/* 键盘焦点环（全站统一） */
+/* 键盘焦点环（全站统一）：跟随主题 primary，文档区与首页品牌 teal 保持一致 */
 @layer base {
   :focus-visible {
-    outline: 2px solid oklch(0.62 0.12 190);
+    outline: 2px solid var(--color-fd-primary);
     outline-offset: 2px;
     border-radius: 4px;
   }
