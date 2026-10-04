@@ -15,7 +15,7 @@ import {
   ViewOptionsPopover,
 } from 'fumadocs-ui/layouts/docs/page';
 import {
-  Rocket,
+  Compass,
   Server,
   Settings,
   PaintRoller,
@@ -27,7 +27,7 @@ import { baseOptions } from '@/lib/layout.shared';
 import { RootProvider } from '@/components/root-provider';
 
 const iconMap: Record<string, ReactNode> = {
-  '新手入门': <Rocket className="size-4" />,
+  '新手入门': <Compass className="size-4" />,
   '部署': <Server className="size-4" />,
   '配置': <Settings className="size-4" />,
   '前端主题': <PaintRoller className="size-4" />,

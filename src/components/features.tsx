@@ -5,8 +5,8 @@ import {
   Bot,
   Cpu,
   FileEdit,
+  Palette,
   Settings,
-  Sparkles,
 } from 'lucide-react';
 
 const p = 'text-sm leading-relaxed text-neutral-600 dark:text-neutral-400';
@@ -57,8 +57,8 @@ export function Features() {
           <p className={p}>后端 API 和前端界面分开部署，可以各自升级、各自扩容。</p>
         </SpotlightCard>
 
-        <SpotlightCard className="lg:col-span-2" watermark={Sparkles}>
-          <CardHeader icon={Sparkles} title="现代化 UI" />
+        <SpotlightCard className="lg:col-span-2" watermark={Palette}>
+          <CardHeader icon={Palette} title="现代化 UI" />
           <p className={p}>
             提供 Yohaku、Shiro 等官方主题，界面简洁现代，支持深色模式。
           </p>

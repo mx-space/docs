@@ -101,6 +101,7 @@ export function ThemeCard({
           width={24}
           height={24}
           className="rounded-full bg-neutral-200 dark:bg-neutral-800"
+          loading="lazy"
         />
         <span className="text-sm text-neutral-600 dark:text-neutral-400">
           {author}

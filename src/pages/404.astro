@@ -4,7 +4,7 @@ import Base from '@/layouts/base.astro';
 
 <Base title="页面未找到" description="你访问的页面不存在或已被移动。">
   <main class="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-32 text-center">
-    <p class="text-6xl font-bold tracking-tight">404</p>
+    <p aria-hidden="true" class="text-6xl font-bold tracking-tight">404</p>
     <h1 class="text-2xl font-semibold">页面未找到</h1>
     <p class="text-fd-muted-foreground max-w-md text-sm">
       你访问的页面不存在或已被移动，请检查地址是否正确。
@@ -21,6 +21,31 @@ import Base from '@/layouts/base.astro';
         class="bg-fd-secondary text-fd-secondary-foreground hover:bg-fd-secondary/80 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
       >
         阅读文档
+      </a>
+    </div>
+    <div
+      class="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-fd-muted-foreground"
+    >
+      <span class="text-[11px] uppercase tracking-wider opacity-70" aria-hidden="true"
+        >常用页面：</span
+      >
+      <a
+        href="/docs/deploy"
+        class="underline-offset-4 transition-colors hover:text-fd-foreground hover:underline"
+      >
+        部署指南
+      </a>
+      <a
+        href="/docs/configure/environment"
+        class="underline-offset-4 transition-colors hover:text-fd-foreground hover:underline"
+      >
+        环境变量参考
+      </a>
+      <a
+        href="/docs/configure"
+        class="underline-offset-4 transition-colors hover:text-fd-foreground hover:underline"
+      >
+        配置总览
       </a>
     </div>
   </main>
