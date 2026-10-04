@@ -27,7 +27,19 @@ export function Footer() {
             >
               GitHub
             </a>
-            <span>&copy; 2021-{new Date().getFullYear()} Mix Space Team</span>
+            <a
+              href="/privacy"
+              className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+            >
+              隐私政策
+            </a>
+            <a
+              href="/terms"
+              className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+            >
+              服务条款
+            </a>
+            <span className="tabular-nums">&copy; 2021-{new Date().getFullYear()} Mix Space Team</span>
           </div>
         </div>
       </div>
