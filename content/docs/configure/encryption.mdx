@@ -15,17 +15,25 @@ Mix Space 提供了敏感配置的加密存储能力。默认为关。
 
 ## 哪些字段会被加密
 
-加密范围**不是全部配置项**，而是由服务端 schema 上的 `encrypt` 元数据逐字段声明的，**随版本变化**。
+加密范围不是全部配置项，而是由服务端 schema 上的 `encrypt` 元数据决定，**随版本变化**。
 
-以 v14.15.2 为例，整个配置 schema 中**只有 OAuth 的 client secret 一组字段**被标记为加密。以下这些**不会**被加密，即使你开启了 Key 加密：
+判定规则：服务端遍历配置 schema 时，会读每个字段的 `encrypt` 元数据；**父级被标记时，整棵子树都继承加密**。绝大多数密码类字段是通过 `field.password()` / `field.passwordHalfGrid()` 定义的，这两个 helper 会在构造 schema 时自动注入 `encrypt: true`，所以你在配置里看到的「密码」输入框，基本都属于加密范围。
 
-- 图床的 `secretKey`
-- 邮箱的 SMTP 密码
-- AI 服务商的 API Key
-- 会员体系的 `apiKey`
+当前版本（v14.15.2）覆盖的主要字段：
+
+| 区域 | 字段 |
+| --- | --- |
+| OAuth | 各服务商的 client secret、Apple 私钥 |
+| 图床 / 对象存储 | S3、R2 的 `secretKey` |
+| 邮件 | Resend API Key、SMTP 密码 |
+| AI | 各 Provider 的 `apiKey` |
+| Webhook | 签名密钥 |
+| 搜索推送 | 百度推送 Token、Bing API key |
+| 会员 | API Key |
+| 其他 | 高德地图 Key、设备 Key、Personal Access Token 等 |
 
 <Callout type="info">
-想确认当前版本的准确清单，请查看服务端 `apps/core/src/modules/configs/configs.schema.ts` 中标记 `encrypt: true` 的字段。文档这里的说明可能落后于代码，以源码为准。
+想确认当前版本的准确清单，可以看服务端 `apps/core/src/modules/configs/` 下的 `configs.schema.ts`：凡是写成 `field.password(...)` 或 `field.passwordHalfGrid(...)` 的字段都会被加密，另加显式标注 `{ encrypt: true }` 的字段。文档这里的说明可能落后于代码，以源码为准。
 </Callout>
 
 ## 如何开启

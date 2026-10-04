@@ -19,6 +19,7 @@ description: 所有环境变量的完整说明
 | --- | --- | --- | --- |
 | `JWT_SECRET` | JWT 签名密钥。**运行时不做长度校验**，建议 16-32 个字符。未设置时 token 会在重启后全部失效 | - | `my-secret-key` |
 | `JWTSECRET` | `JWT_SECRET` 的别名，两者都设置时以 `JWT_SECRET` 为准 | - | `my-secret-key` |
+| `JWT_EXPIRE` | 登录令牌有效期（天） | `14` | `30` |
 | `ALLOWED_ORIGINS` | 允许的跨域域名。**自建站必须显式设置**，否则你的域名不在白名单内 | 内置默认白名单（`innei.ren`、`localhost:*`、`*.dev`、`*.vercel.app` 等） | `example.com,www.example.com` |
 | `SNOWFLAKE_WORKER_ID` | 工作节点 ID，取值 `0-1023` 的整数。**生产环境不设置会直接启动失败**，单实例填 `1` | - | `1` |
 

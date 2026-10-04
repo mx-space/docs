@@ -30,13 +30,9 @@ Mix Space 支持将图片和文件存储到 S3 兼容的对象存储服务（如
 |------|------|
 | **S3 Endpoint** | S3 兼容服务的 Endpoint（如 `https://<account>.r2.cloudflarestorage.com`） |
 | **访问密钥 ID**（`secretId`） | 访问密钥 ID |
-| **访问密钥**（`secretKey`） | 访问密钥 |
+| **访问密钥**（`secretKey`） | 访问密钥（加密存储） |
 | **存储桶**（`bucket`） | 存储桶名称 |
 | **区域**（`region`） | 地域（Cloudflare R2 填 `auto`） |
-
-<Callout type="warn">
-`访问密钥`（`secretKey`）**不会**被 Key 加密功能加密落库——当前版本只有 OAuth 的 client secret 在加密范围内。详见 [数据加密](/docs/configure/encryption) 的加密字段清单。
-</Callout>
 
 </Step>
 

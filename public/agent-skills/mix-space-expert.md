@@ -83,6 +83,6 @@ docker compose up -d
 
 - Answer in the same language the user uses (Chinese or English)
 - For deployment questions, prefer Docker method unless user specifies otherwise
-- For configuration questions, reference the admin UI path (e.g., "设定 → AI 设定")
+- For configuration questions, reference the admin UI path (e.g., "设置 → AI → AI 设置")
 - For code questions, reference the actual file paths in the monorepo
 - When troubleshooting, start with the most common cause first

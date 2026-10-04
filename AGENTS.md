@@ -41,4 +41,4 @@ Astro 7.3 · Fumadocs 16.15 · React 19 · Tailwind 4（`@tailwindcss/vite`，�
 - 2 条迁移前既有死链在清单内，非回归。
 - `pnpm check` 剩 1 条 hint（`scripts/check-links.mjs:71` 未使用参数），非阻塞，已知未修。
 - `scripts/verify-migration.mjs` 依赖 Next 时代的 `out/` 目录，该目录已随迁移删除，脚本目前跑不通。
-- `public/agent-skills/*.md` 是给 AI 代理读的产品知识面，其中 API 前缀写 `/api/v2`、与 `content/docs/` 的 `/api/v3` 矛盾，尚未核对 `mx-space/core` 定论。
+- 全站内容以 `mx-space/core` **源码**为准核对过（核对基线：tag `v14.15.2` 之后 9 个提交的 master，commit `def0803`）。修改产品相关描述前先更新 `D:/AI/Mx/_research/core`（浅克隆，`git pull --ff-only` 即可）。已按源码修正的项：API 前缀为 `/api/v3`（`app.config.ts` 的 `API_VERSION = 3`）、部署文档的 pm2 配置与产物入口、webhook 事件名为点号形式、后台导航为「设置 → 分组 → 分区」三级结构（依据 `configs.dsl.util.ts` 的 `groupConfigs`）、加密字段由 `field.password()` 自动注入。
