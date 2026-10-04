@@ -34,18 +34,34 @@ pnpm bundle
 随后进入 `./apps/core`，执行以下命令启动服务：
 
 ```bash
-pm2 start ecosystem.config.js
+pnpm prod
+```
+
+也可以直接用 PM2（注意配置文件扩展名是 `.cjs`）：
+
+```bash
+pm2 start ecosystem.config.cjs
 ```
 
 ## 大版本更新
 
 <Callout type="warn">
-v12 是一次重大升级，数据库从 MongoDB 迁移到 PostgreSQL。不能简单 `docker compose pull` 升级，请务必阅读专用升级指南。
+以下版本存在**破坏性变更**，不能简单 `docker compose pull` 升级，请务必阅读对应的升级指南。
 </Callout>
 
 <Cards>
   <Card
-    title="v12 升级完整指南"
+    title="v13 升级到 v14 指南"
+    href="/docs/migrate/v13-to-v14"
+    icon={<AlertTriangle />}
+  />
+  <Card
+    title="v12 升级到 v13 指南"
+    href="/docs/migrate/v12-to-v13"
+    icon={<AlertTriangle />}
+  />
+  <Card
+    title="v11 升级到 v12 指南"
     href="/docs/migrate/v11-to-v12"
     icon={<AlertTriangle />}
   />

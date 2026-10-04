@@ -5,16 +5,20 @@ description: 配置外部 Redis 或 PostgreSQL 服务
 
 如果你需要使用来自远端或非容器内的 Redis / PostgreSQL 服务，可以通过环境变量或启动参数传入配置。
 
+<Callout type="info">
+以下环境变量需要配置在 **mx-core 进程**的环境中。`mx-migrate`（数据库结构迁移步骤）是独立进程，不会继承 `services.app` 里设置的全部变量。
+</Callout>
+
 ## 外部 Redis
 
 支持传入的参数：
 
 | 参数 | 说明 |
 |------|------|
+| `redis_connection_string` | 完整连接串，**优先级最高**，会覆盖下面三项。支持 `redis://` / `rediss://`（`rediss` 会自动启用 TLS），path 里的 `/0` 表示 db 序号。Docker 环境变量为 `REDIS_URL`（也接受 `REDIS_CONNECTION` / `REDIS_CONNECTION_STRING`） |
 | `redis_host` | Redis 服务地址，域名或 IP |
-| `redis_port` | Redis 服务端口 |
+| `redis_port` | Redis 服务端口，默认 `6379` |
 | `redis_password` | Redis 服务密码 |
-| `disable_cache` | 是否禁用缓存，默认不启用 |
 
 ### Docker 部署
 
@@ -28,10 +32,10 @@ services:
     environment:
       - TZ=Asia/Shanghai
       - NODE_ENV=production
-      - REDIS_HOST=远端地址
-      - REDIS_PASSWORD=redis?passwd
+      - REDIS_URL=redis://:redis?passwd@远端地址:6379/0
       - ALLOWED_ORIGINS=localhost
       - JWT_SECRET=YOUR_SUPER_SECURED_JWT_SECRET_STRING
+      - SNOWFLAKE_WORKER_ID=1
     volumes:
       - ./data/mx-space:/root/.mx-space
 ```
@@ -40,17 +44,17 @@ services:
 
 ### 源码部署
 
-修改 `ecosystem.config.js`，在 `script` 项中添加参数：
+修改 `ecosystem.config.cjs`，在 `script` 项中添加参数：
 
 ```diff
-      script: 'out/index.js',
-+     script: 'out/index.js --redis_host=远端地址 --redis_password=redis?passwd',
+      script: 'out/main.mjs',
++     script: 'out/main.mjs --redis_host=远端地址 --redis_password=redis?passwd',
 ```
 
 然后重启服务：
 
 ```bash
-pnpm prod:pm2
+pm2 restart ecosystem.config.cjs
 ```
 
 ## 外部 PostgreSQL
@@ -59,13 +63,13 @@ pnpm prod:pm2
 
 | 参数 | 说明 |
 |------|------|
+| `pg_connection_string` | 连接地址（`postgresql://` 或 `postgres://` 开头），优先级高于以下五项。Docker 环境变量为 `PG_URL`（也接受 `PG_CONNECTION_STRING`） |
 | `pg_host` | PostgreSQL 服务地址 |
-| `pg_port` | PostgreSQL 服务端口 |
-| `pg_user` | PostgreSQL 用户名 |
-| `pg_password` | PostgreSQL 密码 |
-| `pg_database` | PostgreSQL 数据库名 |
-| `pg_connection_string` | 连接地址（`postgresql://` 或 `postgres://` 开头），优先级高于以上五项 |
-| `pg_ssl` | 是否启用 SSL 连接，`true` 为启用 |
+| `pg_port` | PostgreSQL 服务端口，默认 `5432` |
+| `pg_user` | PostgreSQL 用户名，默认 `mx` |
+| `pg_password` | PostgreSQL 密码，默认 `mx` |
+| `pg_database` | PostgreSQL 数据库名，默认 `mx_core` |
+| `pg_ssl` | 是否启用 SSL 连接，`true` 为启用，默认 `false` |
 | `pg_max_pool_size` | 连接池大小，默认 `20` |
 
 <Callout type="warn">
@@ -84,30 +88,32 @@ services:
     environment:
       - TZ=Asia/Shanghai
       - NODE_ENV=production
-      - PG_HOST=远端地址
-      - PG_USER=postgres-test
-      - PG_PASSWORD=db?passwd
-      - PG_DATABASE=mx_core
+      - PG_URL=postgresql://postgres-test:db?passwd@远端地址:5432/mx_core
       - REDIS_HOST=redis
       - ALLOWED_ORIGINS=localhost
       - JWT_SECRET=YOUR_SUPER_SECURED_JWT_SECRET_STRING
+      - SNOWFLAKE_WORKER_ID=1
     volumes:
       - ./data/mx-space:/root/.mx-space
 ```
 
 修改完成后执行 `docker compose up -d` 重启服务。
 
+<Callout type="warn">
+`SNOWFLAKE_WORKER_ID` 是必填项，取值为 `0-1023` 的整数。生产环境未设置时 mx-core 会直接启动失败并报 `SNOWFLAKE_WORKER_ID is required`，单实例部署填 `1` 即可。
+</Callout>
+
 ### 源码部署
 
-修改 `ecosystem.config.js`，在 `script` 项中添加参数：
+修改 `ecosystem.config.cjs`，在 `script` 项中添加参数：
 
 ```diff
-      script: 'out/index.js',
-+     script: 'out/index.js --pg_host=远端地址 --pg_user=postgres-test --pg_password=db?passwd --pg_database=mx_core',
+      script: 'out/main.mjs',
++     script: 'out/main.mjs --pg_host=远端地址 --pg_user=postgres-test --pg_password=db?passwd --pg_database=mx_core',
 ```
 
 然后重启服务：
 
 ```bash
-pnpm prod:pm2
+pm2 restart ecosystem.config.cjs
 ```

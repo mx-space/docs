@@ -23,17 +23,20 @@ curl -fsSL https://get.docker.com | bash -s docker
 对于 Docker 镜像加速，请在网络上自行搜索或自行搭建，也可使用 1Panel 安装服务器管理的同时安装 Docker 和镜像加速。
 
 例如 1Panel 提供了 `docker.1panel.top` 镜像加速源，使用方法是在 Docker 全局设置或在 `docker-compose.yml` 的 image 前添加镜像域名，例如 `docker.1panel.top/innei/mx-server:latest`
-如果您成功安装了 Docker 和 Docker-Compose，可以通过以下命令查看版本：
+如果您成功安装了 Docker 和 Docker Compose，可以通过以下命令查看版本：
 
 ```bash
 docker -v
+# Compose V2（推荐，docker compose 插件）
+docker compose version
+# 若你仍在使用旧版独立的 docker-compose 二进制
 docker-compose -v
 ```
 
 ## 拉取编排文件 [step]
 
 <Callout title="对于旧版本升级请注意！" type="warn">
-自 Core v5.7.5 版本开始，Docker 相关配置发生重大变化，请重新阅读本文档（尤其是填入配置文件环节，配置有所变化）
+自 v12 起 Core 已从 MongoDB 迁移到 PostgreSQL，编排文件中不再有 mongo 服务。当前版本（v14）的 `docker-compose.yml` 由 `app`、`mx-migrate`、`postgres`、`redis` 四个服务组成。
 </Callout>
 
 ```bash
@@ -46,29 +49,38 @@ wget "https://gh-proxy.org/https://github.com/mx-space/core/blob/master/docker-c
 ```
 ## 配置环境变量 [step]
 
-我们需要正确配置环境变量，打开获取到的`docker-compose.yml`文件，找到 Core 的配置。
+我们需要正确配置环境变量，打开获取到的`docker-compose.yml`文件。
 
-可以看到`environment`字段（下方示例代码高亮部分）
+环境变量集中定义在文件顶部的 `x-mx-env` 锚点里，各服务通过 `environment: *mx-env` 引用它。这是**映射**写法（`KEY: value`），不是列表。请修改 `x-mx-env` 块：
 
 ```yaml
-  app:
-    container_name: mx-server
-    image: innei/mx-server:latest
-    // [!code word:environment]
-    environment:
-      - TZ=Asia/Shanghai
-      - NODE_ENV=production
-      - DB_HOST=mongo
-      - REDIS_HOST=redis
-      - ALLOWED_ORIGINS=localhost
-      - JWT_SECRET=YOUR_SUPER_SECURED_JWT_SECRET_STRING
-    volumes:
-      - ./data/mx-space:/root/.mx-space
+# [!code word:x-mx-env]
+x-mx-env: &mx-env
+  TZ: Asia/Shanghai
+  NODE_ENV: production
+  REDIS_HOST: redis
+  PG_HOST: postgres
+  PG_PORT: '5432'
+  PG_USER: mx
+  PG_PASSWORD: mx
+  PG_DATABASE: mx_core
+  # [!code word:SNOWFLAKE_WORKER_ID]
+  SNOWFLAKE_WORKER_ID: '1'
+  ALLOWED_ORIGINS: localhost
+  JWT_SECRET: YOUR_SUPER_SECURED_JWT_SECRET_STRING
 ```
+
+<Callout type="warn">
+`SNOWFLAKE_WORKER_ID` 是必填项（`0-1023` 的整数），生产环境缺失会导致 mx-core 直接启动失败。官方文件里的默认值是 `'1'`。另外 `mx-migrate` 也会引用同一个 `*mx-env` 块并跑完整的 Nest 上下文，所以这里改了迁移步骤也会同步生效——**不要只给 `app` 服务单独加变量**。
+</Callout>
 
 ### 配置生成
 
-在下方的组件中填入配置，点击复制后粘贴到 `docker-compose.yml` 的 `environment` 字段中，覆盖`JWT_SECRET` 和 `ALLOWED_ORIGINS` 的值，如果需要开启加密功能，请添加并将 `ENCRYPT_ENABLE` 的值改为 `true`，并填入 `ENCRYPT_KEY`。
+在下方的组件中填入配置，点击复制后粘贴到 `docker-compose.yml` 的 `x-mx-env` 块中，覆盖 `JWT_SECRET` 和 `ALLOWED_ORIGINS` 的值，如果需要开启加密功能，请添加并将 `ENCRYPT_ENABLE` 的值改为 `true`，并填入 `ENCRYPT_KEY`。
+
+<Callout type="warn">
+注意：只要设置了 `ENCRYPT_KEY`（或 `MX_ENCRYPT_KEY`）而没有显式设 `ENCRYPT_ENABLE=false`，加密就会被**隐式开启**。如果暂时只想把密钥填进去而暂不加密，必须显式写 `ENCRYPT_ENABLE: false`。
+</Callout>
 
 <EnvVariableConfig
   client:load
@@ -99,7 +111,8 @@ wget "https://gh-proxy.org/https://github.com/mx-space/core/blob/master/docker-c
   client:load
   type={{
     'JWT 密钥': {
-      description: '长度 16-32 个字符，用于加密用户 JWT，务必保存好不要泄露。',
+      description:
+        '用于签发用户 JWT，务必保存好不要泄露。运行时不做长度校验，但建议使用 16-32 个字符。未设置时 token 会在服务重启后全部失效。',
       type: 'string',
     },
     '被允许的域名': {
@@ -107,12 +120,14 @@ wget "https://gh-proxy.org/https://github.com/mx-space/core/blob/master/docker-c
       type: 'string',
     },
     '是否开启加密': {
-      description: '如需开启，将 false 改为 true。',
+      description:
+        '如需开启，将 false 改为 true。注意：只要设置了加密密钥而没有显式设为 false，加密就会被隐式开启。',
       type: 'boolean',
       default: 'false',
     },
     '加密密钥': {
-      description: '开启加密后必填，长度必须为 64 位且只有小写字母和数字。可用 openssl rand -hex 32 生成。此操作不可逆，请谨慎。',
+      description:
+        '开启加密后必填，必须正好 64 位，否则启动即报错。推荐用 openssl rand -hex 32 生成（产出 64 位小写 hex）。未提供时服务端会用 machine-id 派生。此操作不可逆，请谨慎。',
       type: 'string',
     },
   }}

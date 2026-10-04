@@ -44,7 +44,7 @@ OAuth 登录基于 better-auth 实现，不走 Clerk 等第三方认证服务，
 <Step>
 ### 在后台配置
 
-登录后台，进入「设定 → 登录方式」，在 GitHub 部分填入 Client ID 和 Client Secret，保存。
+登录后台，进入「设置 → 账号安全 → OAuth 登录」，在 GitHub 部分填入 Client ID 和 Client Secret，保存。
 </Step>
 
 <Step>
@@ -79,7 +79,7 @@ OAuth 登录基于 better-auth 实现，不走 Clerk 等第三方认证服务，
 <Step>
 ### 在后台配置
 
-登录后台，进入「设定 → 登录方式」，在 Google 部分填入 Client ID 和 Client Secret，保存。
+登录后台，进入「设置 → 账号安全 → OAuth 登录」，在 Google 部分填入 Client ID 和 Client Secret，保存。
 </Step>
 
 <Step>
@@ -91,7 +91,7 @@ OAuth 登录基于 better-auth 实现，不走 Clerk 等第三方认证服务，
 
 ## 获取回调地址
 
-在后台「设定 → 登录方式」页面的 OAuth 部分，每个服务商旁边会显示对应的回调地址（Callback URL）。创建 OAuth 应用时需要将此地址填入。
+在后台「设置 → 账号安全 → OAuth 登录」页面的 OAuth 部分，每个服务商旁边会显示对应的回调地址（Callback URL）。创建 OAuth 应用时需要将此地址填入。
 
 <Callout type="warn">
 回调地址与你的前端地址和后端地址相关。如果更换了域名，需要同步更新 OAuth 应用的回调地址配置。
@@ -101,13 +101,13 @@ OAuth 登录基于 better-auth 实现，不走 Clerk 等第三方认证服务，
 
 首次通过 OAuth 登录时，系统会提示你是否将此 OAuth 账号设为站长（Owner）。确认后，该 OAuth 账号就拥有了完整的管理权限。
 
-如果你后续需要更换绑定的 OAuth 账号，可以在后台「设定 → 账号与安全」中操作。
+如果你后续需要更换绑定的 OAuth 账号，可以在后台「设置 → 账号安全」中操作。
 
 ## 同时使用多种登录方式
 
 你可以同时启用 GitHub 和 Google 登录。登录页面会显示所有已启用的登录方式，用户可以选择任意一种登录。
 
-如果同时配置了密码登录和 OAuth 登录，建议在「设定 → 认证安全设置」中考虑是否禁用密码登录以提高安全性。详见 [账号与安全](/docs/configure/account-security)。
+如果同时配置了密码登录和 OAuth 登录，建议在设置 → 账号安全 → Passkey 面板中的「禁止密码登录」开关中考虑是否禁用密码登录以提高安全性。详见 [账号与安全](/docs/configure/account-security)。
 
 ## 常见问题
 

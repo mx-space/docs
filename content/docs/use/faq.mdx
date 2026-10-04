@@ -9,25 +9,21 @@ import { Callout } from 'fumadocs-ui/components/callout'
 
 ### 忘记后台密码怎么办？
 
-如果你配置了 OAuth 登录（GitHub / Google），可以先通过第三方账号登录后台，再在「设定 → 个人信息」中修改密码。
+如果你配置了 OAuth 登录（GitHub / Google），可以先通过第三方账号登录后台，再在「设置 → 用户」中修改密码。
 
 如果没有配置 OAuth，可以通过数据库直接修改密码字段来重置。
 
 ### 如何修改网站标题和描述？
 
-登录后台，进入「设定 → SEO 优化」，修改网站标题和网站描述，保存后立即生效。
+登录后台，进入「设置 → 站点 → SEO」，修改网站标题和网站描述，保存后立即生效。
 
 ### 后台地址是什么？
 
-默认后台地址为 `https://你的域名/proxy/qaqdmin`。如果开启了后台反代（「设定 → 后台附加设置」），也可以通过 API 地址直接访问。
-
-### 启动报错 `JWT_SECRET is required`
-
-JWT 密钥是必填项。在环境变量或 `docker-compose.yml` 中添加 `JWT_SECRET=你的随机字符串`（16-32 位）。
+默认后台地址为 `https://你的域名/proxy/qaqdmin`。如果开启了后台反代（「设置 → 系统 → 管理端附加设置」），也可以通过 API 地址直接访问。
 
 ### 启动报错 `SNOWFLAKE_WORKER_ID is required`
 
-单实例部署填 `SNOWFLAKE_WORKER_ID=1` 即可。
+单实例部署填 `SNOWFLAKE_WORKER_ID=1` 即可。取值范围是 `0-1023` 的整数，**生产环境不设置会直接启动失败**。
 
 ## 内容相关
 
@@ -55,17 +51,17 @@ Mix Space 支持 **Markdown** 和 **Lexical 富文本**两种编辑格式。可�
 
 ### 上传的图片 URL 格式是什么？
 
-- 本地存储：`/api/v3/static/{type}/{filename}`
+- 本地存储：`/api/v3/objects/{type}/{filename}`（`/api/v3/files/...` 是等价别名）
 - S3 存储：`{自定义域名}/{前缀}/{filename}`
 
-自定义命名规则可以在「设定 → 文件上传设定」中配置。
+自定义命名规则可以在「设置 → 存储 → 图片存储」中配置。
 
 ## 邮件与通知
 
 ### 评论通知邮件不发送？
 
 请检查：
-1. 后台「设定 → 邮件通知设置」中是否开启了邮件提醒
+1. 后台「设置 → 通知 → 邮件通知」中是否开启了邮件提醒
 2. SMTP 配置是否正确（主机、端口、用户名、密码）
 3. 如果使用 Gmail，需要开启「应用专用密码」
 4. 服务器防火墙是否放行了 SMTP 端口（465/587）
@@ -74,7 +70,7 @@ Mix Space 支持 **Markdown** 和 **Lexical 富文本**两种编辑格式。可�
 
 ### 如何推送到 Telegram / 微信？
 
-通过 Webhook 功能实现。在后台「其他 → Webhook」中创建一个 Webhook，Payload URL 填写你的通知服务地址，勾选关注的事件即可。详见 [Webhook 与事件通知](/docs/use/webhook)。
+通过 Webhook 功能实现。在后台后台的「Webhooks」页面中创建一个 Webhook，Payload URL 填写你的通知服务地址，勾选关注的事件即可。详见 [Webhook 与事件通知](/docs/use/webhook)。
 
 ## 数据库与迁移
 

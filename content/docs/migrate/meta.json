@@ -4,6 +4,7 @@
   "root": true,
   "pages": [
     "index",
+    "v13-to-v14",
     "v12-to-v13",
     "v11-to-v12",
     "from-wordpress"
