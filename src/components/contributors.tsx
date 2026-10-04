@@ -29,6 +29,9 @@ export function Contributors() {
         <p className="mt-3 text-neutral-500 dark:text-neutral-400">
           感谢这些为 Mix Space 开源社区做出贡献的开发者
         </p>
+        <p className="mt-1.5 text-xs text-neutral-400 dark:text-neutral-500 tabular-nums">
+          共 {humans.length + bots.length} 位贡献者
+        </p>
       </div>
 
       {/* Human contributors */}
