@@ -11,7 +11,7 @@ import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 ## 要求
 
-- [Node.js](https://nodejs.org/zh-cn/) 22+
+- [Node.js](https://nodejs.org/zh-cn/) 22.12+（v14.7.0 起源码部署的最低要求）
 - [PostgreSQL](https://www.postgresql.org/download/) 16+
 - [Redis](https://redis.io/download)
 - [Git](https://git-scm.com/downloads)、[PNPM](https://pnpm.io/installation)、[PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)
@@ -38,9 +38,13 @@ pnpm bundle
 </Step>
 
 <Step>
-### 配置 ecosystem.config.js
+### 配置 ecosystem.config.cjs
 
-在 `./apps/core` 目录下创建 `ecosystem.config.js`：
+在 `./apps/core` 目录下创建 `ecosystem.config.cjs`：
+
+<Callout type="warn">
+扩展名**必须是 `.cjs`**。`apps/core/package.json` 声明了 `"type": "module"`，该目录下的 `.js` 会被当作 ES module，里面的 `require()` 未定义，PM2 启动会直接报 `require is not defined in ES module scope`。仓库自带的配置文件也是 `.cjs`。
+</Callout>
 
 ```js
 const { cpus } = require('os')
@@ -54,7 +58,8 @@ module.exports = {
   apps: [
     {
       name: 'mx-server',
-      script: './out/index.js',
+      // 产物入口由 vite 的 entryFileNames 决定（[name].mjs），没有 out/index.js
+      script: './out/main.mjs',
       autorestart: true,
       exec_mode: 'cluster',
       watch: false,
@@ -66,9 +71,12 @@ module.exports = {
         NODE_PATH: nodePath,
         // 必填：允许跨域的域名，多个用逗号分隔
         ALLOWED_ORIGINS: 'your-domain.com',
-        // 必填：JWT 密钥，16-32 个字符
+        // 必填：JWT 密钥。未设置时 token 会在重启后失效（建议 16-32 个字符，运行时不做长度校验）
         JWT_SECRET: 'your-jwt-secret',
-        // 可选：加密密钥，开启加密时填写
+        // 必填：Snowflake worker ID，整数 0-1023。生产环境不设置会直接启动失败。
+        // cluster 模式可安全使用多实例：core 会基于 NODE_APP_INSTANCE 为每个实例分配不重叠的 ID
+        SNOWFLAKE_WORKER_ID: '1',
+        // 可选：加密密钥。注意只要填了它而没有显式关掉 ENCRYPT_ENABLE，加密就会被自动开启
         MX_ENCRYPT_KEY: '',
       },
     },
@@ -82,7 +90,7 @@ module.exports = {
 ### 启动
 
 ```bash
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.cjs
 ```
 
 查看运行状态：

@@ -122,7 +122,7 @@ export const useXxxList = (params) =>
   })
 ```
 
-**Page view** (`views/xxx/index.tsx`): Vue 3 + TSX with Naive UI components.
+**Page view** (`views/xxx/index.tsx`): React 19 + TSX.
 
 ### CSS Conventions
 
@@ -192,7 +192,7 @@ npx tsc --noEmit  # Type check only, do NOT use build
 ## Important Notes
 
 - Package manager: **pnpm** only (via Corepack)
-- API versioning: `/api/v2` prefix in production, none in dev
+- API versioning: `/api/v3` prefix in production, none in dev
 - Path aliases: Backend `~` → `apps/core/src/`, Admin `~` → `apps/admin/src/`
-- The admin is Vue 3 but uses React for the rich editor (bridge pattern via `packages/rich-react/`)
+- The admin is a React 19 SPA (`apps/admin`), built locally during the core build and served under `/proxy/qaqdmin`
 - All `@haklex/*` packages use pinned npm versions, NOT workspace links

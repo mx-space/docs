@@ -7,21 +7,32 @@ description: 所有环境变量的完整说明
   如果你不确定某个变量的作用，保持默认值即可。
 </Callout>
 
-以下环境变量适用于 Mix Space Core 后端服务。Docker 用户在 `docker-compose.yml` 的 `environment` 中设置；源码用户在 `.env` 或 `ecosystem.config.js` 中设置。
+以下环境变量适用于 Mix Space Core 后端服务。Docker 用户在 `docker-compose.yml` 顶部的 `x-mx-env` 锚点中设置；源码用户在 `.env` 或 `ecosystem.config.cjs` 中设置。
+
+<Callout type="warn">
+这些变量必须配置在 **mx-core 进程**的环境中。`mx-migrate`（数据库结构迁移步骤）是独立进程，在官方编排文件里它引用同一个 `*mx-env` 块，所以改一处两边都生效；但如果你自定义了编排，注意别只给 `app` 服务单独加。
+</Callout>
 
 ## 核心必填
 
 | 变量名 | 说明 | 默认值 | 示例 |
 | --- | --- | --- | --- |
-| `JWT_SECRET` | JWT 签名密钥 | - | `my-secret-key` |
-| `ALLOWED_ORIGINS` | 允许的跨域域名 | - | `example.com,www.example.com` |
-| `SNOWFLAKE_WORKER_ID` | 工作节点 ID（单实例填 1）| - | `1` |
+| `JWT_SECRET` | JWT 签名密钥。**运行时不做长度校验**，建议 16-32 个字符。未设置时 token 会在重启后全部失效 | - | `my-secret-key` |
+| `JWTSECRET` | `JWT_SECRET` 的别名，两者都设置时以 `JWT_SECRET` 为准 | - | `my-secret-key` |
+| `JWT_EXPIRE` | 登录令牌有效期（天） | `14` | `30` |
+| `ALLOWED_ORIGINS` | 允许的跨域域名。**自建站必须显式设置**，否则你的域名不在白名单内 | 内置默认白名单（`innei.ren`、`localhost:*`、`*.dev`、`*.vercel.app` 等） | `example.com,www.example.com` |
+| `SNOWFLAKE_WORKER_ID` | 工作节点 ID，取值 `0-1023` 的整数。**生产环境不设置会直接启动失败**，单实例填 `1` | - | `1` |
+
+<Callout type="info">
+cluster 模式下可安全使用多实例：服务端会基于 `NODE_APP_INSTANCE` 为每个实例分配不重叠的 ID，所以只需提供同一个基准值。
+</Callout>
 
 ## PostgreSQL 数据库
 
 | 变量名 | 说明 | 默认值 | 示例 |
 | --- | --- | --- | --- |
 | `PG_URL` | 完整连接字符串（推荐）| - | `postgresql://mx:mx@localhost:5432/mx_core` |
+| `PG_CONNECTION_STRING` | `PG_URL` 的别名，两者都设置时以 `PG_URL` 为准 | - | `postgresql://mx:mx@localhost:5432/mx_core` |
 | `PG_HOST` | 数据库地址 | `127.0.0.1` | `localhost` |
 | `PG_PORT` | 端口 | `5432` | `5432` |
 | `PG_USER` | 用户名 | `mx` | `mx` |
@@ -34,23 +45,96 @@ description: 所有环境变量的完整说明
 
 | 变量名 | 说明 | 默认值 | 示例 |
 | --- | --- | --- | --- |
+| `REDIS_URL` | 完整连接串，**优先级最高**，会覆盖下面三项。支持 `redis://` / `rediss://`（`rediss` 自动启用 TLS），path 里的 `/0` 表示 db 序号 | - | `redis://:pass@host:6379/0` |
+| `REDIS_CONNECTION` | `REDIS_URL` 的别名 | - | - |
+| `REDIS_CONNECTION_STRING` | `REDIS_URL` 的别名，优先级最高 | - | - |
 | `REDIS_HOST` | 地址 | `localhost` | `redis` |
 | `REDIS_PORT` | 端口 | `6379` | `6379` |
 | `REDIS_PASSWORD` | 密码 | - | `secret` |
 
-## 安全
+## 安全与加密
 
 | 变量名 | 说明 | 默认值 | 示例 |
 | --- | --- | --- | --- |
-| `ENCRYPT_ENABLE` | 启用加密 | `false` | `true` |
-| `ENCRYPT_KEY` | 加密密钥（64 位 hex）| 自动获取 machine-id | `abc...` |
+| `ENCRYPT_ENABLE` | 启用加密 | `false`（⚠️ 只要设置了密钥就等价于 `true`）| `true` |
+| `ENCRYPT_KEY` | 加密密钥，必须正好 64 位 | 自动取 machine-id 派生 | `openssl rand -hex 32` |
+| `MX_ENCRYPT_KEY` | `ENCRYPT_KEY` 的别名，**优先于** `ENCRYPT_KEY` | 同上 | - |
+| `MX_ENCRYPT_ENABLE` | `ENCRYPT_ENABLE` 的别名，**优先于** `ENCRYPT_ENABLE` | 同上 | - |
+| `ENCRYPT_ALGORITHM` | 加密算法 | `aes-256-ecb` | `aes-256-cbc` |
+| `ADMIN_UPDATE_S3_BASE_URL` | 后台更新包（`latest.json` + `admin-<version>.zip`）的下载源 | `https://admin-r2.innei.dev` | - |
+
+<Callout type="warn">
+`ENCRYPT_ENABLE` 的判定逻辑是「未设置时，回落到是否设置了密钥」。**只填密钥、不管开关，加密就已经开启。** 想暂不加密必须显式写 `ENCRYPT_ENABLE=false`。详见 [数据加密](/docs/configure/encryption)。
+</Callout>
+
+## 缓存与限流
+
+| 变量名 | 说明 | 默认值 | 示例 |
+| --- | --- | --- | --- |
+| `CDN_CACHE_HEADER` | 是否下发 CDN 缓存头（`s-maxage`）| `true` | `true` |
+| `FORCE_CACHE_HEADER` | 是否下发强制缓存头（`max-age`）| `false` | `true` |
+| `HTTP_CACHE_ENABLE_CDN_HEADER` | `CDN_CACHE_HEADER` 的启动参数别名 | 同上 | - |
+| `HTTP_CACHE_ENABLE_FORCE_CACHE_HEADER` | `FORCE_CACHE_HEADER` 的启动参数别名 | 同上 | - |
+| `THROTTLE_TTL` | 限流窗口（秒）| `10` | `10` |
+| `THROTTLE_LIMIT` | 窗口内限流次数 | `100` | `100` |
+
+<Callout type="warn">
+API 缓存的开关由服务端按运行模式决定（开发模式自动关闭），**没有** `DISABLE_CACHE` 这个生效的环境变量。
+</Callout>
+
+## 集群
+
+| 变量名 | 说明 | 默认值 | 示例 |
+| --- | --- | --- | --- |
+| `CLUSTER` | 是否开启集群模式。**布尔值，想显式关闭必须写 `CLUSTER=false`**，留空或写别的值会被当作真值 | `false` | `false` |
+| `CLUSTER_WORKERS` | 集群工作进程数 | - | `4` |
+| `TRUST_PROXY` | 信任的代理跳数或可信代理 IP / CIDR 列表。**多层代理（CDN + Nginx）时必须设置**，否则取到的客户端 IP 不对，会连带影响限流 | 只信 1 跳 | `2` |
+
+## 调试与遥测
+
+| 变量名 | 说明 | 默认值 | 示例 |
+| --- | --- | --- | --- |
+| `DEBUG_MODE` | 调试模式，仅当值为 `1` 时开启 | 未开启 | `1` |
+| `DEBUG_MEMORY_DUMP` | 内存快照转储 | `false` | `true` |
+| `MX_DEBUG_MEMORY_DUMP` | `DEBUG_MEMORY_DUMP` 的别名，优先于它 | 同上 | - |
+| `HTTP_REQUEST_VERBOSE` | 打印完整请求日志 | `true` | `false` |
+| `DISABLE_TELEMETRY` | 关闭匿名遥测 | 未禁用 | `true` |
+| `MX_DISABLE_TELEMETRY` | `DISABLE_TELEMETRY` 的别名，优先于它 | 同上 | - |
+
+## 推送中继
+
+| 变量名 | 说明 | 默认值 | 示例 |
+| --- | --- | --- | --- |
+| `MX_PUSH_RELAY_ORIGINS` | mx-core 允许连接的 Push Relay 来源，逗号分隔的 HTTPS origin。**未配置时使用 Push Relay 会直接报错** | - | `https://relay.example.com` |
+
+```text
+Push Relay origin is not allowed; configure MX_PUSH_RELAY_ORIGINS on mx-core
+```
 
 ## 其他
 
 | 变量名 | 说明 | 默认值 | 示例 |
 | --- | --- | --- | --- |
 | `PORT` | 服务端口 | `2333` | `3000` |
-| `TZ` | 时区 | `Asia/Shanghai` | `UTC` |
-| `DISABLE_CACHE` | 禁用 Redis 缓存 | `false` | `false` |
-| `THROTTLE_TTL` | 限流窗口（秒）| `10` | `10` |
-| `THROTTLE_LIMIT` | 限流次数 | `100` | `100` |
+| `TZ` | 时区。属于 Node 运行时约定，不是 mx-core 自己的配置项；`Asia/Shanghai` 是官方 `docker-compose.yml` 的预设值，源码部署时默认跟随系统时区 | 跟随系统 | `UTC` |
+| `NODE_ENV` | 运行环境，`production` 会启用接口前缀、限流等正式行为 | - | `production` |
+| `MX_FILE_STORAGE_ROOT` | 本地文件存储根目录 | - | `/data/files` |
+| `MIGRATIONS_DIR` | 数据库迁移 SQL 目录 | - | `/app/migrations` |
+| `GITHUB_TOKEN` | 调用 GitHub API 时使用，用于读取发布信息 | - | `ghp_...` |
+| `AGENT_BROWSER_BIN` | AI Agent 使用的浏览器可执行文件路径，仅 Open Graph 截图功能需要 | - | `/usr/bin/chromium` |
+| `AGENT_BROWSER_MAX_CONCURRENT` | AI Agent 浏览器最大并发数 | - | `2` |
+| `AGENT_BROWSER_IDLE_MS` | AI Agent 浏览器空闲回收时间（毫秒） | - | `300000` |
+
+<Callout type="info">
+`AGENT_BROWSER_*` 三项只在启用 Open Graph 截图时需要，普通部署无需配置。
+</Callout>
+
+## 当前版本未生效的选项
+
+以下选项在启动参数里仍然存在，但服务端**从未读取**，设置不会有任何效果：
+
+| 选项 | 说明 |
+| --- | --- |
+| `DISABLE_CACHE` / `--disable_cache` | 缓存开关实际由运行模式决定 |
+| `--http_cache_ttl` | 缓存 TTL 被硬编码为 15 秒 |
+| `--color` | 保留给终端着色的开关，当前无效果 |

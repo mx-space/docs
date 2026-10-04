@@ -235,7 +235,7 @@ docker compose up -d
 - [ ] 打开首页，文章列表正常显示
 - [ ] 打开一篇文章，内容和评论都在
 - [ ] 登录后台（`你的域名/proxy/qaqdmin`），能正常登录
-- [ ] 后台「其他 → 备份」页面能正常打开
+- [ ] 后台后台的「备份」页面页面能正常打开
 - [ ] 发一篇测试文章，能正常发布和显示
 - [ ] 删除测试文章，正常删除
 
@@ -249,7 +249,7 @@ docker compose up -d
 
 ```bash
 cd ~/mx-space/core/apps/core
-pm2 stop ecosystem.config.js
+pm2 stop ecosystem.config.cjs
 ```
 
 ### 2. 拉取 v12 代码
@@ -284,7 +284,7 @@ sudo -u postgres psql -c "CREATE DATABASE mx_core OWNER mx;"
 
 ### 4. 修改环境变量
 
-编辑你的环境配置文件（`.env` 或直接在 `ecosystem.config.js` 里），**删除**旧变量：
+编辑你的环境配置文件（`.env` 或直接在 `ecosystem.config.cjs` 里），**删除**旧变量：
 
 ```diff
 - DB_HOST=xxx
@@ -336,7 +336,7 @@ npx @mx-space/mongo-pg-cli@latest --mode apply
 pnpm build
 pnpm bundle
 cd apps/core
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.cjs
 ```
 
 ### 7. 验证
@@ -390,7 +390,7 @@ docker compose up -d
 # 源码
 cd ~/mx-space/core
 git checkout v11.x.x
-pm2 restart ecosystem.config.js
+pm2 restart ecosystem.config.cjs
 ```
 
 > 因为迁移过程**只读** MongoDB 不写，所以回滚后数据完全和升级前一样。
@@ -408,10 +408,10 @@ docker compose up -d
 
 # 源码
 cd ~/mx-space/core/apps/core
-pm2 stop ecosystem.config.js
+pm2 stop ecosystem.config.cjs
 cd ..
 git checkout v11.x.x
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.cjs
 ```
 
 ### 场景 3：已经在 v12 写了新数据，又想回滚

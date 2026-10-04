@@ -1,0 +1,275 @@
+---
+title: v13 升级到 v14
+description: 从 v13 升级到 v14 的完整指南，含实时通道迁移、事件名变更与数据库迁移步骤
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Card, Cards } from 'fumadocs-ui/components/card'
+import { Steps, Step } from 'fumadocs-ui/components/steps'
+import { ArrowUp } from 'lucide-react'
+
+v14 是一次带**破坏性变更**的升级。最需要注意的是：实时通道从 socket.io 换成了原生 WebSocket，事件名从 `POST_CREATE` 改成了 `post.create`，以及**数据库迁移必须在新版本启动前完成**。
+
+<Callout type="error">
+升级前请务必完整备份数据库。数据无价。
+</Callout>
+
+## 升级前必读（2 分钟）
+
+### 这次升级会变什么
+
+| 变更 | 影响面 | 详见 |
+| --- | --- | --- |
+| 实时通道 socket.io → 原生 WebSocket | 你的前端 / 移动端 / 任何订阅实时事件的消费者 | [实时通道迁移](#一实时通道从-socketio-迁移到原生-websocket) |
+| 事件名全部点号化 | Webhook 订阅方、实时事件订阅方 | [事件名变更](#二事件名全部点号化) |
+| 内容编辑重构为修订树 | 直接调用 draft / version 接口的外部客户端 | [内容编辑重构](#三内容编辑重构为修订树) |
+| 数据库 schema 迁移 | **所有部署方式** | [数据库迁移](#四数据库迁移必须先跑) |
+| 源码部署需 Node 22.12+ | 源码 / CLI 部署 | [运行环境要求](#五运行环境要求仅源码与-cli-部署) |
+
+### 什么不会变
+
+- 数据库仍是 PostgreSQL，MongoDB 时代的 v11 → v12 迁移**不适用于本次升级**
+- API 前缀仍是 `/api/v3`
+- 后台路径仍是 `/proxy/qaqdmin`
+- 站点地址、SEO、图床、评论等常规配置项的位置和字段名都没变
+
+### 我需要停站多久
+
+| 场景 | 预估时间 |
+| --- | --- |
+| Docker Compose（迁移自动执行） | 2–5 分钟 |
+| 源码部署（需手动跑迁移） | 5–10 分钟 |
+
+<Callout type="info">
+真正的停站时间取决于**你的消费者升级进度**，不是服务端本身。socket.io 客户端无法与 v14 通信，所以必须先升消费者再升服务端——见下面的部署顺序。
+</Callout>
+
+---
+
+<Steps>
+
+<Step>
+
+### 一、实时通道从 socket.io 迁移到原生 WebSocket
+
+socket.io 已被彻底移除。v14 使用原生 WebSocket，路径和协议都变了：
+
+| | v13 及更早 | v14 |
+| --- | --- | --- |
+| 传输协议 | socket.io | 原生 WebSocket |
+| 公网路径 | `/socket.io` | `/ws/web` |
+| 管理端路径 | `/socket.io` | `/ws/admin` |
+| 消息格式 | socket.io 事件 | `{v:1, event, payload?, id?}` JSON 信封 |
+
+带 `id` 的上行帧会收到对应的 `ack` 回执。单个入站帧上限 1 MiB。
+
+**迁移方式**：
+
+```bash
+npm i @mx-space/ws-client@0.1.0
+```
+
+该包零依赖，浏览器 / Node 同构。也可以直接用原生 `WebSocket` 自行实现。
+
+**反向代理必须转发 Upgrade 请求**，否则 WebSocket 连不上：
+
+```nginx
+location /ws/ {
+    proxy_pass http://127.0.0.1:2333;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+}
+```
+
+<Callout type="warn">
+如果你的站点跑在 Cloudflare 之类需要回源的 CDN 后面，确认它对 `/ws/*` 路径放行 WebSocket 升级。
+</Callout>
+
+</Step>
+
+<Step>
+
+### 二、事件名全部点号化
+
+每一个 `BusinessEvents` 的值都改成了点号命名：
+
+| v13 | v14 |
+| --- | --- |
+| `POST_CREATE` | `post.create` |
+| `POST_UPDATE` | `post.update` |
+| `POST_DELETE` | `post.delete` |
+| `NOTE_CREATE` | `note.create` |
+| `fn#yourfunc` | `fn.yourfunc` |
+
+完整事件列表见 [Webhook 与事件通知](/docs/use/webhook)。
+
+<Callout type="error">
+**服务端按精确值匹配，写错大小写或分隔符的订阅会被静默丢弃**——不报错，但永远收不到推送。升级后请逐条核对订阅的事件名。
+</Callout>
+
+**迁移方式**：
+
+```bash
+npm i @mx-space/webhook@1.0.0
+```
+
+</Step>
+
+<Step>
+
+### 三、内容编辑重构为修订树
+
+自 v14.6.1 起，文章和日记的编辑不再基于单一可变草稿行，而是基于**不可变修订**：
+
+- 内容被组织为 document / revision / branch / publish-job 四层
+- 发布是一个**绑定到冻结修订的服务端任务**
+- 草稿恢复能区分「正常的分支分叉」和「同分支并发编辑」
+
+<Callout type="error">
+**如果你的客户端直接调用了旧的线性 draft / version 接口，这些接口已经失效**，必须改用 document、revision、branch、publish-job 这套新 API。官方主题（Shiro、Yohaku）已随版本升级，无需你手动处理。
+</Callout>
+
+CLI 的 `post` / `note` 的 `update`、`edit`、`apply` 也已适配新的分支与修订契约。
+
+</Step>
+
+<Step>
+
+### 四、数据库迁移必须先跑
+
+v14 期间新增了多个 schema 迁移，**服务端在 schema 不是最新时会拒绝启动**：
+
+| 版本 | 迁移 | 变化 |
+| --- | --- | --- |
+| v14.2.0 | `0033` | `push_relay_bindings.owner_id` 改为可空，删除遗留的 `push_reader_preferences` 表 |
+| v14.6.1 | `0035` | 内容修订树（`tree_content_revisions`），并自动转换存量草稿数据 |
+| v14.12.0 | `0039` | 新增 `article_purchases` 表（单篇文章付费购买） |
+| v14.14.0 | `0040` | `comments` 新增 `moderation_status`、`moderation_receipt_hash`、`moderation_attempts` |
+| v14.15.2 | `0041` | `content_documents` 新增 `publish_ai_resources` |
+
+<Callout type="info">
+**Docker Compose 部署的用户不需要手动操作**——官方 `docker-compose.yml` 里的 `mx-migrate` 是一次性服务，`app` 会等它 `service_completed_successfully` 之后才启动。只要你没有删掉这个服务，迁移会自动执行。
+</Callout>
+
+**源码部署**需要手动跑一次：
+
+```bash
+cd apps/core
+pnpm migrate
+```
+
+</Step>
+
+<Step>
+
+### 五、运行环境要求（仅源码与 CLI 部署）
+
+v14.7.0 起服务端运行时升级到 NestJS 12（原 11），并用 Nest 原生 Standard Schema 替换了 `nestjs-zod`。
+
+- **源码 / CLI 安装需要 Node 22.12 或更高版本**
+- Docker 部署无需任何操作
+
+</Step>
+
+</Steps>
+
+---
+
+## 部署顺序（重要）
+
+v14.0.0 的官方说明明确要求按这个顺序：
+
+<Cards>
+  <Card title="1. 升级消费者" icon={<ArrowUp />}>
+    把 Webhook 消费者升到 `@mx-space/webhook@1.0.0`，实时订阅方升到 `@mx-space/ws-client@0.1.0`
+  </Card>
+  <Card title="2. 改反向代理" icon={<ArrowUp />}>
+    确认 `/ws/web` 和 `/ws/admin` 的 WebSocket Upgrade 转发已经生效
+  </Card>
+  <Card title="3. 再滚服务端" icon={<ArrowUp />}>
+    最后才升级 mx-core 到 v14
+  </Card>
+</Cards>
+
+<Callout type="error">
+socket.io 客户端无法与 v14 通信，v13 服务端也不会提供 `/ws/*`。顺序反了会出现「消费者已升级但连不上」或「服务端已升级但消费者全断」的两难。
+</Callout>
+
+---
+
+## 其他破坏性变更速查
+
+| 版本 | 变更 | 你需要做什么 |
+| --- | --- | --- |
+| v14.8.0 | `POST /membership/sponsors/github/import` 改名为 `POST /membership/sponsors/import` | 自定义脚本若调过旧路径，改成新路径 |
+| v14.12.0 | 新增单篇文章付费购买 | 可选。需在 Dodo 建一次性商品、订阅 webhook 事件 `payment.succeeded` / `refund.succeeded` / `dispute.accepted` / `dispute.lost`，并在 设置 → 会员 填入开关与商品 ID。前端建议升到 `@mx-space/api-client@5.10.0` |
+| v14.14.3 | `GET /aggregate/on-this-day` 与 `GET /aggregate/publish-heatmap` 已移除 | 改从 `GET /aggregate/dashboard` 读取 `on_this_day` 和 `publish_heatmap` |
+| v14.15.0 | `PUT /files/:type/:name` 端点移除（原本会原地覆盖文件） | 改用上传接口 |
+| v14.15.1 | `enableAutoGenerateTranslation` 配置项移除，**自动翻译已下线** | 翻译改为发布时勾选或后台手动触发 |
+| v14.2.0 | 评论回复的通知需要支持富化载荷的 Push Relay | 部署 Relay 时与 Core 一起升到对应版本 |
+
+<Callout type="info">
+如果你的开发库曾经手工应用过 `0040` 的分支版本，可能缺少那三个 `comments` 列。服务端不会重复执行已记录的迁移，需要手动补列：
+`ALTER TABLE "comments" ADD COLUMN IF NOT EXISTS ...`（定义见 `0040_comment_moderation.sql`）。
+</Callout>
+
+---
+
+## 升级 Checklist
+
+完成后逐项验证：
+
+- [ ] `GET /api/v3/ping` 返回 `pong`
+- [ ] 后台 `/proxy/qaqdmin` 能正常打开
+- [ ] 实时通道能连上（`/ws/web` 或 `/ws/admin`）
+- [ ] Webhook 测试推送成功，且事件名是点号形式
+- [ ] 文章能正常发布，AI 摘要 / 精读 / 翻译能手动触发
+- [ ] 前端主题页面能正常渲染
+
+## 如果失败，如何回滚
+
+<Callout type="error">
+回滚**不会**自动回滚数据库迁移。v14 的迁移多为 expand-only（只加列/加表），旧版本通常能继续在扩展后的 schema 上运行；但 v14.6.1 的 `0035` 会转换存量草稿数据，回滚到 v13 前请先确认你的备份可用。
+</Callout>
+
+```bash
+# Docker
+docker compose down
+# 编辑 docker-compose.yml 把 image 钉回上一 v13 tag
+docker compose up -d
+```
+
+```bash
+# 源码
+git checkout <你的 v13 tag>
+pnpm i && pnpm build && pnpm bundle
+pm2 restart ecosystem.config.cjs
+```
+
+## 常见问题
+
+### 我必须立刻迁前端代码吗？
+
+不必须。如果你只用自己的主题且主题已随 Core 一起升级到兼容版本，可以直接升服务端。但如果你有自研前端或直接调 API，就要按上面三条破坏性变更改。
+
+### 我没有用 WebSocket 和 Webhook，需要担心吗？
+
+只需要跑数据库迁移。其余变更对你无影响。
+
+### 数据库需要手工处理吗？
+
+Docker Compose 用户不需要（`mx-migrate` 会自动跑）。源码部署需要手动执行一次 `pnpm migrate`。
+
+### 停站期间会丢数据吗？
+
+按上面的部署顺序操作，停站窗口内只做 schema 迁移和滚动重启，不会有写入丢失。但仍建议在停站前做一次完整备份。
+
+## 还需要帮助？
+
+- [版本更新总览](/docs/use/update)
+- [反向代理配置](/docs/deploy/reverse-proxy)
+- [Webhook 与事件通知](/docs/use/webhook)

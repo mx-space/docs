@@ -14,7 +14,7 @@ Webhook 可以将 Mix Space 中发生的事件（如发布文章、收到评论�
 <Step>
 ### 进入 Webhook 管理页面
 
-登录后台，进入「其他 → Webhook」。
+登录后台，进入后台的「Webhooks」页面。
 </Step>
 
 <Step>
@@ -41,48 +41,110 @@ Webhook 可以将 Mix Space 中发生的事件（如发布文章、收到评论�
 
 ## 支持的事件
 
+<Callout type="warn">
+自 v14.0 起，事件标识符已从 `POST_CREATE` 这种下划线大写形式**改为点号小写形式** `post.create`。服务端会按精确值匹配，写错大小写或分隔符的订阅会被**静默丢弃**——不报错，但永远收不到推送。如果你从旧版本升级，请按下表逐条核对订阅的事件名。
+</Callout>
+
+你也可以随时调用 `GET /api/v3/webhooks/events` 获取当前版本支持的完整事件列表，该接口直接返回服务端的权威枚举。
+
+### 内容
+
 | 事件 | 说明 |
 |------|------|
-| `POST_CREATE` | 文章创建 |
-| `POST_UPDATE` | 文章更新 |
-| `POST_DELETE` | 文章删除 |
-| `NOTE_CREATE` | 日记创建 |
-| `NOTE_UPDATE` | 日记更新 |
-| `NOTE_DELETE` | 日记删除 |
-| `PAGE_CREATE` | 页面创建 |
-| `PAGE_UPDATE` | 页面更新 |
-| `PAGE_DELETE` | 页面删除 |
-| `COMMENT_CREATE` | 评论创建 |
-| `COMMENT_DELETE` | 评论删除 |
-| `COMMENT_UPDATE` | 评论更新 |
-| `SAY_CREATE` | 说说创建 |
-| `SAY_UPDATE` | 说说更新 |
-| `SAY_DELETE` | 说说删除 |
-| `CATEGORY_CREATE` | 分类创建 |
-| `CATEGORY_UPDATE` | 分类更新 |
-| `CATEGORY_DELETE` | 分类删除 |
-| `TOPIC_CREATE` | 专题创建 |
-| `TOPIC_UPDATE` | 专题更新 |
-| `TOPIC_DELETE` | 专题删除 |
-| `LINK_APPLY` | 友链申请 |
-| `RECENTLY_CREATE` | 速记创建 |
-| `RECENTLY_UPDATE` | 速记更新 |
-| `RECENTLY_DELETE` | 速记删除 |
-| `TRANSLATION_CREATE` | AI 翻译创建 |
-| `TRANSLATION_UPDATE` | AI 翻译更新 |
-| `INSIGHTS_CREATE` | AI 精读创建 |
-| `INSIGHTS_UPDATE` | AI 精读更新 |
+| `post.create` | 文章创建 |
+| `post.update` | 文章更新 |
+| `post.unpublish` | 文章下架 |
+| `post.republish` | 文章重新上架 |
+| `post.delete` | 文章删除 |
+| `note.create` | 日记创建 |
+| `note.update` | 日记更新 |
+| `note.unpublish` | 日记下架 |
+| `note.republish` | 日记重新上架 |
+| `note.delete` | 日记删除 |
+| `page.create` | 页面创建 |
+| `page.update` | 页面更新 |
+| `page.delete` | 页面删除 |
+| `say.create` | 说说创建 |
+| `say.update` | 说说更新 |
+| `say.delete` | 说说删除 |
+| `recently.create` | 速记创建 |
+| `recently.update` | 速记更新 |
+| `recently.delete` | 速记删除 |
+| `category.create` | 分类创建 |
+| `category.update` | 分类更新 |
+| `category.delete` | 分类删除 |
+| `topic.create` | 专题创建 |
+| `topic.update` | 专题更新 |
+| `topic.delete` | 专题删除 |
+| `comment.create` | 评论创建 |
+| `comment.update` | 评论更新 |
+| `comment.delete` | 评论删除 |
+| `link.apply` | 友链申请 |
+
+### AI
+
+| 事件 | 说明 |
+|------|------|
+| `summary.generated` | AI 摘要生成完成 |
+| `insights.create` | AI 精读创建 |
+| `insights.update` | AI 精读更新 |
+| `insights.delete` | AI 精读删除 |
+| `insights.generated` | AI 精读生成完成 |
+| `translation.create` | AI 翻译创建 |
+| `translation.update` | AI 翻译更新 |
+| `translation.delete` | AI 翻译删除 |
+
+### 活动与统计
+
+| 事件 | 说明 |
+|------|------|
+| `activity.like` | 点赞 |
+| `activity.update_presence` | 在线状态更新 |
+| `activity.leave_presence` | 离开在线状态 |
+| `article.read_count_update` | 阅读数变更 |
+| `visitor.online` | 访客上线 |
+| `visitor.offline` | 访客离线 |
+| `aggregate.update` | 聚合统计更新 |
+
+### 协作与系统
+
+| 事件 | 说明 |
+|------|------|
+| `draft.update` | 草稿被其他会话更新（用于检测并发编辑冲突） |
+| `task.update` | 任务队列状态变更 |
+| `admin.notification` | 后台通知 |
+| `content.refresh` | 内容已更新或重置，页面需要重新加载 |
+| `image.refresh` | 图片刷新 |
+| `image.fetch` | 图片拉取 |
+| `auth.failed` | 认证失败 |
+| `gateway.connect` | 实时通道建立连接 |
+| `gateway.disconnect` | 实时通道断开连接 |
+| `ai_agent.message` | AI Agent 消息 |
+| `ai_agent.tool_event` | AI Agent 工具调用事件 |
+| `ai_agent.confirm_request` | AI Agent 请求确认 |
+| `ai_agent.confirm_result` | AI Agent 确认结果 |
+| `ai_agent.session_state` | AI Agent 会话状态变更 |
+| `companion_presence.changed` | Companion 在线状态变更 |
+
+<Callout type="info">
+云函数广播事件使用 `fn.` 前缀（例如 `fn.你的函数名`），不走 Webhook 订阅列表。
+</Callout>
 
 ## 作用域说明
 
 Webhook 可以选择不同的推送作用域：
 
-| 作用域 | 说明 |
-|--------|------|
-| **访客** | 仅推送面向访客的事件 |
-| **管理员** | 仅推送面向管理员的事件 |
-| **系统** | 仅推送系统级别的事件 |
-| **全选** | 推送所有事件 |
+| 作用域 | 值 | 说明 |
+|--------|-----|------|
+| **访客** | `TO_VISITOR` | 仅推送面向访客的事件 |
+| **管理员** | `TO_ADMIN` | 仅推送面向管理员的事件 |
+| **系统** | `TO_SYSTEM` | 仅推送系统级别的事件 |
+| **访客 + 管理员** | `TO_VISITOR_ADMIN` | 面向访客或管理员的事件 |
+| **访客 + 系统** | `TO_SYSTEM_VISITOR` | 系统事件或面向访客的事件 |
+| **管理员 + 系统** | `TO_SYSTEM_ADMIN` | 系统事件或面向管理员的事件 |
+| **全选** | `ALL` | 推送所有事件 |
+
+后台界面通常只提供「访客 / 管理员 / 系统 / 全选」四项，其余组合可通过 API 订阅时直接传入。
 
 <Callout type="info">
 合理选择作用域可以减少不必要的推送请求。例如，如果你想将评论通知推送到 Telegram，选择「访客」作用域即可。

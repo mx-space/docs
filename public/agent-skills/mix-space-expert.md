@@ -12,15 +12,15 @@ Use this skill when the user asks about:
 - Using Mix Space admin dashboard (content management, AI features, webhooks)
 - Troubleshooting Mix Space errors
 - Developing for Mix Space (backend modules, admin views, frontend themes)
-- Migrating to Mix Space (from WordPress, from v11/MongoDB to v12/PostgreSQL)
+- Migrating to Mix Space (from WordPress, v11/MongoDB to v12/PostgreSQL, and the breaking changes in v13 and v14)
 
 ## Key Facts
 
 ### Architecture
-- **Backend (Core)**: NestJS 11 + Fastify + PostgreSQL 16 + Redis 7
-- **Admin**: Vue 3 + Naive UI + TanStack Query (embedded in Core at `/proxy/qaqdmin`)
+- **Backend (Core)**: NestJS 12 + Fastify + PostgreSQL 16+ + Redis
+- **Admin**: React 19 SPA + TanStack Query (in-repo at `apps/admin`, embedded in Core and served at `/proxy/qaqdmin`)
 - **Frontend Themes**: Next.js (Shiro, Yohaku), standalone deployments
-- **API prefix**: `/api/v2` in production, no prefix in dev (port 2333)
+- **API prefix**: `/api/v3` in production, no prefix in dev (port 2333)
 
 ### Content Types
 | Type | URL Format | Special Fields |
@@ -83,6 +83,6 @@ docker compose up -d
 
 - Answer in the same language the user uses (Chinese or English)
 - For deployment questions, prefer Docker method unless user specifies otherwise
-- For configuration questions, reference the admin UI path (e.g., "设定 → AI 设定")
+- For configuration questions, reference the admin UI path (e.g., "设置 → AI → AI 设置")
 - For code questions, reference the actual file paths in the monorepo
 - When troubleshooting, start with the most common cause first
