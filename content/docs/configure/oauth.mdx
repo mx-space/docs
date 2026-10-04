@@ -6,7 +6,7 @@ description: 配置 GitHub、Google 等第三方 OAuth 登录
 import { Callout } from 'fumadocs-ui/components/callout'
 import { Step, Steps } from 'fumadocs-ui/components/steps'
 
-Mix Space 支持通过第三方 OAuth 账号登录后台，免去记忆密码的麻烦。目前支持 GitHub 和 Google 两种 OAuth 服务商。
+Mix Space 支持通过第三方 OAuth 账号登录后台，免去记忆密码的麻烦。目前支持 GitHub、Google、Apple 三种 OAuth 服务商。
 
 <Callout type="info">
 OAuth 登录基于 better-auth 实现，不走 Clerk 等第三方认证服务，所有数据存储在你自己的数据库中。
@@ -87,14 +87,40 @@ OAuth 登录基于 better-auth 实现，不走 Clerk 等第三方认证服务，
 
 在前端登录页面点击 Google 登录按钮，完成授权后绑定站长身份。
 </Step>
+
+<Step>
+### 使用 Apple 登录
+
+Mix Space 支持 Sign in with Apple，服务端会按需从 Team ID、Key ID 和 `.p8` 私钥签发 client secret，因此六个月的密钥有效期无需手工轮换。
+
+登录后台，进入「设置 → 账号安全 → OAuth 登录」的 Apple 部分，填写：
+
+| 字段 | 说明 |
+| --- | --- |
+| Services ID | Apple Developer 后台创建的 Services ID |
+| Team ID | 你的 Apple Developer Team ID |
+| Key ID | `.p8` 密钥的 ID |
+| Private Key | `.p8` 私钥文件内容 |
+| App Bundle ID | 关联的 App Bundle ID |
+
+<Callout type="info">
+Apple 的配置字段与 GitHub / Google 完全不同（后者是 Client ID + Client Secret 两项），不能套用。
+</Callout>
+</Step>
 </Steps>
 
 ## 获取回调地址
 
-在后台「设置 → 账号安全 → OAuth 登录」页面的 OAuth 部分，每个服务商旁边会显示对应的回调地址（Callback URL）。创建 OAuth 应用时需要将此地址填入。
+在后台「设置 → 账号安全 → OAuth 登录」页面的 OAuth 部分，每个服务商旁边会显示对应的回调地址（Callback URL），格式为：
+
+```
+{你的 API 地址}/auth/callback/{github|google|apple}
+```
+
+创建 OAuth 应用时需要将此地址填入。页面也提供一键复制按钮。
 
 <Callout type="warn">
-回调地址与你的前端地址和后端地址相关。如果更换了域名，需要同步更新 OAuth 应用的回调地址配置。
+回调地址与你的 API 地址相关。如果更换了域名，需要同步更新 OAuth 应用的回调地址配置。
 </Callout>
 
 ## 绑定站长身份
@@ -105,7 +131,7 @@ OAuth 登录基于 better-auth 实现，不走 Clerk 等第三方认证服务，
 
 ## 同时使用多种登录方式
 
-你可以同时启用 GitHub 和 Google 登录。登录页面会显示所有已启用的登录方式，用户可以选择任意一种登录。
+你可以同时启用 GitHub、Google 和 Apple 登录。登录页面会显示所有已启用的登录方式，用户可以选择任意一种登录。
 
 如果同时配置了密码登录和 OAuth 登录，建议在设置 → 账号安全 → Passkey 面板中的「禁止密码登录」开关中考虑是否禁用密码登录以提高安全性。详见 [账号与安全](/docs/configure/account-security)。
 

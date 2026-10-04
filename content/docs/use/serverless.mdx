@@ -16,6 +16,7 @@ Snippet 是 Mix Space 的扩展机制。每个 Snippet 是一段可配置的代�
 | **Text** | 纯文本片段 | 公告、自定义 HTML |
 | **YAML** | YAML 数据片段 | 结构化配置 |
 | **Function** | 可执行函数 | 云函数 API、自定义路由 |
+| **Skill** | 技能包 | 以 markdown 形式下发给 AI 代理的技能包 |
 
 <Callout type="info">
 Function 类型的 Snippet 就是你常听到的「云函数」。它是 Snippet 系统的一个子集，拥有最强大的扩展能力。
@@ -59,7 +60,7 @@ Function 类型的 Snippet 就是你常听到的「云函数」。它是 Snippet
 | 字段 | 说明 |
 |------|------|
 | **名称** | Snippet 名称（英文、数字、下划线，不超过 30 字符） |
-| **类型** | JSON / JSON5 / Text / YAML / Function |
+| **类型** | JSON / JSON5 / Text / YAML / Function / Skill |
 | **分组** | 用于组织 Snippet（Reference 字段） |
 | **内容** | Snippet 的实际代码 |
 | **备注** | 可选，备注说明 |
@@ -95,7 +96,7 @@ Function 类型是最强大的 Snippet，它是一段可以在服务器端执行
 函数支持指定 HTTP 方法（GET、POST 等），也可以选择 ALL 匹配所有方法。
 
 <Callout type="warn">
-Function 类型 Snippet 有请求限流（每 5 秒 100 次），高频调用场景请注意缓存。
+Function 类型 Snippet 有请求限流，高频调用场景请注意缓存（具体阈值见下方「限流」）。
 </Callout>
 
 ### 函数日志
@@ -112,17 +113,45 @@ Function 类型支持安装 npm 依赖包。在管理页面中：
 
 函数中可能需要用到 API Key 等敏感信息。使用「密钥」字段存储，系统会自动加密。在函数代码中可以通过注入的上下文访问。
 
-## 数据类型 Snippet 的访问方式
+## 访问方式
 
-非 Function 类型的 Snippet 可以通过以下方式访问：
+| 类型 | URL 格式 | 说明 |
+|------|----------|------|
+| 数据类 Snippet | `/api/v3/s/{customPath}` | 需要设置自定义路径；公开读取走这个入口 |
+| 云函数 | `/api/v3/fn/{reference}/{name}` | 别名 `/api/v3/serverless/{reference}/{name}` |
 
-| 访问方式 | URL 格式 |
-|----------|----------|
-| 按名称和分组 | `/api/v3/snippets/{reference}/{name}` |
-| 按自定义路径 | `/s/{customPath}`（需要设置自定义路径） |
+<Callout type="info">
+`/api/v3/snippets/*` 是**后台管理接口**，所有路由都需要登录鉴权，不是给前端消费的公开地址。
+</Callout>
 
 - **公开（Public）** Snippet 所有人可访问
 - **私有（Private）** Snippet 仅管理员登录后可访问
+
+## 内置云函数
+
+服务端自带 5 个开箱可用的云函数，无需自己编写：
+
+| 函数 | 用途 |
+| --- | --- |
+| `ipQuery` | IP 查询 |
+| `geocode_location` | 地理位置查询 |
+| `geocode_search` | 地点搜索 |
+| `stock_quote` | 股票实时行情 |
+| `stock_bars` | 股票历史行情 |
+
+内置函数可以通过管理页面的重置操作恢复到出厂状态。
+
+## 函数可用能力
+
+除「密钥」外，函数的 `context` 还提供：
+
+- `context.storage.cache` —— 基于 Redis 的 KV 存储
+- `context.storage.db` —— PostgreSQL 存储（`serverless_storages` 表，按 namespace 隔离）
+- `context.writeAsset` / `context.readAsset` —— 读写二进制资源
+
+## 限流
+
+`/api/v3/s/*` 的限流是每 5 秒 100 次。云函数带额外路径段的通配路由（`/:reference/:name/*`）放宽到每 5 秒 1000 次。
 
 ## 前端主题集成
 

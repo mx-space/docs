@@ -31,23 +31,20 @@ Mix Space 默认运行在本地端口（后端 `2333`，前端 `2323`），反�
 除非你在非完整服务器环境（如 Sealos 或 Huggingface Space）部署，否则不推荐在容器内使用 Cloudflare Tunnel，而应在宿主机配置以避免管理不便。
 </Callout>
 
-启动该功能需要两个环境变量：
-- `ENABLE_CLOUDFLARED` = `true`
-- `CF_ZERO_TRUST_TOKEN` = Tunnel 给的令牌（删掉 `cloudflared.exe service install`，只保留令牌部分）
+<Callout type="error">
+**Mix Space 镜像不再内置 cloudflared。** 早期版本曾通过 `ENABLE_CLOUDFLARED` 和 `CF_ZERO_TRUST_TOKEN` 两个环境变量由容器内拉起隧道，这两个变量在当前版本的服务端源码中**已不存在**，设置不会有任何效果，启动日志也不会再出现 `Starting Cloudflared Tunnel` 的横幅。
+</Callout>
+
+现在需要在**宿主机**自行运行 cloudflared 并回源到 `2333`：
 
 ### 详细步骤
 
-1. 申请 Cloudflare Zero Trust
-2. 添加一条隧道，连接方式选择 Cloudflared，名称任意
-3. 添加一个 Public Hostname，回源选择 HTTP，端口选择 `2333`
+1. 在宿主机安装并登录 cloudflared
+2. 申请 Cloudflare Zero Trust
+3. 添加一条隧道，回源选择 HTTP，端口选择 `2333`
+4. 添加一个 Public Hostname 指向该隧道
 
-启动成功后，日志中应看到：
-
-```
-============================================
-Starting Cloudflared Tunnel
-============================================
-```
+宿主机上的 cloudflared 进程与容器生命周期无关，重启服务器后需要自行确保它常驻（如 systemd 服务）。
 
 ## Nginx 手写配置
 
@@ -72,7 +69,6 @@ server {
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header REMOTE-HOST $remote_addr;
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection "upgrade";
       proxy_buffering off;
@@ -87,7 +83,6 @@ server {
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header REMOTE-HOST $remote_addr;
       add_header X-Cache $upstream_cache_status;
     }
 }
@@ -102,7 +97,6 @@ server {
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header REMOTE-HOST $remote_addr;
       expires 30d;
     }
 
@@ -111,7 +105,6 @@ server {
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header REMOTE-HOST $remote_addr;
       add_header X-Cache $upstream_cache_status;
       add_header Cache-Control no-cache;
       proxy_intercept_errors on;

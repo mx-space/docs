@@ -28,18 +28,22 @@ Mix Space 支持将图片和文件存储到 S3 兼容的对象存储服务（如
 
 | 字段 | 说明 |
 |------|------|
-| **S3 服务端点** | S3 兼容服务的 Endpoint（如 `https://<account>.r2.cloudflarestorage.com`） |
-| **Access Key ID** | 访问密钥 ID |
-| **Secret Access Key** | 访问密钥（加密存储） |
-| **Bucket** | 存储桶名称 |
-| **Region** | 地域（Cloudflare R2 填 `auto`） |
+| **S3 Endpoint** | S3 兼容服务的 Endpoint（如 `https://<account>.r2.cloudflarestorage.com`） |
+| **访问密钥 ID**（`secretId`） | 访问密钥 ID |
+| **访问密钥**（`secretKey`） | 访问密钥 |
+| **存储桶**（`bucket`） | 存储桶名称 |
+| **区域**（`region`） | 地域（Cloudflare R2 填 `auto`） |
+
+<Callout type="warn">
+`访问密钥`（`secretKey`）**不会**被 Key 加密功能加密落库——当前版本只有 OAuth 的 client secret 在加密范围内。详见 [数据加密](/docs/configure/encryption) 的加密字段清单。
+</Callout>
 
 </Step>
 
 <Step>
 ### 配置自定义域名（推荐）
 
-填写「自定义域名 (CDN)」字段，用于替换默认的 S3 URL。例如你的 CDN 域名是 `cdn.example.com`，则上传后的文件 URL 为 `https://cdn.example.com/{路径}/{文件名}`。
+填写「自定义域名（CDN）」字段，用于替换默认的 S3 URL。例如你的 CDN 域名是 `cdn.example.com`，则上传后的文件 URL 为 `https://cdn.example.com/{路径}/{文件名}`。
 </Step>
 
 <Step>
@@ -50,8 +54,12 @@ Mix Space 支持将图片和文件存储到 S3 兼容的对象存储服务（如
 | 占位符 | 说明 |
 |--------|------|
 | `{Y}` | 年份（4 位） |
+| `{y}` | 年份（2 位） |
 | `{m}` | 月份 |
 | `{d}` | 日期 |
+| `{h}` | 小时 |
+| `{i}` | 分钟 |
+| `{s}` | 秒 |
 | `{type}` | 文件类型 |
 | `{md5}` | 随机 MD5 |
 

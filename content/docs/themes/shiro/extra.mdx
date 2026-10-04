@@ -115,7 +115,7 @@ macOS 客户端已经从 ProcessReporter 演进并更名为 **Yohaku Companion**
 1. 在 [Releases](https://github.com/Innei/YohakuCompanion/releases/latest) 下载 DMG，将 Yohaku Companion 移入「应用程序」并启动。
 2. 打开 **Settings → Destinations → MixSpace**，填写：
 
-   - Endpoint：`{你的 API 地址}/fn/ps/update`，例如 `https://api.example.com/api/v2/fn/ps/update`
+   - Endpoint：`{你的 API 地址}/fn/ps/update`，例如 `https://api.example.com/api/v3/fn/ps/update`
    - API Token：填入云函数 Secret 中设置的 `key`
    - Request Method：`POST`
 
@@ -154,7 +154,7 @@ ProcessReporterWinpy.exe --path "运行目录的路径"
 
 下载代码后，修改 `config.yml` 文件，填入你的信息：
 
-- api_url：`{你的API地址}/fn/ps/update` （请将 `{你的API地址}` 替换为你的 API 地址，如：`https://api.example.com/api/v2`）
+- api_url：`{你的API地址}/fn/ps/update` （请将 `{你的API地址}` 替换为你的 API 地址，如：`https://api.example.com/api/v3`）
 - api_key：填入你刚刚在云函数中设置的密钥
 - report_time: 上报间隔（单位：秒）
 
