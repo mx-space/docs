@@ -1,34 +1,42 @@
 ---
 title: v18 准备（未发布）
-description: 先部署兼容准备版，再检查凭据、配置和 AI 指标
+description: 本开发分支已强制加密，部署前检查凭据、配置和 AI 指标
 ---
 
 <Callout type="warn">
-v18 尚未发布。本文的 `upgrade:*` 是正在开发的 v17 准备版工具，已发布的 v17.0.4 不包含它们。最低准备版 tag、SDK、CLI 和主题版本会在实际发布验证后补齐；不要直接在现有镜像上运行不存在的命令。
+v18 尚未发布。本开发分支已移除非加密运行和旧格式写入，启动必须提供显式字段密钥与至少 32 字符的 JWT。本文的 `upgrade:*` 工具尚未发布，已发布的 v17.0.4 不包含它们。最低准备版 tag、SDK、CLI 和主题版本会在实际发布验证后补齐；不要直接在现有镜像上运行不存在的命令。
 </Callout>
 
 ## 计划改变什么
 
 | 范围 | 当前 v17 | v18 计划 |
 | --- | --- | --- |
-| 凭据写入 | 可分阶段启用 V2，有临时明文逃生口 | 显式 hex64 字段密钥、JWT 至少 32 字符、固定 V2；显式关闭报错 |
+| 凭据写入 | v17.0.4 可分阶段启用 V2，有临时明文逃生口 | **本开发分支已生效**：显式 hex64 字段密钥、JWT 至少 32 字符、固定 V2；旧关闭配置报错 |
 | 普通摘要、精读 GET | 可能隐式生成 | 只读，无结果 `data: null`；生成显式触发 |
 | 非流式执行入口 | 旧 GET 可用 | 备份、清缓存、测试邮件与速记表态用 POST；GET SSE 保留 |
 | 配置与参数 | 保留旧配置、排序与别名兼容 | 拒绝未知声明字段、数字排序；移除评论列表 `state` 查询别名，更新 body 的 state 仍可用 |
 | AI 元数据 | 旧响应字段保留 | 统一 generationMetrics，后续才删除旧列与旧响应字段 |
 | SDK | 5.x 兼容版先转换请求 | 协调 SDK 6.x；保留 legacy 入口与 CLI V2 响应适配 |
 
-准备版继续支持旧 GET 和 SDK 5.x 签名，不改变普通 AI GET 的既有行为，不删除物理列。API `/api/v3`、snake_case、成功/错误 envelope 和 SSE 帧协议保持。
+加密强制已在本分支实现；其余最终破坏仍分阶段推进。当前继续支持旧 GET 和 SDK 5.x 签名，不改变普通 AI GET 的既有行为，不删除物理列。API `/api/v3`、snake_case、成功/错误 envelope 和 SSE 帧协议保持。
 
 ## 准备顺序
 
 1. 更早的实例先按历史指南升级到兼容的 v17，保存数据库、文件、原字段密钥、原 JWT 和备份私钥。
-2. 部署包含准备工具的版本到全部副本。业务进程用 CLI/YAML 配置时，也要为独立工具显式提供等效环境变量；工具读取 `PG_URL` / `PG_CONNECTION_STRING` 或 `PG_*`、字段密钥、JWT 和 V2 开关。
+2. 取得包含工具的构建，先不要启动业务副本。独立工具读取 `PG_URL` / `PG_CONNECTION_STRING` 或 `PG_*`、字段密钥和 JWT；业务进程用 CLI/YAML 配置时，也要提供等效环境变量。先用 check 诊断现有配置。
 3. JWT 不足 32 字符时先执行下方维护轮换。不要直接改环境变量，否则现有 OAuth token 可能无法解密。
-4. 全部副本启用字段加密和 `MX_SECRET_STORAGE_V2=true`，确认旧副本及后台任务已经停止旧格式写入，再执行准备。
+4. 删除 `ENCRYPT_ENABLE`、`MX_ENCRYPT_ENABLE` 和 `MX_SECRET_STORAGE_V2`，保存原有效字段密钥与符合要求的 JWT。停止旧副本及后台写入者，再部署本构建到全部副本；新写入自动加密，无需启用开关。确认没有旧格式写入者，再执行准备。
 5. 检查、dry-run、正式 prepare，完成后重启业务副本，验证原 API Key、OAuth、配置消费与 AI 指标。
 
-源码工作区中的命令（需要准备版代码和已完成 schema 迁移的数据库）：
+### 启动配置与旧开关
+
+- `MX_ENCRYPT_KEY` 或 `ENCRYPT_KEY` 必须是显式的 64 位十六进制密钥；不再回退到机器 ID，也不再派生短密钥。只有从未加密的新实例才用 `openssl rand -hex 32` 生成首个字段密钥并持久保存。
+- `JWT_SECRET`（别名 `JWTSECRET`）至少 32 字符；已有短 JWT 必须先按下方维护流程轮换。
+- 旧开关的 `true` 值暂接受并提示删除；`false` 或其他无效值会阻止启动，check 报告 `DEPRECATED_ENCRYPTION_FLAG`。它们不再控制运行模式。
+- 配置、Snippet 和 Webhook 固定认证加密，API Key 固定哈希，OAuth 固定加密；历史明文和 ECB 仍可读取并显式迁移。`ENCRYPT_ALGORITHM` 只用于历史读取。
+- app 与 mx-migrate 使用相同且持久保存的密钥。字段加密必填不影响 ZIP 备份和历史归档读取；备份加密仍由独立设置控制。
+
+源码工作区中的命令（需要本分支代码和已完成 schema 迁移的数据库）：
 
 ```bash
 pnpm -C apps/core upgrade:check --json
@@ -37,7 +45,7 @@ pnpm -C apps/core upgrade:prepare --all-replicas-v2
 pnpm -C apps/core upgrade:check --json
 ```
 
-构建产物中使用 `node upgrade.mjs check --json`、`node upgrade.mjs prepare --all-replicas-v2 --dry-run` 和正式 prepare。在包含该入口的镜像中，可使用 `docker compose run --rm --no-deps app node upgrade.mjs check --json` 启动独立检查；数据库需已运行。该进程不启动 HTTP、业务定时任务或 Redis。
+构建产物中使用 `node upgrade.mjs check --json`、`node upgrade.mjs prepare --all-replicas-v2 --dry-run` 和正式 prepare。在包含该入口的镜像中，可使用 `docker compose run --rm --no-deps app node upgrade.mjs check --json` 启动独立检查；数据库需已运行。该进程不启动 HTTP、业务定时任务或 Redis。当前分支的 Compose 会先校验密钥和 JWT 非空；诊断缺失配置时使用源码命令或直接 `docker run`，避免先被 Compose 拦截。
 
 `check` 退出码：`0` 为 ready，`2` 为 needs-action，`1` 为检查失败。它只读，输出计数和路径，不输出秘密。空库可识别为新装，不要求历史准备标记；历史实例须完成实际转换。
 
