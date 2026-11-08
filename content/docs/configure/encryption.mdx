@@ -1,92 +1,48 @@
 ---
 title: 数据加密
-description: 加密你的 Mix Space
+description: v17 凭据加密配置、原密钥保留与 v18 准备
 ---
 
-Mix Space 提供了敏感配置的加密存储能力。默认为关。
+本文以已发布的 Core v17.0.4 为基线。v18 尚未发布，后续强制加密计划见 [v18 准备说明](/docs/migrate/v18-preparation)。
 
-为什么需要 Key 加密。
+## 三种秘密分别保管
 
-假设数据库被脱库。如果开启了 Key 加密，即便攻击者拿到了全部数据，也读不出被标记为加密的字段。同时，也需要谨慎开启此功能——开启后你需要记住加密密钥，否则你将永远丢失这些数据。
-
-<Callout type="warn">
-开启前请务必备份数据库。忘记密钥 = 这些数据永久无法恢复。
-</Callout>
-
-## 哪些字段会被加密
-
-加密范围不是全部配置项，而是由服务端 schema 上的 `encrypt` 元数据决定，**随版本变化**。
-
-判定规则：服务端遍历配置 schema 时，会读每个字段的 `encrypt` 元数据；**父级被标记时，整棵子树都继承加密**。绝大多数密码类字段是通过 `field.password()` / `field.passwordHalfGrid()` 定义的，这两个 helper 会在构造 schema 时自动注入 `encrypt: true`，所以你在配置里看到的「密码」输入框，基本都属于加密范围。
-
-当前版本（v14.15.2）覆盖的主要字段：
-
-| 区域 | 字段 |
-| --- | --- |
-| OAuth | 各服务商的 client secret、Apple 私钥 |
-| 图床 / 对象存储 | S3、R2 的 `secretKey` |
-| 邮件 | Resend API Key、SMTP 密码 |
-| AI | 各 Provider 的 `apiKey` |
-| Webhook | 签名密钥 |
-| 搜索推送 | 百度推送 Token、Bing API key |
-| 会员 | API Key |
-| 其他 | 高德地图 Key、设备 Key、Personal Access Token 等 |
-
-<Callout type="info">
-想确认当前版本的准确清单，可以看服务端 `apps/core/src/modules/configs/` 下的 `configs.schema.ts`：凡是写成 `field.password(...)` 或 `field.passwordHalfGrid(...)` 的字段都会被加密，另加显式标注 `{ encrypt: true }` 的字段。文档这里的说明可能落后于代码，以源码为准。
-</Callout>
-
-## 如何开启
-
-你可以附加 `--encrypt_enable` 来启动服务。如：
-
-```bash
-node out/main.mjs --encrypt_enable
-```
+| 秘密 | 用途 | 恢复时的要求 |
+| --- | --- | --- |
+| `MX_ENCRYPT_KEY` / `ENCRYPT_KEY` | 配置、Snippet、Webhook 的字段加密 | 保留产生这些密文的原密钥 |
+| `JWT_SECRET` | 登录与 Better Auth OAuth token 加密 | 保留原值；轮换需要维护窗口 |
+| 备份恢复私钥 | 打开 `.mxbackup` 归档 | 与备份分开保存；不能替代上面两种秘密 |
 
 <Callout type="warn">
-**只要设置了加密密钥而没有显式关闭，加密就会被自动开启。**
-
-判定逻辑是`ENCRYPT_ENABLE` 未设置时，回落到「是否设置了密钥」这一项。也就是说，你只填了密钥、没管开关，加密就已经生效了。如果暂时只想把密钥填进配置、暂不加密，必须显式写 `ENCRYPT_ENABLE=false`。
+已有实例不要为解决解密错误而生成新密钥。新密钥无法解开旧数据。先从部署配置、秘密管理器或历史快照找回原值；丢失原秘密时，需要重新授权或重新配置相应凭据。
 </Callout>
 
-## 指定密钥
+## v17 如何开启
 
-可以通过 `--encrypt_key <key>` 指定，也可以用环境变量。环境变量有两名，`MX_ENCRYPT_KEY` 优先于 `ENCRYPT_KEY`：
-
-```bash
-# 推荐
-export MX_ENCRYPT_KEY=<64 位密钥>
-# 等价写法
-export ENCRYPT_KEY=<64 位密钥>
-```
-
-密钥的校验分两层，容易搞混：
-
-| 情况 | 行为 |
-|------|------|
-| 提供的密钥**不是 64 位** | 启动即报错 |
-| 提供的密钥**短于 64 位** | 不报错，服务端会用 `sha256(key + 'mx-encrypt-salt')` 派生并补齐到 64 位 |
-| 提供的密钥**长于 64 位** | 启动即报错 |
-| 提供的密钥**不是合法 hex 字符** | **启动时不校验**，直到真正加解密时才抛出 `Invalid key length` |
-
-推荐用 `openssl rand -hex 32` 生成，产出的正是 64 位小写 hex，一次通过全部校验：
+为从未加密过的新实例生成随机字段密钥，并保存到秘密管理器：
 
 ```bash
 openssl rand -hex 32
 ```
 
-加密算法可用 `ENCRYPT_ALGORITHM` 调整，默认 `aes-256-ecb`。
+将结果配置为 `MX_ENCRYPT_KEY`（优先）或 `ENCRYPT_KEY`，同时在 app 和 mx-migrate 的共享环境中启用 `MX_ENCRYPT_ENABLE=true`。开启时必须显式提供 **64 位十六进制**密钥；长度不足、非 hex、仅提供开启开关都会在启动时失败。不要依赖 machine-id 回退，也不要使用示例公共密钥。
 
-<Callout type="info">
-  不指定密钥时，服务端默认取机器的
-  [machine-id](https://www.npmjs.com/package/node-machine-id) 并派生。
-</Callout>
+设置密钥且未指定开关时会自动开启加密。命令行 `--encrypt_key` / `--encrypt_enable` 仍可使用；升级工具使用环境变量，不读取业务进程的 CLI/YAML 参数。
 
-<Callout type="warn">
-  关闭加密开关**不会**把已经写入的密文还原成明文。此前加密过的字段会继续以密文形式存储和返回，密文带有 `$${mx}$$` 标识前缀。如果你打算关闭加密，需要先准备好原密钥完成解密。
-</Callout>
+## V2 写入与历史数据
 
-## 疑难解答
+`MX_SECRET_STORAGE_V2=true` 要求已开启字段加密，且 `JWT_SECRET` 至少 32 字符。它为配置、Snippet 和 Webhook 使用认证加密，为 API Key 使用哈希，为 OAuth access/refresh token 使用 Better Auth 加密。配置的密码字段由 schema 的 `encrypt` 元数据决定，数据库和 Redis 中均保留密文；空秘密 PATCH 保留旧值。
 
-如果出现 `Invalid key length`，说明你的密钥**不是合法的 hex 字符串**（长度问题在启动阶段就会被拦下，不会走到这里）。请用 `openssl rand -hex 32` 重新生成一个 64 位小写 hex 字符串。
+V2 字段密文绑定字段路径；不能把密文直接搬到另一个字段。旧明文和 ECB 保留读取与迁移能力。`ENCRYPT_ALGORITHM` 默认 `aes-256-ecb`，供旧格式使用；V2 固定使用 AES-256-GCM。
+
+滚动部署时，先让全部副本具备新格式读取能力，再在全部副本启用 V2，最后回填旧数据。旧 `migrate:secrets` 完成记录仅代表该次凭据回填，不代表已完成未来 v18 的配置与指标准备。新准备工具尚未发布，见 [准备流程](/docs/migrate/v18-preparation)。
+
+## v17.0.4 临时明文逃生口
+
+只有关闭字段加密且 `MX_SECRET_STORAGE_V2=false` 时，普通配置写入可继续保留明文。它不适用于已有密文，也不适用于明确要求加密的授权功能。关闭开关不会解密旧数据；遇到已有密文仍须开启加密并提供原密钥。
+
+v18 计划移除此逃生口，要求显式字段密钥、至少 32 字符的 JWT，并固定 V2 写入；当前 v17 的合法旧行为仍保留。
+
+## 解密失败时
+
+检查密钥来源、别名优先级、原 JWT 和密文所属路径。错误密钥、损坏密文或未知格式会失败，不会回落为明文成功。备份解封装成功也不表示归档内凭据能解密，详见 [备份与恢复](/docs/use/backup-restore)。

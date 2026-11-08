@@ -12,7 +12,7 @@ Use this skill when the user asks about:
 - Using Mix Space admin dashboard (content management, AI features, webhooks)
 - Troubleshooting Mix Space errors
 - Developing for Mix Space (backend modules, admin views, frontend themes)
-- Migrating to Mix Space (from WordPress, v11/MongoDB to v12/PostgreSQL, and the breaking changes in v13 and v14)
+- Migrating to Mix Space (from WordPress, v11/MongoDB to v12/PostgreSQL, and the breaking changes through v17; v18 preparation is not released)
 
 ## Key Facts
 
@@ -41,12 +41,14 @@ Use this skill when the user asks about:
 - Task Queue: Unified batch/bulk task management
 
 ### Response Format
-All API responses use snake_case. Arrays wrapped as `{ data: [...] }`, paginated as `{ data: [...], pagination: {...} }`.
+JSON data/meta use snake_case. Success is `{ data, meta? }`, pagination is in `meta.pagination`; errors are `{ error: { code, message, details? } }`. Streams/raw responses bypass this envelope.
 
 ### Key Environment Variables
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `JWT_SECRET` | Yes | 16-32 char string for JWT signing |
+| `JWT_SECRET` | Yes | Stable login/OAuth secret; V2 requires at least 32 characters, retain existing values |
+| `MX_ENCRYPT_KEY` | When encryption enabled | Explicit 64 hex characters; preserve the original field key |
+| `MX_SECRET_STORAGE_V2` | Staged rollout | Enable only after every replica supports new formats |
 | `SNOWFLAKE_WORKER_ID` | Yes | Unique worker ID (1 for single instance) |
 | `ALLOWED_ORIGINS` | Recommended | Comma-separated allowed domains |
 | `PG_HOST` / `PG_URL` | Yes* | PostgreSQL connection |
@@ -86,3 +88,5 @@ docker compose up -d
 - For configuration questions, reference the admin UI path (e.g., "设置 → AI → AI 设置")
 - For code questions, reference the actual file paths in the monorepo
 - When troubleshooting, start with the most common cause first
+### Version preparation
+Core v17.0.4 retains a temporary plaintext escape hatch only with encryption and V2 both disabled; existing ciphertext still requires its original key. v18 is not released. The upcoming preparation build adds `upgrade:check`, transactional `upgrade:prepare`, and file-based maintenance JWT rotation. v17.0.4 does not contain those commands. Do not invent a minimum preparation tag. Refer to `/docs/migrate/v18-preparation`. Never replace an existing key with a random one to solve a decryption error.

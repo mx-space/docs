@@ -1,0 +1,21 @@
+---
+title: v14 → v15
+description: Node.js 26 与发布包运行时要求
+---
+
+v15 将 Core、构建工具和发布包的最低运行时统一为 Node.js 26。此变更已经发布，不属于 v18 的新增破坏。
+
+## 升级前
+
+- 保存数据库、文件与原秘密的快照。
+- 官方 Docker 镜像已经包含 Node.js 26，主机无需另装 Node。
+- 源码、自定义镜像、Railway/nixpacks 及运行 CLI 的主机必须先升级到 Node.js 26；Node.js 22、24 不再受支持。
+- Node.js 26 不再内置 Corepack，需自行安装，再按仓库 `packageManager` 选择 pnpm。`@mx-space/api-client`、CLI、MongoDB 迁移 CLI 和 Webhook 包也声明 Node.js 26 要求。
+
+固定目标版本的镜像和编排文件，运行发布前 `mx-migrate`，成功后启动 app。源码部署见 [部署步骤](/docs/deploy/source)。
+
+## 验证与回退
+
+确认 `node --version`、迁移退出状态、`/api/v3/ping` 和后台登录。需要回退时使用原版本代码和兼容的数据库；涉及数据恢复时同时恢复原文件和秘密，不能仅替换镜像。
+
+[官方 v15.0.0 发布说明](https://github.com/mx-space/core/releases/tag/v15.0.0)

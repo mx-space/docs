@@ -11,7 +11,7 @@ import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 ## 要求
 
-- [Node.js](https://nodejs.org/zh-cn/) 22.12+（v14.7.0 起源码部署的最低要求）
+- [Node.js](https://nodejs.org/zh-cn/) 26+（v15 起要求；Node.js 22、24 不再支持）
 - [PostgreSQL](https://www.postgresql.org/download/) 16+
 - [Redis](https://redis.io/download)
 - [Git](https://git-scm.com/downloads)、[PNPM](https://pnpm.io/installation)、[PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)
@@ -22,8 +22,10 @@ import { Step, Steps } from 'fumadocs-ui/components/steps';
 ### 克隆并安装
 
 ```bash
-git clone https://github.com/mx-space/core.git --depth=1
+git clone https://github.com/mx-space/core.git --branch v17.0.4 --depth=1
 cd core
+npm install -g corepack
+corepack enable
 pnpm i
 ```
 </Step>
@@ -33,7 +35,6 @@ pnpm i
 
 ```bash
 pnpm build
-pnpm bundle
 ```
 </Step>
 
@@ -71,8 +72,8 @@ module.exports = {
         NODE_PATH: nodePath,
         // 必填：允许跨域的域名，多个用逗号分隔
         ALLOWED_ORIGINS: 'your-domain.com',
-        // 必填：JWT 密钥。未设置时 token 会在重启后失效（建议 16-32 个字符，运行时不做长度校验）
-        JWT_SECRET: 'your-jwt-secret',
+        // 必填：JWT 密钥。未设置时 token 会在重启后失效（V2 要求至少 32 字符；已有实例保留原值）
+        JWT_SECRET: 'REPLACE_WITH_YOUR_SAVED_INSTANCE_SECRET',
         // 必填：Snowflake worker ID，整数 0-1023。生产环境不设置会直接启动失败。
         // cluster 模式可安全使用多实例：core 会基于 NODE_APP_INSTANCE 为每个实例分配不重叠的 ID
         SNOWFLAKE_WORKER_ID: '1',
@@ -87,7 +88,15 @@ module.exports = {
 </Step>
 
 <Step>
-### 启动
+### 先迁移，再启动
+
+先为独立迁移进程配置同样的数据库、Redis、字段密钥、JWT 等环境变量（例如 `apps/core/.env`），不要只放在 PM2 的 env 对象里。已有秘密保留，新装随机生成并持久保存。仓库根运行：
+
+```bash
+pnpm -C apps/core migrate
+```
+
+确认迁移退出成功，再进入 `apps/core`：
 
 ```bash
 pm2 start ecosystem.config.cjs

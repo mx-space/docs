@@ -28,10 +28,10 @@ docker compose pull && docker compose up -d
 ```bash
 pnpm i
 pnpm build
-pnpm bundle
+pnpm -C apps/core migrate
 ```
 
-随后进入 `./apps/core`，执行以下命令启动服务：
+先确认迁移成功，并为迁移进程提供与 app 相同的数据库、字段密钥、JWT 等环境变量。随后进入 `./apps/core` 启动服务：
 
 ```bash
 pnpm prod
@@ -50,6 +50,11 @@ pm2 start ecosystem.config.cjs
 </Callout>
 
 <Cards>
+  <Card title="v18 准备（未发布）" href="/docs/migrate/v18-preparation">准备工具、凭据转换和发布边界</Card>
+  <Card title="v16 → v17" href="/docs/migrate/v16-to-v17">Agent 历史与 WebSocket 协议</Card>
+  <Card title="v15 → v16" href="/docs/migrate/v15-to-v16">BCP 47 语言标签</Card>
+  <Card title="v14 → v15" href="/docs/migrate/v14-to-v15">Node.js 26 运行时</Card>
+
   <Card
     title="v13 升级到 v14 指南"
     href="/docs/migrate/v13-to-v14"

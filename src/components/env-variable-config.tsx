@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { formatEnvVariables } from './env-variable-format.mts';
 
 export interface EnvVariable {
   key: string;
@@ -17,10 +18,7 @@ export function EnvVariableConfig({
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(() => {
-    const lines = variableNames.map((v, i) =>
-      format === 'yaml' ? `- ${v.key}=${values[i]}` : `${v.key}=${values[i]}`,
-    );
-    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    navigator.clipboard.writeText(formatEnvVariables(variableNames, values, format)).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });

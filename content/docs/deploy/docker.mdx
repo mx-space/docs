@@ -36,17 +36,19 @@ docker-compose -v
 ## 拉取编排文件 [step]
 
 <Callout title="对于旧版本升级请注意！" type="warn">
-自 v12 起 Core 已从 MongoDB 迁移到 PostgreSQL，编排文件中不再有 mongo 服务。当前版本（v14）的 `docker-compose.yml` 由 `app`、`mx-migrate`、`postgres`、`redis` 四个服务组成。
+自 v12 起 Core 已从 MongoDB 迁移到 PostgreSQL，编排文件中不再有 mongo 服务。当前 v17 的 `docker-compose.yml` 由 `app`、`mx-migrate`、`postgres`、`redis` 四个服务组成。
 </Callout>
 
 ```bash
 cd && mkdir -p mx-space/core && cd $_
  
 # 拉取 docker-compose.yml 文件（全球）
-wget https://fastly.jsdelivr.net/gh/mx-space/core@master/docker-compose.yml
+wget https://fastly.jsdelivr.net/gh/mx-space/core@v17.0.4/docker-compose.yml
 # 拉取 docker-compose.yml 文件（Gh-Proxy 全球）
-wget "https://gh-proxy.org/https://github.com/mx-space/core/blob/master/docker-compose.yml"
+wget "https://gh-proxy.org/https://github.com/mx-space/core/blob/v17.0.4/docker-compose.yml"
 ```
+本文固定已发布的 v17.0.4 编排。下载后把 app 和 mx-migrate 两处镜像都固定为 `innei/mx-server:17.0.4`，不要让一方使用 latest。未来准备工具尚未包含在该镜像，见 [v18 准备说明](/docs/migrate/v18-preparation)。
+
 ## 配置环境变量 [step]
 
 我们需要正确配置环境变量，打开获取到的`docker-compose.yml`文件。
@@ -71,15 +73,15 @@ x-mx-env: &mx-env
 ```
 
 <Callout type="warn">
-`SNOWFLAKE_WORKER_ID` 是必填项（`0-1023` 的整数），生产环境缺失会导致 mx-core 直接启动失败。官方文件里的默认值是 `'1'`。另外 `mx-migrate` 也会引用同一个 `*mx-env` 块并跑完整的 Nest 上下文，所以这里改了迁移步骤也会同步生效——**不要只给 `app` 服务单独加变量**。
+`SNOWFLAKE_WORKER_ID` 是必填项（`0-1023` 的整数），生产环境缺失会导致 mx-core 直接启动失败。官方文件里的默认值是 `'1'`。另外 `mx-migrate` 也会引用同一个 `*mx-env` 块执行独立发布前迁移，所以这里改了迁移步骤也会同步生效——**不要只给 `app` 服务单独加变量**。
 </Callout>
 
 ### 配置生成
 
-在下方的组件中填入配置，点击复制后粘贴到 `docker-compose.yml` 的 `x-mx-env` 块中，覆盖 `JWT_SECRET` 和 `ALLOWED_ORIGINS` 的值，如果需要开启加密功能，请添加并将 `ENCRYPT_ENABLE` 的值改为 `true`，并填入 `ENCRYPT_KEY`。
+在下方的组件中填入配置，点击复制后粘贴到 `docker-compose.yml` 的 `x-mx-env` 块中，覆盖 `JWT_SECRET` 和 `ALLOWED_ORIGINS` 的值，如果需要开启加密功能，请添加并将 `ENCRYPT_ENABLE` 的值改为 `true`，并填入原 `ENCRYPT_KEY`；从未加密的新实例才用 `openssl rand -hex 32` 生成并持久保存。复制内容是 YAML 映射，所有值按字符串引用，美元符号按 Compose 规则转义。
 
 <Callout type="warn">
-注意：只要设置了 `ENCRYPT_KEY`（或 `MX_ENCRYPT_KEY`）而没有显式设 `ENCRYPT_ENABLE=false`，加密就会被**隐式开启**。如果暂时只想把密钥填进去而暂不加密，必须显式写 `ENCRYPT_ENABLE: false`。
+注意：只要设置了 `ENCRYPT_KEY`（或 `MX_ENCRYPT_KEY`）而没有显式设 `ENCRYPT_ENABLE=false`，加密就会被**隐式开启**。如果暂时只想把密钥填进去而暂不加密，必须显式写 `ENCRYPT_ENABLE: 'false'`。
 </Callout>
 
 <EnvVariableConfig
@@ -88,7 +90,7 @@ x-mx-env: &mx-env
   variableNames={[
     {
       key: 'JWT_SECRET',
-      name: '[JWT 密钥] 长度 16-32 个字符',
+      name: '[JWT 密钥] 至少 32 字符，已有实例保留原值',
     },
     {
       key: 'ALLOWED_ORIGINS',
@@ -100,7 +102,7 @@ x-mx-env: &mx-env
     },
     {
       key: 'ENCRYPT_KEY',
-      name: '[加密密钥] 开启加密时必填',
+      name: '[加密密钥] 开启时必填：64 位十六进制',
     },
   ]}
 />
@@ -112,7 +114,7 @@ x-mx-env: &mx-env
   type={{
     'JWT 密钥': {
       description:
-        '用于签发用户 JWT，务必保存好不要泄露。运行时不做长度校验，但建议使用 16-32 个字符。未设置时 token 会在服务重启后全部失效。',
+        '用于签发用户 JWT，务必保存好不要泄露。V2 要求至少 32 字符；已有 JWT 不要直接更换，短值需要维护轮换。',
       type: 'string',
     },
     '被允许的域名': {
@@ -127,11 +129,13 @@ x-mx-env: &mx-env
     },
     '加密密钥': {
       description:
-        '开启加密后必填，必须正好 64 位，否则启动即报错。推荐用 openssl rand -hex 32 生成（产出 64 位小写 hex）。未提供时服务端会用 machine-id 派生。此操作不可逆，请谨慎。',
+        '开启加密后必填，必须正好 64 位，否则启动即报错。推荐用 openssl rand -hex 32 生成（产出 64 位小写 hex）。必须显式配置，不依赖 machine-id。已有实例保留原密钥，新实例随机生成并单独保存。',
       type: 'string',
     },
   }}
 />
+
+开启 V2 前确认全部副本支持新格式，JWT 至少 32 字符，再在共享块设置 `MX_SECRET_STORAGE_V2: 'true'`。历史实例还需要凭据回填，不能只切开关。
 
 ### 启动服务
 

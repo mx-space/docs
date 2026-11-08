@@ -1,0 +1,23 @@
+---
+title: v16 → v17
+description: 服务端 Agent 会话与新 WebSocket 协议
+---
+
+v17 将编辑器 AI Agent 的完整 transcript 放到服务端，后台与服务端改用新的 WebSocket 消息形状。
+
+<Callout type="warn">
+发布迁移会重建 Agent 会话表，清空升级前的 Agent 历史对话。旧对话无法带入新协议。此项属于 v17，不能在 v18 升级说明中再次当作新破坏。
+</Callout>
+
+## 操作顺序
+
+1. 备份数据库、文件与原秘密，确认可以接受旧 Agent 对话清空。
+2. 固定 v17 的镜像与匹配编排，让发布前 `mx-migrate` 完成。
+3. 一起部署 Core 和同版本内置 Admin，刷新原先打开的后台标签页；独立旧 Admin 不兼容新 Agent 协议。
+4. 验证登录、新建 Agent 对话、重新打开历史、工具调用和修改建议恢复。
+
+文章、评论等业务内容不属于该会话表清空范围。回退到旧 Agent 协议需要升级前完整快照；只回退镜像不能找回已清空的对话。
+
+v17.0.4 修复了关闭加密时普通配置写入失败的兼容问题；这是临时逃生口，见 [数据加密](/docs/configure/encryption)。下一阶段见 [v18 准备](/docs/migrate/v18-preparation)。
+
+[官方 v17.0.0 发布说明](https://github.com/mx-space/core/releases/tag/v17.0.0)
