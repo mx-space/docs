@@ -62,7 +62,7 @@ cluster 模式下可安全使用多实例：服务端会基于 `NODE_APP_INSTANC
 | `ENCRYPT_KEY` | 开启时必须显式提供 64 位十六进制字段密钥 | 无可用默认密钥 | `openssl rand -hex 32` |
 | `MX_ENCRYPT_KEY` | `ENCRYPT_KEY` 的别名，**优先于** `ENCRYPT_KEY` | 同上 | - |
 | `MX_ENCRYPT_ENABLE` | `ENCRYPT_ENABLE` 的别名，**优先于** `ENCRYPT_ENABLE` | 同上 | - |
-| `ENCRYPT_ALGORITHM` | 旧格式算法；V2 固定 AES-256-GCM | `aes-256-ecb` | `aes-256-ecb` |
+| `ENCRYPT_ALGORITHM` | v17 旧格式算法；V2 固定 AES-256-GCM。v18 已删除此项，保留会报错 | `aes-256-ecb`（仅 v17） | `aes-256-ecb`（仅 v17） |
 | `MX_SECRET_STORAGE_V2` | V2 凭据写入；要求启用加密、JWT 至少 32 字符，全部副本兼容后才启用 | `false` | `true` |
 | `MX_MIGRATE_SECRETS` | 旧凭据回填的一次性迁移开关，不放入常驻 app 环境；不等于 v18 准备完成 | 未开启 | `1` |
 | `ADMIN_UPDATE_S3_BASE_URL` | 后台更新包（`latest.json` + `admin-<version>.zip`）的下载源 | `https://admin-r2.innei.dev` | - |

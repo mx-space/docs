@@ -33,8 +33,11 @@ v18 尚未发布。本开发分支已移除非加密运行和旧格式写入，�
 - `MX_ENCRYPT_KEY` 或 `ENCRYPT_KEY` 必须是显式的 64 位十六进制密钥；不再回退到机器 ID，也不再派生短密钥。只有从未加密的新实例才用 `openssl rand -hex 32` 生成首个字段密钥并持久保存。
 - `JWT_SECRET`（别名 `JWTSECRET`）至少 32 字符；已有短 JWT 必须先按下方维护流程轮换。
 - 旧开关的 `true` 值暂接受并提示删除；`false` 或其他无效值会阻止启动，check 报告 `DEPRECATED_ENCRYPTION_FLAG`。它们不再控制运行模式。
-- 配置、Snippet 和 Webhook 固定认证加密，API Key 固定哈希，OAuth 固定加密；历史明文和 ECB 仍可读取并显式迁移。`ENCRYPT_ALGORITHM` 只用于历史读取。
+- 配置、Snippet 和 Webhook 新写入固定 AES-256-GCM，使用随机 96 位 nonce、128 位认证标签，并以 AAD 绑定所属字段；API Key 固定哈希，OAuth 固定加密。历史明文和默认 AES-256-ECB 仍可读取并迁移。
+- **破坏性变更**：删除 `ENCRYPT_ALGORITHM`、命令行 `--encrypt_algorithm` 和 YAML `encrypt_algorithm`。保留旧项会报错，即使填旧默认值、`aes-256-gcm` 或空环境变量也不接受；应删除配置项。环境变量检查报告 `REMOVED_ENCRYPTION_OPTION`。
 - app 与 mx-migrate 使用相同且持久保存的密钥。字段加密必填不影响 ZIP 备份和历史归档读取；备份加密仍由独立设置控制。
+
+历史字段解密固定为旧默认 AES-256-ECB。曾使用其他旧算法的实例，必须先在旧版本中使用原密钥和原算法将相关凭据转换为 V2，并验证凭据可用后再升级。删除配置项不会转换自定义算法密文。原算法和密钥仍须随旧快照单独保管，以便在隔离的旧版本环境恢复。
 
 源码工作区中的命令（需要本分支代码和已完成 schema 迁移的数据库）：
 

@@ -35,6 +35,8 @@ openssl rand -hex 32
 
 V2 字段密文绑定字段路径；不能把密文直接搬到另一个字段。旧明文和 ECB 保留读取与迁移能力。`ENCRYPT_ALGORITHM` 默认 `aes-256-ecb`，供旧格式使用；V2 固定使用 AES-256-GCM。
 
+未发布的 v18 开发分支已删除 `ENCRYPT_ALGORITHM`、`--encrypt_algorithm` 和 YAML `encrypt_algorithm`，新写入固定 AES-256-GCM。旧项即使填默认值也会报错，应删除；历史读取固定为 AES-256-ECB。使用其他历史算法的实例须先在旧版本用原密钥和原算法转换为 V2 并验证，再升级；详见 [v18 准备说明](/docs/migrate/v18-preparation)。
+
 滚动部署时，先让全部副本具备新格式读取能力，再在全部副本启用 V2，最后回填旧数据。旧 `migrate:secrets` 完成记录仅代表该次凭据回填，不代表已完成未来 v18 的配置与指标准备。新准备工具尚未发布，见 [准备流程](/docs/migrate/v18-preparation)。
 
 ## v17.0.4 临时明文逃生口
