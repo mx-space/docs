@@ -7,7 +7,7 @@ description: 所有环境变量的完整说明
   如果你不确定某个变量的作用，保持默认值即可。
 </Callout>
 
-以下默认行为固定已发布的 Core v17.0.4。未发布的 v18 开发分支已强制字段加密和 V2 写入，字段密钥与至少 32 字符的 JWT 必填；旧关闭配置须删除，见 [v18 准备说明](/docs/migrate/v18-preparation)。
+以下默认行为固定已发布的 Core v17.0.4。未发布的 v18 开发分支已强制字段加密和 V2 写入，生产环境须提供显式字段密钥，源码 dev 可自动生成并持久保存本地密钥；JWT 至少 32 字符，旧关闭配置须删除，见 [v18 准备说明](/docs/migrate/v18-preparation)。
 
 以下环境变量适用于 Mix Space Core 后端服务。Docker 用户在 `docker-compose.yml` 顶部的 `x-mx-env` 锚点中设置；源码用户在 `.env` 或 `ecosystem.config.cjs` 中设置。
 
