@@ -26,7 +26,7 @@ v18 尚未发布。本开发分支已移除非加密运行和旧格式写入，�
 2. 取得包含工具的构建，先不要启动业务副本。独立工具读取 `PG_URL` / `PG_CONNECTION_STRING` 或 `PG_*`、字段密钥和 JWT；业务进程用 CLI/YAML 配置时，也要提供等效环境变量。先用 check 诊断现有配置。
 3. JWT 不足 32 字符时先执行下方维护轮换。不要直接改环境变量，否则现有 OAuth token 可能无法解密。
 4. 删除旧加密开关，保存原有效字段密钥与符合要求的 JWT。**先停止全部旧副本和后台写入者**，再使用本构建运行 `node migrate.mjs`（源码为 `pnpm -C apps/core migrate`）。配置转换是必跑的发布前数据迁移，无需额外开关；失败阻止新服务启动，成功才记录 `20261109-canonical-config`。这一步需要维护窗口，不能让旧版在迁移后继续写回旧结构。
-5. 继续 check、dry-run、正式 prepare，完成凭据和指标准备后再启动新业务副本，验证原 API Key、OAuth、配置消费与 AI 指标。Compose 中 app 与 mx-migrate 必须使用同一构建与秘密。
+5. 同一个 migrate 还会回填 AI 指标，并必跑 `20261109-required-secret-storage`，完成 Snippet/Webhook 加密、API Key 哈希和 OAuth 加密。迁移成功后运行 check，再启动新业务副本，验证原 API Key、OAuth、配置消费与 AI 指标。Compose 中 app 与 mx-migrate 必须使用同一构建与秘密。
 
 ### 启动配置与旧开关
 
@@ -40,18 +40,17 @@ v18 尚未发布。本开发分支已移除非加密运行和旧格式写入，�
 
 ```bash
 pnpm -C apps/core upgrade:check --json
-pnpm -C apps/core upgrade:prepare --all-replicas-v2 --dry-run
-pnpm -C apps/core upgrade:prepare --all-replicas-v2
+pnpm -C apps/core migrate
 pnpm -C apps/core upgrade:check --json
 ```
 
-构建产物中使用 `node upgrade.mjs check --json`、`node upgrade.mjs prepare --all-replicas-v2 --dry-run` 和正式 prepare。在包含该入口的镜像中，可使用 `docker compose run --rm --no-deps app node upgrade.mjs check --json` 启动独立检查；数据库需已运行。该进程不启动 HTTP、业务定时任务或 Redis。当前分支的 Compose 会先校验密钥和 JWT 非空；诊断缺失配置时使用源码命令或直接 `docker run`，避免先被 Compose 拦截。
+构建产物中用 `node migrate.mjs` 运行正式迁移，用 `node upgrade.mjs check --json` 检查结果。在包含该入口的镜像中，可使用 `docker compose run --rm --no-deps app node upgrade.mjs check --json` 启动独立检查；数据库需已运行。该检查进程不启动 HTTP、业务定时任务或 Redis。当前分支的 Compose 会先校验密钥和 JWT 非空；诊断缺失配置时使用源码命令或直接 `docker run`，避免先被 Compose 拦截。
 
-`check` 退出码：`0` 为 ready，`2` 为 needs-action，`1` 为检查失败。它只读，输出计数和路径，不输出秘密。空库可识别为新装，不要求历史准备标记；历史实例须完成实际转换。
+`check` 退出码：`0` 为 ready，`2` 为 needs-action，`1` 为检查失败。它只读，输出计数和路径，不输出秘密。空库可识别为新装；历史实例须完成规范配置迁移并通过实际数据检查，没有单独准备标记。
 
-`--all-replicas-v2` 是操作者对全部副本状态的明确确认，工具不能自动检查集群。prepare 持有数据库锁，与正常配置 PATCH 串行；按原路径解密，再转换配置、重新加密、哈希旧 API Key、封装 OAuth 并补齐指标。原 API Key 字符串保持有效。dry-run 在事务内演练后回滚，`would-be-ready` 不代表数据库已经准备完成。
+所有回填都属于正式发布迁移，无需独立 prepare、dry-run 或凭据迁移开关。配置迁移持有数据库锁，与正常配置 PATCH 串行；按原路径解密，再转换配置并按新路径加密。凭据迁移哈希旧 API Key、封装 OAuth 并加密 Snippet/Webhook，原 API Key 字符串保持有效。新的 v18 凭据迁移有独立账本 ID，历史 opt-in 凭据迁移记录不会使本次回填被跳过。
 
-只有全部残留检查通过才记录准备标记。损坏密文、未知配置形状、错误字段密钥或 JWT 都会失败并回滚。准备完成后重启副本淘汰旧配置缓存，不清空所有 Redis 状态。旧 `migrate:secrets` 账本不能替代此检查。
+每条迁移成功后才记录完成，损坏密文、未知配置形状、错误字段密钥或 JWT 会使对应批次失败并回滚，阻断发布。先前成功的迁移保留账本，重试时自动跳过；重复执行不会重复哈希 API Key 或轮换已加密 token。迁移和检查完成后启动新副本，不清空所有 Redis 状态。
 
 ## 配置一次性迁移
 
@@ -59,7 +58,7 @@ pnpm -C apps/core upgrade:check --json
 
 普通启动、读取和 PATCH 不再转换旧结构，也不再返回独立 `imageGenerationOptions` / `ttsOptions` 分区。旧分区读写返回 `CONFIG_NOT_FOUND`；未知或旧字段返回 `CONFIG_VALIDATION_FAILED`，不会静默忽略。部分更新、空秘密保留原值，以及 record / 自由 JSON 参数仍有效。
 
-数据库缺少配置迁移记录时，新服务拒绝初始化配置并提示运行发布迁移。转换器只保留在发布迁移与离线准备工具中，供历史数据升级；旧归档仍按下方隔离恢复流程处理。
+数据库缺少配置迁移记录时，新服务拒绝初始化配置并提示运行发布迁移。转换器只保留在发布迁移与只读检查中，供历史数据升级；旧归档仍按下方隔离恢复流程处理。
 
 规范凭据为空时保留已有旧凭据；新旧值都非空且不同时，报告 `CONFIG_SECRET_CONFLICT` 与字段路径，配置迁移整批回滚。先在旧实例或隔离维护环境核对并明确解决冲突，再重跑迁移；不要尝试启动新服务后通过旧字段 PATCH 修复。错误密钥、损坏密文和不支持的配置形状同样阻塞迁移，不写完成记录。
 
@@ -83,6 +82,6 @@ pnpm -C apps/core upgrade:rotate-jwt --maintenance-confirmed --old-jwt-file /sec
 
 回退最低版本须是经过实测的准备版，当前发布 tag 尚未确定。回退代码不会回退 schema；回到更老版本必须有旧快照和当时的秘密。
 
-当前恢复工具没有 v18 隔离预检闭环。历史 ZIP 或 v1 加密归档应先在隔离的准备版环境中恢复，用归档当时的字段密钥、JWT、恢复私钥完成 check / prepare，再验证并安排未来 v18 切换；不要把未准备数据直接交给 v18 业务。数据库恢复和文件恢复是两个阶段，保留恢复前快照。
+当前恢复工具没有 v18 隔离预检闭环。历史 ZIP 或 v1 加密归档应先在隔离维护环境中恢复，用归档当时的字段密钥、JWT、恢复私钥完成 migrate 和 check，再验证并安排未来 v18 切换；不要把未迁移数据直接交给 v18 业务。数据库恢复和文件恢复是两个阶段，保留恢复前快照。
 
 配置字段类型已经按新结构同步到本分支的 API Client。旧 `githubToken` 和 `smtp.options` 调用须改为嵌套 GitHub 配置与平铺 SMTP 字段；这是配套大版本契约，不能将该类型删除作为 SDK 5.x patch 发布。
