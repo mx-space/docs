@@ -1,0 +1,22 @@
+---
+title: v15 → v16
+description: 语言代码切换为 BCP 47 标签
+---
+
+v16 的存储、AI 设置与 API 输出统一使用 `zh-CN`、`zh-TW`、`en-US`、`ja-JP` 等 BCP 47 标签。繁体中文可以独立作为翻译目标。
+
+## 受影响的调用
+
+旧的 `zh`、`en`、`ja` 应迁为相应语言标签；`jp`、`cn`、`english` 等别名不再接受。`tw` 表示阿坎语，不能代替 `zh-TW`。客户端比较 `sourceLang`、`availableTranslations` 和 `targetLang` 时，应按语言与文字系统匹配，避免只比较旧的短代码。
+
+`@mx-space/ai` 1.x 移除了 `normalizeLanguageCode`、`normalizeTargetLang`，改用 `canonicalizeLanguageTag`、`assertLanguageTag`、`matchLanguage`。Core 与适配后的 Yohaku 网页、移动端一起部署；其他主题先确认支持这些标签。
+
+## 迁移与验证
+
+备份后让发布前迁移 `0047_language_tag_bcp47` 完成，再切换业务副本。同一文章的新旧标签冲突时保留最近写入的记录；无法映射的值保持原样，并输出 `RAISE NOTICE`，需要检查处理。
+
+验证翻译目标、语言列表、摘要、精读、搜索和朗读。`en-GB` 可匹配 `en-US`，`zh-HK` 可匹配 `zh-TW`。没有繁体摘要时不再用简体摘要替代。
+
+迁移没有 down；只回退代码不会恢复旧标签或被合并的行。需要完整回退数据时使用升级前快照和原秘密。
+
+[官方 v16.0.0 发布说明](https://github.com/mx-space/core/releases/tag/v16.0.0)

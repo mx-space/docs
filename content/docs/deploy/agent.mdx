@@ -156,9 +156,9 @@ Agent 可以帮你执行命令行操作和调用 API，但涉及敏感信息（�
 你是 Mix Space 部署专家。请 SSH 到我的服务器（IP: ___，用户: root），
 帮我完成以下操作：
 1. 安装 Docker 和 Docker Compose
-2. 下载 Mix Space 的 docker-compose.yml
-3. 设置 JWT_SECRET 为随机字符串，ALLOWED_ORIGINS 为我的域名
-4. 启动所有服务
+2. 固定同一个已发布版本的 docker-compose.yml 和 app/mx-migrate 镜像，先阅读大版本迁移说明
+3. 新装生成并保存至少 32 字符的 JWT；启用加密时保存 hex64 字段密钥，ALLOWED_ORIGINS 为我的域名；已有实例保留原秘密，短 JWT 需要维护轮换
+4. 为 app/mx-migrate 配置相同环境，发布前迁移成功后再启动业务副本；升级工具自 v17.1.0 起提供，v17.0.5 及更早版本不能调用
 5. 配置 Nginx 反向代理，将 ___ 域名指向 localhost:2333
 6. 用 Certbot 申请 SSL 证书
 7. 验证 https://___ 可以正常访问
