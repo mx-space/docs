@@ -1,24 +1,24 @@
 ---
-title: v18 准备（未发布）
-description: 本开发分支已强制加密，部署前检查凭据、配置和 AI 指标
+title: v17 → v18
+description: v18 强制加密，部署前检查凭据、配置和 AI 指标
 ---
 
 <Callout type="warn">
-v18 尚未发布。本开发分支已移除非加密运行和旧格式写入，生产启动必须提供显式字段密钥与至少 32 字符的 JWT。源码 dev 可自动生成本地字段密钥，见下方说明。Core v17.1.0 起提供 `upgrade:check`、`upgrade:prepare` 与 `upgrade:rotate-jwt`，v17.0.5 及更早版本不包含它们。v18 构建保留 check 与 rotate-jwt，回填并入发布迁移。请从 v17.1.0 升级；SDK、CLI 和主题的最低版本会在实际发布验证后补齐。
+Core v18 自 18.0.1 起可用，18.0.0 未发布镜像。v18 已移除非加密运行和旧格式写入，生产启动必须提供显式字段密钥与至少 32 字符的 JWT。源码 dev 可自动生成本地字段密钥，见下方说明。Core v17.1.0 起提供 `upgrade:check`、`upgrade:prepare` 与 `upgrade:rotate-jwt`，v17.0.5 及更早版本不包含它们。v18 构建保留 check 与 rotate-jwt，回填并入发布迁移。请从 v17.1.0 升级；SDK、CLI 和主题的最低版本会在实际发布验证后补齐。
 </Callout>
 
 ## 计划改变什么
 
 | 范围 | 当前 v17 | v18 计划 |
 | --- | --- | --- |
-| 凭据写入 | v17.0.4 可分阶段启用 V2，有临时明文逃生口 | **本开发分支已生效**：生产显式 hex64 字段密钥、dev 可自动生成本地密钥；JWT 至少 32 字符、固定 V2；旧关闭配置报错 |
+| 凭据写入 | v17.0.4 可分阶段启用 V2，有临时明文逃生口 | **v18 已生效**：生产显式 hex64 字段密钥、dev 可自动生成本地密钥；JWT 至少 32 字符、固定 V2；旧关闭配置报错 |
 | 普通摘要、精读 GET | 可能隐式生成 | 只读，无结果 `data: null`；生成显式触发 |
 | 非流式执行入口 | 旧 GET 可用 | 备份、清缓存、测试邮件与速记表态用 POST；GET SSE 保留 |
-| 配置与参数 | v17 保留旧配置、排序与别名兼容 | **本分支已生效**：发布前迁移旧配置，正常服务只认新结构，PATCH 拒绝未知声明字段；数字排序和评论别名移除仍在后续阶段 |
+| 配置与参数 | v17 保留旧配置、排序与别名兼容 | **v18 已生效**：发布前迁移旧配置，正常服务只认新结构，PATCH 拒绝未知声明字段；数字排序和评论别名移除仍在后续阶段 |
 | AI 元数据 | 旧响应字段保留 | 统一 generationMetrics，后续才删除旧列与旧响应字段 |
 | SDK | 5.x 兼容版先转换请求 | 协调 SDK 6.x；保留 legacy 入口与 CLI V2 响应适配 |
 
-加密强制、旧配置迁移和配置严格校验已在本分支实现；其余最终破坏仍分阶段推进。当前继续支持旧 GET 和 SDK 5.x 签名，不改变普通 AI GET 的既有行为，不删除物理列。API `/api/v3`、snake_case、成功/错误 envelope 和 SSE 帧协议保持。
+加密强制、旧配置迁移和配置严格校验已在 v18 实现；其余最终破坏仍分阶段推进。当前继续支持旧 GET 和 SDK 5.x 签名，不改变普通 AI GET 的既有行为，不删除物理列。API `/api/v3`、snake_case、成功/错误 envelope 和 SSE 帧协议保持。
 
 ## 准备顺序
 
@@ -45,7 +45,7 @@ dev 未提供字段密钥时，首次启动自动生成随机密钥，以仅所�
 
 本地密钥须和开发数据库一同保留；删除 `tmp` 也会删除它。生产构建不会生成或读取这个默认密钥，即使设置 `NODE_ENV=development`。独立升级检查仍读取环境配置；检查开发库或将它迁到生产前，须显式配置原本地密钥，不能重新生成。
 
-源码工作区中的命令（需要本分支代码和已完成 schema 迁移的数据库）：
+源码工作区中的命令（需要 v18 代码和已完成 schema 迁移的数据库）：
 
 ```bash
 pnpm -C apps/core upgrade:check --json
@@ -53,7 +53,7 @@ pnpm -C apps/core migrate
 pnpm -C apps/core upgrade:check --json
 ```
 
-构建产物中用 `node migrate.mjs` 运行正式迁移，用 `node upgrade.mjs check --json` 检查结果。在包含该入口的镜像中，可使用 `docker compose run --rm --no-deps app node upgrade.mjs check --json` 启动独立检查；数据库需已运行。该检查进程不启动 HTTP、业务定时任务或 Redis。当前分支的 Compose 会先校验密钥和 JWT 非空；诊断缺失配置时使用源码命令或直接 `docker run`，避免先被 Compose 拦截。
+构建产物中用 `node migrate.mjs` 运行正式迁移，用 `node upgrade.mjs check --json` 检查结果。在包含该入口的镜像中，可使用 `docker compose run --rm --no-deps app node upgrade.mjs check --json` 启动独立检查；数据库需已运行。该检查进程不启动 HTTP、业务定时任务或 Redis。Compose 会先校验 JWT 非空，字段密钥缺失由迁移进程报告；诊断缺失配置时使用源码命令或直接 `docker run`，避免先被 Compose 拦截。
 
 `check` 退出码：`0` 为 ready，`2` 为 needs-action，`1` 为检查失败。它只读，输出计数和路径，不输出秘密。空库可识别为新装；历史实例须完成规范配置迁移并通过实际数据检查，没有单独准备标记。
 
@@ -102,4 +102,4 @@ pnpm -C apps/core upgrade:rotate-jwt --maintenance-confirmed --old-jwt-file /sec
 
 当前恢复工具没有 v18 隔离预检闭环。历史 ZIP 或 v1 加密归档应先在隔离维护环境中恢复，用归档当时的字段密钥、JWT、恢复私钥完成 migrate 和 check，再验证并安排未来 v18 切换；不要把未迁移数据直接交给 v18 业务。数据库恢复和文件恢复是两个阶段，保留恢复前快照。
 
-配置字段类型已经按新结构同步到本分支的 API Client。旧 `githubToken` 和 `smtp.options` 调用须改为嵌套 GitHub 配置与平铺 SMTP 字段；这是配套大版本契约，不能将该类型删除作为 SDK 5.x patch 发布。
+配置字段类型已按新结构同步到 API Client 源码，将随 SDK 6 发布。旧 `githubToken` 和 `smtp.options` 调用须改为嵌套 GitHub 配置与平铺 SMTP 字段；这是配套大版本契约，不能将该类型删除作为 SDK 5.x patch 发布。
