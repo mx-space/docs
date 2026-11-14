@@ -75,7 +75,14 @@ pnpm -C apps/core upgrade:check --json
 
 ## 维护窗口轮换 JWT
 
-先停止全部业务副本、后台任务和其他写入者。将原 JWT 和至少 32 字符的新 JWT 放在两个仅操作者可读的文件中，不把秘密值放在命令行或聊天记录里：
+先停止全部业务副本、后台任务和其他写入者。将原 JWT 和至少 32 字符的新 JWT 放在两个仅操作者可读的文件中，不把秘密值放在命令行或聊天记录里。新 JWT 用随机源生成，下例产出 64 个字符；文件末尾的单个换行会被工具忽略，原 JWT 请用编辑器写入文件：
+
+```bash
+umask 077
+openssl rand -hex 32 > /secure/new-jwt
+```
+
+随后执行轮换：
 
 ```bash
 pnpm -C apps/core upgrade:rotate-jwt --maintenance-confirmed --old-jwt-file /secure/old-jwt --new-jwt-file /secure/new-jwt
